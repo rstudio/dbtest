@@ -76,8 +76,6 @@ test_database <- function(databases, configuration =  "default"){
 
   Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
 
-  print(tally(group_by(results, res)))
-
   new_results
 }
 
