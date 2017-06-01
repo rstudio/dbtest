@@ -29,7 +29,7 @@ run_script <- function(connection_name){
     PWD = db$PWD,
     Port = db$Port)
 
-  results <- testthat::test_dir("tests", reporter = "minimal")
+  results <- testthat::test_dir(file.path(system.file( package = "dbtest"), "tests"), reporter = "minimal")
 
   DBI::dbDisconnect(con)
 
