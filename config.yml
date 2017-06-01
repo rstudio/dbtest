@@ -1,0 +1,60 @@
+default:
+  hive:
+    Driver: "hive"
+    server: "ec2-52-35-222-37.us-west-2.compute.amazonaws.com"
+    Schema: "default"
+    UID: "rstudio"
+    PWD: "rstudio"
+    port: 10000
+  impala:
+    Driver: "impala"
+    server: "ec2-52-35-222-37.us-west-2.compute.amazonaws.com"
+    Schema: "default"
+    UID: "rstudio"
+    PWD: "rstudio"
+    port: 21050
+  postgresql:
+    Driver: "postgresql"
+    server: "sol-eng-postgre.cihykudhzbgw.us-west-2.rds.amazonaws.com"
+    port: 5432
+    Database: "airontime"
+    UID: "rstudioadmin"
+    PWD: "ABCd4321"
+  mssql:
+    Driver: "SQL Server Driver"
+    Server: "sol-eng-sqlserv.cihykudhzbgw.us-west-2.rds.amazonaws.com"
+    Database: "airontime"
+    UID: "rstudioadmin"
+    PWD: "ABCd4321"
+    Port: 1433
+edgar:
+  hive:
+    Driver: "hive"
+    server: "127.0.0.1"
+    Schema: "default"
+    UID: "cloudera"
+    PWD: "cloudera"
+    port: 10000
+  impala:
+    Driver: "impala"
+    server: "127.0.0.1"
+    Schema: "default"
+    UID: "cloudera"
+    PWD: "cloudera"
+    port: 21050
+  postgresql:
+    Driver: "postgresql"
+    server: "sol-eng-postgre.cihykudhzbgw.us-west-2.rds.amazonaws.com"
+    port: 5432
+    Database: "airontime"
+    UID: "rstudioadmin"
+    PWD: "ABCd4321"
+  mssql:
+    Driver: "sqlserver"
+    Server: "sol-eng-sqlserv.cihykudhzbgw.us-west-2.rds.amazonaws.com"
+    Database: "airontime"
+    UID: "rstudioadmin"
+    PWD: "ABCd4321"
+    Port: 1433
+                             
+
