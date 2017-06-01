@@ -1096,7 +1096,7 @@ test_that("pmax()",{
 
 
 
-DBI::dbSendQuery(con, paste0("DROP TABLE ", table_name))
+#DBI::dbSendQuery(con, paste0("DROP TABLE ", table_name))
 
 
 
