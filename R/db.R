@@ -1,18 +1,17 @@
-
 #' @export
 test_data <- function(){
   data <- dbtest::testdata
-  data$fld_datetime <- as.POSIXct(strptime(data$fld_datetime, "%m/%d/%y %H:%M"))
-  data$fld_date <- as.POSIXct(strptime(data$fld_date, "%m/%d/%y"))
-  data$fld_time <- as.POSIXct(strptime(data$fld_time, "%H:%M:%S"))
+  #data$fld_datetime <- as.POSIXct(strptime(data$fld_datetime, "%m/%d/%y %H:%M"))
+  #data$fld_date <- as.POSIXct(strptime(data$fld_date, "%m/%d/%y"))
+  #data$fld_time <- as.POSIXct(strptime(data$fld_time, "%H:%M:%S"))
   data$fld_double <- as.double(data$fld_double)
   data$fld_character <- as.character(data$fld_character)
-  data$fld_logical <- as.logical(data$fld_logical)
+  #data$fld_logical <- as.logical(data$fld_logical)
   data
 }
 
 
-
+#' @import pracma
 #' @export
 run_script <- function(connection_name){
 
@@ -22,12 +21,15 @@ run_script <- function(connection_name){
     odbc::odbc(),
     Driver = db$Driver,
     Server = db$Server,
+    Host = db$Host,
+    SVC = db$SVC,
     Database = db$Database,
+    Schema = db$Schema,
     UID  = db$UID,
     PWD = db$PWD,
     Port = db$Port)
 
-  results <- testthat::test_dir("tests")
+  results <- testthat::test_dir("tests", reporter = "minimal")
 
   DBI::dbDisconnect(con)
 
@@ -37,7 +39,7 @@ run_script <- function(connection_name){
 #' @import dplyr
 #' @import purrr
 #' @export
-test_database <- function(databases, configuration =  NULL){
+test_database <- function(databases, configuration =  "default"){
 
   original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
   if(is.null(configuration)==FALSE) Sys.setenv(R_CONFIG_ACTIVE = configuration)
@@ -45,8 +47,6 @@ test_database <- function(databases, configuration =  NULL){
 
   all_results <- databases %>%
     map(function(.x)run_script(.x))
-
-
 
   text_results <- 1:length(databases) %>%
     map(function(x){
@@ -63,8 +63,6 @@ test_database <- function(databases, configuration =  NULL){
   new_results <- all_results %>%
     map(as.data.frame)
 
-
-
   new_results <- 1:length(databases) %>%
     map(function(.x)mutate(new_results[[.x]],
                            database = databases[.x],
@@ -78,8 +76,81 @@ test_database <- function(databases, configuration =  NULL){
 
   Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
 
+  print(tally(group_by(results, res)))
+
   new_results
 }
+
+
+print_result <- function(record, id){
+  list(
+    tags$h3(tags$strong(paste0(id,  " - " , record$database, " - Test: ", record$test ))),
+    tags$table(
+      tags$tr(
+        tags$td(tags$strong("")),
+        tags$td(tags$strong("File:")),
+        tags$td(record$file),
+        tags$td(tags$strong("Result:"),
+                if(record$failed == 0){
+                  paste0("Passed", if(record$error)" had error(s)")
+                } else
+                {"Failed"},
+                colspan = 2
+        ),
+        tags$td(tags$strong("Runtime (In Secs.):  "), round(record$real, digits = 2), colspan = 2)
+      ),
+      tags$tr(tags$td(tags$p(""))),
+
+      tags$tr(
+        tags$td(tags$p("")),
+        tags$td(tags$strong("Test Message:"), colspan = 5)
+      ),
+      tags$tr(
+        tags$td(tags$p(""), colspan = 2),
+        tags$td(record$result, colspan = 4)
+      ),
+      tags$tr(tags$td(tags$p(""))),
+
+      tags$tr(
+        tags$td(tags$p("")),
+        tags$td(tags$strong("Call:"), colspan = 5)
+      ),
+      tags$tr(
+        tags$td(tags$p(""), colspan = 2),
+        tags$td(record$call, colspan = 4)
+      )
+
+    ),
+    tags$br(),
+    tags$hr(),
+    tags$br()
+  )
+}
+
+#' @import htmltools
+#' @export
+html_report <- function(
+  results_variable,
+  filename = "test_report.html",
+  title = "RStudio Drivers - Testing Report",
+  show_when_complete = TRUE
+  ){
+
+  html_result <- list(
+    tags$h1(title) ,
+    1:nrow(results_variable) %>%
+      map(function(x){
+        print_result(results_variable[x,], x)
+      }))
+
+  save_html(html_result, filename)
+
+  if(show_when_complete)browseURL(filename)
+}
+
+
+
+
 
 
 

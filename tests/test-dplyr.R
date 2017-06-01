@@ -1,23 +1,9 @@
- # library(dplyr)
- # library(dbplyr)
- # library(DBI)
- # library(testthat)
- #
-  # con <- dbConnect(odbc::odbc(),
-  #                   Driver              = "sqlserver",
-  #                   Server              = "sol-eng-sqlserv.cihykudhzbgw.us-west-2.rds.amazonaws.com",
-  #                   Database            = "airontime",
-  #                   UID                 = "rstudioadmin",
-  #                   PWD                 = "ABCd4321",
-  #                   Port                = 1433)
-
-
-
 
 table_name <- dbplyr:::random_table_name()
 
 test_table <- test_data()
 
+context("basic")
 
 test_that("copy_to()",{
   expect_silent({
@@ -28,6 +14,8 @@ test_that("copy_to()",{
 db_test_table <- dplyr::tbl(con, table_name)
 
 # base_agg tests --------------------------------
+
+context("base_agg")
 
 test_that("n()",{
   expect_equal(
@@ -131,6 +119,7 @@ test_that("n_distinct()",{
 
 
 # base_win tests --------------------------------
+context("base_win")
 
 test_that("row_number()",{
   expect_equal(
@@ -238,7 +227,7 @@ test_that("ntile()",{
     as.list({
       db_test_table %>%
         dplyr::mutate(value = ntile(fld_double, 2)) %>%
-        dplyr::select(value)
+        dplyr::select(value) %>%
         dplyr::collect()
     }) ,
     as.list({
@@ -397,7 +386,7 @@ test_that("cummax()",{
 
 
 # base_scalar tests -----------------------------
-
+context("base_scalar")
 
 test_that("abs()",{
   expect_equal(
@@ -1107,8 +1096,7 @@ test_that("pmax()",{
 
 
 
-
-DBI::dbRemoveTable(con, table_name)
+DBI::dbSendQuery(con, paste0("DROP TABLE ", table_name))
 
 
 
