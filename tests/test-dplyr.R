@@ -22,7 +22,8 @@ test_that("n()",{
     as.numeric({
       db_test_table %>%
         dplyr::summarise(value = n()) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }),
     as.numeric({
       test_table %>%
@@ -108,7 +109,8 @@ test_that("n_distinct()",{
     as.numeric({
       db_test_table %>%
         dplyr::summarise(value = n_distinct(fld_factor)) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }),
     as.numeric({
       test_table %>%
