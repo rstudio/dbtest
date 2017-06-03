@@ -16,8 +16,6 @@ LazyData: true
 Imports:
   dplyr,
   dbplyr,
-  odbc,
-  DBI,
   testthat,
   purrr
 RoxygenNote: 6.0.1.9000
