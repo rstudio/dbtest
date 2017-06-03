@@ -1095,9 +1095,11 @@ test_that("pmax()",{
 })
 
 
-
-#DBI::dbSendQuery(con, paste0("DROP TABLE ", table_name))
-
+test_that("db_drop_table()",{
+  expect_silent({
+    dplyr::db_drop_table(con, table_name)
+  })
+})
 
 
 
