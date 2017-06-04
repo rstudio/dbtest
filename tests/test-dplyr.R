@@ -963,24 +963,6 @@ test_that("is.na()",{
   )
 })
 
-test_that("is.na()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = na_if(fld_character, "X")) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = na_if(fld_character, "X")) %>%
-        dplyr::select(value)
-    })
-  )
-})
-
-
-
 test_that("coalesce()",{
   expect_equal(
     as.list({
