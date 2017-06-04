@@ -532,7 +532,8 @@ test_that("pracma::ceil()",{
       db_test_table %>%
         dplyr::mutate(value = ceil(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }),
     as.list({
       test_table %>%
@@ -546,13 +547,14 @@ test_that("ceiling()",{
   expect_equal(
     as.list({
       db_test_table %>%
-        dplyr::mutate(value = ceiling(fld_binary)) %>%
+        dplyr::mutate(value = ceiling(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }),
     as.list({
       test_table %>%
-        dplyr::mutate(value = ceiling(fld_binary)) %>%
+        dplyr::mutate(value = ceiling(fld_double)) %>%
         dplyr::select(value)
     })
   )
@@ -650,7 +652,8 @@ test_that("floor()",{
       db_test_table %>%
         dplyr::mutate(value = floor(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }),
     as.list({
       test_table %>%
