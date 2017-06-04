@@ -530,7 +530,7 @@ test_that("pracma::ceil()",{
   expect_equal(
     as.list({
       db_test_table %>%
-        dplyr::mutate(value = cei(fld_double)) %>%
+        dplyr::mutate(value = ceil(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
