@@ -130,7 +130,8 @@ test_that("row_number()",{
         dplyr::mutate(value = row_number(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::arrange(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
       }) ,
     as.list({
       test_table %>%
@@ -147,7 +148,8 @@ test_that("min_rank()",{
       db_test_table %>%
         dplyr::mutate(value = min_rank(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }) ,
     as.list({
       test_table %>%
@@ -163,7 +165,8 @@ test_that("rank()",{
       db_test_table %>%
         dplyr::mutate(value = rank(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }) ,
     as.list({
       test_table %>%
@@ -180,7 +183,8 @@ test_that("dense_rank()",{
       db_test_table %>%
         dplyr::mutate(value = dense_rank(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }) ,
     as.list({
       test_table %>%
@@ -197,7 +201,8 @@ test_that("percent_rank()",{
       db_test_table %>%
         dplyr::mutate(value = percent_rank(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }) ,
     as.list({
       test_table %>%
@@ -214,7 +219,8 @@ test_that("cume_dist()",{
       db_test_table %>%
         dplyr::mutate(value = cume_dist(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }) ,
     as.list({
       test_table %>%
@@ -230,7 +236,8 @@ test_that("ntile()",{
       db_test_table %>%
         dplyr::mutate(value = ntile(fld_double, 2)) %>%
         dplyr::select(value) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate(value = as.integer(value))
     }) ,
     as.list({
       test_table %>%
