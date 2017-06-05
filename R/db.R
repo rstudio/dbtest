@@ -71,7 +71,7 @@ test_database <- function(databases, configuration =  "default"){
     )
     ) %>%
     bind_rows() %>%
-    mutate(res = ifelse(nb == 1 & failed == 0, "Passed" , "Failed")) %>%
+    mutate(res = ifelse(failed == 0 & error == FALSE, "Passed" , "Failed")) %>%
     arrange(desc(database))
 
   Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
