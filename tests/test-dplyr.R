@@ -201,8 +201,7 @@ test_that("percent_rank()",{
       db_test_table %>%
         dplyr::mutate(value = percent_rank(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
+        dplyr::collect()
     }) ,
     as.list({
       test_table %>%
@@ -219,8 +218,7 @@ test_that("cume_dist()",{
       db_test_table %>%
         dplyr::mutate(value = cume_dist(fld_double)) %>%
         dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
+        dplyr::collect()
     }) ,
     as.list({
       test_table %>%
