@@ -331,12 +331,14 @@ test_that("cummean()",{
   expect_equal(
     as.list({
       db_test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cummean(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cummean(fld_double)) %>%
         dplyr::select(value)
     })
@@ -347,12 +349,14 @@ test_that("cumsum()",{
   expect_equal(
     as.list({
       db_test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cumsum(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cumsum(fld_double)) %>%
         dplyr::select(value)
     })
@@ -363,12 +367,14 @@ test_that("cummin()",{
   expect_equal(
     as.list({
       db_test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cummin(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cummin(fld_double)) %>%
         dplyr::select(value)
     })
@@ -379,12 +385,14 @@ test_that("cummax()",{
   expect_equal(
     as.list({
       db_test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cummax(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
+        dplyr::arrange(fld_character) %>%
         dplyr::mutate(value = cummax(fld_double)) %>%
         dplyr::select(value)
     })
