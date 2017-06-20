@@ -81,13 +81,13 @@ test_that("sd() scalar",{
     as.list({
       db_test_table %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::collect() %>%
-        dbplyr::select(value)
+        dplyr::select(value) %>%
+        dplyr::collect()
     }),
     as.list({
       test_table %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dbplyr::select(value)
+        dplyr::select(value)
     })
   )
 })
@@ -98,14 +98,14 @@ test_that("sd() win",{
       db_test_table %>%
         dplyr::group_by(fld_binary) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::collect() %>%
-        dbplyr::select(value)
+        dplyr::select(value) %>%
+        dplyr::collect()
     }),
     as.list({
       test_table %>%
         dplyr::group_by(fld_binary) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dbplyr::select(value)
+        dplyr::select(value)
     })
   )
 })
