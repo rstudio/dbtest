@@ -96,14 +96,14 @@ test_that("sd() win",{
   expect_equal(
     as.list({
       db_test_table %>%
-        dplyr::group_by(fld_binary) %>%
+        dplyr::group_by(fld_factor) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
-        dplyr::group_by(fld_binary) %>%
+        dplyr::group_by(fld_factor) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
         dplyr::select(value)
     })
