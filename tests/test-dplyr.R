@@ -78,30 +78,34 @@ test_that("sd() agg",{
 
 test_that("sd() scalar",{
   expect_equal(
-    as.numeric({
+    as.list({
       db_test_table %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dbplyr::select(value)
     }),
-    as.numeric({
+    as.list({
       test_table %>%
-        dplyr::mutate(value = sd(fld_double))
+        dplyr::mutate(value = sd(fld_double)) %>%
+        dbplyr::select(value)
     })
   )
 })
 
 test_that("sd() win",{
   expect_equal(
-    as.numeric({
+    as.list({
       db_test_table %>%
         dplyr::group_by(fld_binary) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dbplyr::select(value)
     }),
-    as.numeric({
+    as.list({
       test_table %>%
         dplyr::group_by(fld_binary) %>%
-        dplyr::mutate(value = sd(fld_double))
+        dplyr::mutate(value = sd(fld_double)) %>%
+        dbplyr::select(value)
     })
   )
 })
