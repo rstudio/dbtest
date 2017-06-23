@@ -96,16 +96,18 @@ test_that("sd() win",{
   expect_equal(
     as.list({
       (db_test_table %>%
-        dplyr::group_by(fld_factor) %>%
-        dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::select(fld_factor, value) %>%
-        dplyr::collect())[,2]
+         dplyr::group_by(fld_factor) %>%
+         dplyr::mutate(value = sd(fld_double)) %>%
+         dplyr::select(fld_factor, value) %>%
+         dplyr::arrange(value) %>%
+         dplyr::collect())[,2]
     }),
     as.list({
       (test_table %>%
-        dplyr::group_by(fld_factor) %>%
-        dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::select(value))[,2]
+         dplyr::group_by(fld_factor) %>%
+         dplyr::mutate(value = sd(fld_double)) %>%
+         dplyr::arrange(value) %>%
+         dplyr::select(value))[,2]
     })
   )
 })
