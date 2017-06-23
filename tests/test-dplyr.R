@@ -2,7 +2,6 @@
 table_name <- dbplyr:::random_table_name()
 
 test_table <- test_data()
-iris_data <- iris_data()
 
 context("basic")
 
