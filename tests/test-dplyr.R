@@ -297,14 +297,14 @@ test_that("ntile()",{
 
 test_that("first()",{
   expect_equal(
-    as.character({
+    as.list({
       db_test_table %>%
         dplyr::arrange(fld_integer) %>%
         dplyr::mutate(value = first(fld_integer)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }) ,
-    as.character({
+    as.list({
       test_table %>%
         dplyr::arrange(fld_integer) %>%
         dplyr::mutate(value = first(fld_integer)) %>%
@@ -316,14 +316,14 @@ test_that("first()",{
 
 test_that("last()",{
   expect_equal(
-    as.character({
+    as.list({
       db_test_table %>%
         dplyr::arrange(fld_integer) %>%
         dplyr::mutate(value = last(fld_integer)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }) ,
-    as.character({
+    as.list({
       test_table %>%
         dplyr::arrange(fld_integer) %>%
         dplyr::mutate(value = last(fld_integer)) %>%
@@ -334,17 +334,17 @@ test_that("last()",{
 
 test_that("nth()",{
   expect_equal(
-    as.character({
+    as.list({
       db_test_table %>%
         dplyr::arrange(fld_integer) %>%
         dplyr::mutate(value = nth(fld_integer, 5)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }) ,
-    as.character({
+    as.list({
       test_table %>%
-        dplyr::arrange(fld_double) %>%
-        dplyr::mutate(value = nth(fld_double, 5)) %>%
+        dplyr::arrange(fld_integer) %>%
+        dplyr::mutate(value = nth(fld_integer, 5)) %>%
         dplyr::select(value)
     })
   )
