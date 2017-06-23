@@ -299,12 +299,14 @@ test_that("first()",{
   expect_equal(
     as.character({
       db_test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = first(fld_character)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }) ,
     as.character({
       test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = first(fld_character)) %>%
         dplyr::select(value)
     })
@@ -316,12 +318,14 @@ test_that("last()",{
   expect_equal(
     as.character({
       db_test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = last(fld_character)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }) ,
     as.character({
       test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = last(fld_character)) %>%
         dplyr::select(value)
     })
@@ -332,12 +336,14 @@ test_that("nth()",{
   expect_equal(
     as.character({
       db_test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = nth(fld_character, 5)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }) ,
     as.character({
       test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = nth(fld_character, 5)) %>%
         dplyr::select(value)
     })
@@ -348,12 +354,14 @@ test_that("lead()",{
   expect_equal(
     as.list({
       db_test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = lead(fld_character)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = lead(fld_character)) %>%
         dplyr::select(value)
     })
@@ -364,12 +372,14 @@ test_that("lag()",{
   expect_equal(
     as.list({
       db_test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = lag(fld_character)) %>%
         dplyr::select(value) %>%
         dplyr::collect()
     }),
     as.list({
       test_table %>%
+        dplyr::arrange(fld_double) %>%
         dplyr::mutate(value = lag(fld_character)) %>%
         dplyr::select(value)
     })
