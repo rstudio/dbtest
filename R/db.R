@@ -1,15 +1,10 @@
 #' @export
 test_data <- function(){
   data <- dbtest::testdata
-  #data$fld_datetime <- as.POSIXct(strptime(data$fld_datetime, "%m/%d/%y %H:%M"))
-  #data$fld_date <- as.POSIXct(strptime(data$fld_date, "%m/%d/%y"))
-  #data$fld_time <- as.POSIXct(strptime(data$fld_time, "%H:%M:%S"))
   data$fld_double <- as.double(data$fld_double)
   data$fld_character <- as.character(data$fld_character)
-  #data$fld_logical <- as.logical(data$fld_logical)
   data
 }
-
 
 #' @import pracma
 #' @export
