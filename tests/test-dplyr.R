@@ -94,18 +94,18 @@ test_that("sd() scalar",{
 
 test_that("sd() win",{
   expect_equal(
-    as.data.frame({
-      db_test_table %>%
+    as.list({
+      (db_test_table %>%
         dplyr::group_by(fld_factor) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
         dplyr::select(fld_factor, value) %>%
-        dplyr::collect()
+        dplyr::collect())[,2]
     }),
-    as.data.frame({
-      test_table %>%
+    as.list({
+      (test_table %>%
         dplyr::group_by(fld_factor) %>%
         dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::select(fld_factor, value)
+        dplyr::select(value))[,2]
     })
   )
 })
