@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
+
 dbtest
 ================
 
