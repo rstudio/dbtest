@@ -8,7 +8,6 @@ test_data <- function(){
 
 
 
-#' @import pracma
 #' @export
 run_script <- function(connection_name){
 
@@ -33,8 +32,7 @@ run_script <- function(connection_name){
   return(results)
 }
 
-#' @import dplyr
-#' @import purrr
+
 #' @export
 test_database <- function(databases, configuration =  "default"){
 
@@ -122,7 +120,6 @@ print_result <- function(record, id){
   )
 }
 
-#' @import htmltools
 #' @export
 html_report <- function(
   results_variable,

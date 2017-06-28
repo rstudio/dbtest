@@ -15,7 +15,6 @@ test_that("copy_to()",{
 
 db_test_table <- dplyr::tbl(con, table_name)
 
-
 expect_mutate_equivalent <- function(expr,
                                      db = db_test_table,
                                      local = test_table) {
@@ -23,8 +22,6 @@ expect_mutate_equivalent <- function(expr,
   manip <- . %>% mutate(value = !!expr) %>% pull()
   expect_equal(manip(db), manip(local))
 }
-
-
 
 expect_summarise_equivalent <- function(expr,
                                         db = db_test_table,
@@ -152,6 +149,11 @@ test_that("cummin()",{
   expect_window_equivalent(cummin(fld_double))
 })
 
+test_that("sd() win",{
+  expect_window_equivalent(value = sd(fld_double))
+})
+
+
 test_that("cummax()",{
   expect_window_equivalent(cummax(fld_double))
 })
@@ -165,714 +167,182 @@ test_that("sd() scalar", {
 })
 
 test_that("abs()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = abs(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = abs(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = abs(fld_double))
 })
 
 test_that("acos()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = acos(fld_binary)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = acos(fld_binary)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = acos(fld_binary))
 })
 
 
 test_that("acosh()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = acosh(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = acosh(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = acosh(fld_double))
 })
 
 test_that("asin()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = asin(fld_binary)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = asin(fld_binary)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = asin(fld_binary))
 })
 
 
 test_that("asinh()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = asinh(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = asinh(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = asinh(fld_double))
 })
 
 
 
 test_that("atan()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = atan(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = atan(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = atan(fld_double))
 })
-
 
 
 test_that("atan2()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = atan2(fld_double, 1)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = atan2(fld_double, 1)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = atan2(fld_double, 1))
 })
 
-
 test_that("atanh()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = atanh(fld_binary)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = atanh(fld_binary)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = atanh(fld_binary))
 })
 
 
 test_that("pracma::ceil()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = ceil(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = pracma::ceil(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = ceil(fld_double))
 })
 
 test_that("ceiling()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = ceiling(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = ceiling(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = ceiling(fld_double))
 })
-
 
 
 test_that("cos()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = cos(fld_binary)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = cos(fld_binary)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = cos(fld_binary))
 })
 
 test_that("cosh()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = cosh(fld_binary)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = cosh(fld_binary)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = cosh(fld_binary))
 })
 
 test_that("pracma::cot()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = cot(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = pracma::cot(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = cot(fld_double))
 })
 
-
 test_that("pracma::coth()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = coth(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = pracma::coth(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = coth(fld_double))
 })
 
 
 
 test_that("exp()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = exp(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = exp(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = exp(fld_double))
 })
 
 
 test_that("floor()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = floor(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = floor(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = floor(fld_double))
 })
 
 test_that("log()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = log(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = log(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = log(fld_double))
 })
 
 test_that("log10()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = log10(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = log10(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = log10(fld_double))
 })
 
 test_that("round()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = round(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = round(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = round(fld_double))
 })
 
 test_that("sign()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = sign(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = sign(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = sign(fld_double))
 })
 
 test_that("sin()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = sin(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = sin(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = sin(fld_double))
 })
 
-
 test_that("sinh()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = sinh(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = sinh(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = sinh(fld_double))
 })
 
 test_that("sqrt()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = sqrt(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = sqrt(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = sqrt(fld_double))
 })
 
-
 test_that("tan()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = tan(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = tan(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = tan(fld_double))
 })
 
 
 test_that("tanh()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = tanh(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = tanh(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = tanh(fld_double))
 })
 
 test_that("tolower()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = tolower(fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = tolower(fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = tolower(fld_character))
 })
 
 test_that("toupper()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = toupper(fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = toupper(fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = toupper(fld_character))
 })
 
 
 test_that("trimws()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = trimws(fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = trimws(fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = trimws(fld_character))
 })
 
 test_that("nchar()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = nchar(fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = nchar(fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = nchar(fld_character))
 })
-
 
 test_that("substr()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = substr(fld_character, 1, 1)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = substr(fld_character, 1, 1)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = substr(fld_character, 1, 1))
 })
 
-
 test_that("ifelse()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = ifelse(fld_binary == 1, "Yes", "No")) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = ifelse(fld_binary == 1, "Yes", "No")) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = ifelse(fld_binary == 1, "Yes", "No"))
 })
 
 # sql() - Not sure what to do with this function.
 
 test_that("desc()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = fld_character) %>%
-        dplyr::select(value) %>%
-        dplyr::arrange(desc(value)) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = fld_character) %>%
-        dplyr::select(value) %>%
-        dplyr::arrange(desc(value))
-    })
-  )
+  expect_mutate_equivalent(value = fld_character)
 })
-
 
 test_that("is.null()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = is.null(fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = is.null(fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = is.null(fld_character))
 })
 
-
 test_that("is.na()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = is.na(fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = is.na(fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = is.na(fld_character))
 })
 
 test_that("coalesce()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = coalesce(fld_character, fld_character)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = coalesce(fld_character, fld_character)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = coalesce(fld_character, fld_character))
 })
 
-
 test_that("as.numeric()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = as.numeric(fld_logical)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = as.numeric(fld_logical)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = as.numeric(fld_logical))
 })
 
 test_that("as.double()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = as.double(fld_logical)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = as.double(fld_logical)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = as.double(fld_logical))
 })
 
 test_that("as.integer()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = as.integer(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = as.integer(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = as.integer(fld_double))
 })
-
-# c() - Not sure what to do with this function.
 
 
 test_that("between()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = fld_double) %>%
-        dplyr::filter(between(value, 1, 5)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = fld_double) %>%
-        dplyr::filter(between(value, 1, 5)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = fld_double)
 })
 
 test_that("pmin()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = pmin(fld_binary, fld_integer, fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = pmin(fld_binary, fld_integer, fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_mutate_equivalent(value = pmin(fld_binary, fld_integer, fld_double))
 })
 
 test_that("pmax()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = pmax(fld_binary, fld_integer, fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = pmax(fld_binary, fld_integer, fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
-})
-
-test_that("sd() win",{
-  expect_equal(
-    as.list({
-      (db_test_table %>%
-         dplyr::group_by(fld_factor) %>%
-         dplyr::mutate(value = sd(fld_double)) %>%
-         dplyr::select(fld_factor, value) %>%
-         dplyr::arrange(value) %>%
-         dplyr::collect())[,2]
-    }),
-    as.list({
-      (test_table %>%
-         dplyr::group_by(fld_factor) %>%
-         dplyr::mutate(value = sd(fld_double)) %>%
-         dplyr::arrange(value) %>%
-         dplyr::select(value))[,2]
-    })
-  )
+  expect_mutate_equivalent(value = pmax(fld_binary, fld_integer, fld_double))
 })
 
 test_that("db_drop_table()",{
