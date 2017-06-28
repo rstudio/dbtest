@@ -1,3 +1,5 @@
+library(dplyr)
+library(testthat)
 
 table_name <- dbplyr:::random_table_name()
 
@@ -13,455 +15,154 @@ test_that("copy_to()",{
 
 db_test_table <- dplyr::tbl(con, table_name)
 
+
+expect_mutate_equivalent <- function(expr,
+                                     db = db_test_table,
+                                     local = test_table) {
+  expr <- enquo(expr)
+  manip <- . %>% mutate(value = !!expr) %>% pull()
+  expect_equal(manip(db), manip(local))
+}
+
+
+
+expect_summarise_equivalent <- function(expr,
+                                        db = db_test_table,
+                                        local = test_table){
+
+  expr <- enquo(expr)
+  manip <- . %>% summarise(value = !!expr) %>% pull()
+  expect_equal(manip(db), manip(local))
+}
+
+expect_window_equivalent <- function(expr,
+                                        db = db_test_table,
+                                        local = test_table){
+
+  expr <- enquo(expr)
+  manip <- . %>% arrange(!!expr) %>% mutate(value = !!expr) %>% pull()
+  expect_equal(manip(db), manip(local))
+}
+
+
+
 # base_agg tests --------------------------------
 
 context("base_agg")
 
-test_that("n()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = n()) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }),
-    as.numeric({
-      test_table %>%
-        dplyr::summarise(value = n())
-    })
-  )
+
+
+test_that("n()", {
+  expect_summarise_equivalent(n())
 })
 
-
-test_that("mean()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = mean(fld_double)) %>%
-        dplyr::collect()
-    }),
-    as.numeric({
-      test_table %>%
-
-        dplyr::summarise(value = mean(fld_double))
-    })
-  )
+test_that("mean()", {
+  expect_summarise_equivalent(mean(fld_double))
 })
 
-test_that("var()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = var(fld_double)) %>%
-        dplyr::collect()
-    }),
-    as.numeric({
-      test_table %>%
-        dplyr::summarise(value = var(fld_double))
-    })
-  )
+test_that("var()", {
+  expect_summarise_equivalent(var(fld_double))
 })
 
 test_that("sd() agg",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = sd(fld_double)) %>%
-        dplyr::collect()
-    }),
-    as.numeric({
-      test_table %>%
-        dplyr::summarise(value = sd(fld_double))
-    })
-  )
+  expect_summarise_equivalent(sd(fld_double))
 })
 
-test_that("sd() scalar",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = sd(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
-})
-
-test_that("sd() win",{
-  expect_equal(
-    as.list({
-      (db_test_table %>%
-         dplyr::group_by(fld_factor) %>%
-         dplyr::mutate(value = sd(fld_double)) %>%
-         dplyr::select(fld_factor, value) %>%
-         dplyr::arrange(value) %>%
-         dplyr::collect())[,2]
-    }),
-    as.list({
-      (test_table %>%
-         dplyr::group_by(fld_factor) %>%
-         dplyr::mutate(value = sd(fld_double)) %>%
-         dplyr::arrange(value) %>%
-         dplyr::select(value))[,2]
-    })
-  )
-})
 
 test_that("sum()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = sum(fld_double)) %>%
-        dplyr::collect()
-    }),
-    as.numeric({
-      test_table %>% dplyr::summarise(value = sum(fld_double))
-    })
-  )
+  expect_summarise_equivalent(sum(fld_double))
 })
 
 test_that("min()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = min(fld_double)) %>%
-        dplyr::collect()
-    }),
-    as.numeric({
-      test_table %>%
-        dplyr::summarise(value = min(fld_double))
-    })
-  )
+  expect_summarise_equivalent(min(fld_double))
 })
-
 
 test_that("max()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = max(fld_double)) %>%
-        dplyr::collect()
-    }),
-    as.numeric({
-      test_table %>%
-        dplyr::summarise(value = max(fld_double))
-    })
-  )
+  expect_summarise_equivalent(max(fld_double))
 })
 
+
 test_that("n_distinct()",{
-  expect_equal(
-    as.numeric({
-      db_test_table %>%
-        dplyr::summarise(value = n_distinct(fld_factor)) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }),
-    as.numeric({
-      test_table %>%
-        dplyr::summarise(value = n_distinct(fld_factor))
-    })
-  )
+  expect_summarise_equivalent(n_distinct(fld_double))
 })
+
+
 
 
 # base_win tests --------------------------------
 context("base_win")
 
 test_that("row_number()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = row_number(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::arrange(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-      }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = row_number(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::arrange(value)
-    })
-  )
+  expect_window_equivalent(row_number(fld_double))
 })
 
 test_that("min_rank()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = min_rank(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = min_rank(fld_double)) %>%
-        dplyr::select(value)
-    })
-    )
+  expect_window_equivalent(min_rank(fld_double))
 })
 
 test_that("rank()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = rank(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = rank(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(rank(fld_double))
 })
-
 
 test_that("dense_rank()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = dense_rank(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = dense_rank(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(dense_rank(fld_double))
 })
-
 
 test_that("percent_rank()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = percent_rank(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = percent_rank(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(percent_rank(fld_double))
 })
 
-
 test_that("cume_dist()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = cume_dist(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = cume_dist(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(cume_dist(fld_double))
 })
 
 test_that("ntile()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::mutate(value = ntile(fld_double, 2)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect() %>%
-        dplyr::mutate(value = as.integer(value))
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::mutate(value = ntile(fld_double, 2)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(ntile(fld_double, 2))
 })
 
 test_that("first()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = first(fld_integer)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = first(fld_integer)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(first(fld_integer))
 })
 
-
 test_that("last()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = last(fld_integer)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = last(fld_integer)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(last(fld_integer))
 })
 
 test_that("nth()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = nth(fld_integer, 5)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }) ,
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = nth(fld_integer, 5)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(nth(fld_integer, 5))
 })
 
 test_that("lead()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = lead(fld_integer)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = lead(fld_integer)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(lead(fld_integer))
 })
 
 test_that("lag()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = lag(fld_integer)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_integer) %>%
-        dplyr::mutate(value = lag(fld_integer)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(lag(fld_integer))
 })
 
-
 test_that("cummean()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cummean(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cummean(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(cummean(fld_double))
 })
 
 test_that("cumsum()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cumsum(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cumsum(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(cumsum(fld_double))
 })
 
 test_that("cummin()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cummin(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cummin(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(cummin(fld_double))
 })
 
 test_that("cummax()",{
-  expect_equal(
-    as.list({
-      db_test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cummax(fld_double)) %>%
-        dplyr::select(value) %>%
-        dplyr::collect()
-    }),
-    as.list({
-      test_table %>%
-        dplyr::arrange(fld_character) %>%
-        dplyr::mutate(value = cummax(fld_double)) %>%
-        dplyr::select(value)
-    })
-  )
+  expect_window_equivalent(cummax(fld_double))
 })
 
 
 # base_scalar tests -----------------------------
 context("base_scalar")
+
+test_that("sd() scalar", {
+  expect_mutate_equivalent(sd(fld_double))
+})
 
 test_that("abs()",{
   expect_equal(
@@ -1154,6 +855,25 @@ test_that("pmax()",{
   )
 })
 
+test_that("sd() win",{
+  expect_equal(
+    as.list({
+      (db_test_table %>%
+         dplyr::group_by(fld_factor) %>%
+         dplyr::mutate(value = sd(fld_double)) %>%
+         dplyr::select(fld_factor, value) %>%
+         dplyr::arrange(value) %>%
+         dplyr::collect())[,2]
+    }),
+    as.list({
+      (test_table %>%
+         dplyr::group_by(fld_factor) %>%
+         dplyr::mutate(value = sd(fld_double)) %>%
+         dplyr::arrange(value) %>%
+         dplyr::select(value))[,2]
+    })
+  )
+})
 
 test_that("db_drop_table()",{
   expect_silent({
