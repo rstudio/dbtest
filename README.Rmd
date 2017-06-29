@@ -41,9 +41,13 @@ default:
 
 Use the `test_database` command to run the tests.  The arguments are as follows:
  
-- **databases** - A vector of one or more databases that will be tested.  The value should match the name should match the section inside the `config.yml` file.  In the exampel above, we would use `mssql`
+- **databases** - A vector of one or more databases that will be tested.  The value should match the name should match the section inside the `config.yml` file. 
 
 - **configuration** - Defaults to `default`.  It refers to the main configuration selected that is in the `config.yml` file.  
+
+Using the sample yml file from above, we would use `test_database("mssql")` to run the tests against that database.
+
+Passing a character vector to the **databases** argument allows us to run the same tests over multiple databases, for example: `test_database(c("mssql","oracle","hive"))`, will run the tests over the connections named "mssql", "oracle" and "hive" in a serial manner.
 
 Use a variable to retain the results.  The `test_database` function returns a `data.frame` with the results.
 
@@ -54,14 +58,20 @@ library(dbtest)
 
 ```{r}
 library(dbtest)
-results <- test_database("sqlite")
+results <- test_database()
 ```
 
-The resulting `data.frame` has the following variables:
+`test_database` uses the 'minimal' reporting from `testthat`.  The result of each test will display as a single character:
 
-- **file** - Name of the R script    
+- Period means that the test passed with no errors
+- **E** means that the test passed but with errors
+- **F** means that the test failed
+
+This feature is useful if you wish to monitor the test while it runs.  The real output of the test is a `data.frame` that is returned after all of the tests are complete. The resulting `data.frame` has the following variables:
+
+- **file** - Name of the R script - In GitHub the scripts are found in the */inst/sql-tests* folder    
 - **context**  
-- **test** - It has the test's name.  At this time, the names are kept to the single function name that was the focus of the test     
+- **test** - The test names coincide with the function it tests, the name is usually a single word long.
 - **nb**       
 - **failed**   
 - **skipped** 
@@ -77,13 +87,27 @@ The resulting `data.frame` has the following variables:
 
 # Analysis
 
-The package has a quick-n-easy report that takes the output from the `test_databases` output and creates an html based report.
+## Percentage passed
 
-```{r, eval = FALSE}
-html_report(results)
+A simple calculation of the percentage of the tests that passed helps to have a single number we can work on improving. Seeing the percentage climb after improvements to the translations are made is very motivating.  Additionally, if multiple databases are being run at the same time, it's a great comparative number that provides context by giving us an idea who well our translation works on one database but not another.
+
+Here is the code I usually run:
+
+```{r}
+library(dplyr)
+library(tidyr)
+coverage <- results %>%
+  group_by(database, res) %>%
+  tally %>%
+  spread(res, n) %>%
+  mutate(coverage = round(Passed / (Passed + Failed), digits = 2))
+
+coverage
 ```
 
-Another way I found was to just run a quick visualization
+## ggplot2
+
+A quick visualization so I can see at-a-glance what failed and passed.
 
 ```{r, fig.height = 14, fig.width = 3}
 library(ggplot2) 
@@ -93,4 +117,38 @@ ggplot(data = results) +
 ```
 
 
+## HTML Report
 
+The package has a quick-n-easy report that takes the output from the `test_databases` output and creates an html based report. The flexible layout of the report allows the user to have an easier look at the results of each test.
+
+```{r, eval = FALSE}
+html_report(results)
+```
+
+The code above will create a report of all the tests.  Most time we just want to see what failed and why, here is what I normally use:
+
+```{r, eval = FALSE}
+library(htmltools)
+html_report(results %>%
+              filter(res == "Failed"),
+            filename = "dbtest-exceptions.html")
+```
+
+In the report a test result will look like this:
+
+```{}
+14 - impala - Test: row_number()
+
+File:		Result: Failed	Runtime (In Secs.): 0.09
+
+Test Message:
+
+manip(db) not equal to manip(local). Attributes: < Modes: list, NULL > Attributes: < Lengths: 1, 0 > 
+Attributes: < names for target but not for current > Attributes: < current is not list-like > target 
+is integer64, current is numeric
+
+Call:
+
+expect_window_equivalent(row_number(fld_double))
+
+```
