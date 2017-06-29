@@ -1,6 +1,7 @@
 #' @import dplyr
 #' @import testthat
 #' @import purrr
+#' @import odbc
 #' @export
 test_database <- function(databases, configuration =  "default"){
 

@@ -1,15 +1,18 @@
-[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
-
 dbtest
 ================
 
-It uses `testthat` to run a battery of tests against a given database connection. The idea is to find out what translations from `dplyr` are and what are not supported by a given database. It also useful to test new translations that close the gap of what it is supported by `dplyr`.
+[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
+
+Overview
+========
+
+The package uses **testthat** to automate dbplyr SQL translation by running the tests against live database connections.
 
 Install
 =======
 
 ``` r
-devtools::install_github("edgararuiz/dbtest")
+devtools::install_github("rstudio/dbtest")
 ```
 
 Setup
@@ -43,8 +46,10 @@ Use a variable to retain the results. The `test_database` function returns a `da
 
 ``` r
 library(dbtest)
-results <- test_database("mssql")
+results <- test_database("sqlite")
 ```
+
+    ## ...EE....E.EEEEEEEEEEEEEEEEEEEEEEEE.......FFE......EEEEEEEEEEEEEEEEE.
 
 The resulting `data.frame` has the following variables:
 
@@ -82,4 +87,4 @@ ggplot(data = results) +
   geom_raster(aes(x = database, y = test, fill = res))
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)

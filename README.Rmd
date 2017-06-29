@@ -3,18 +3,20 @@ title: "dbtest"
 output: github_document
 ---
 
-[![Build Status](https://travis-ci.org/tidyverse/dbplyr.svg?branch=master)](https://travis-ci.org/tidyverse/dbplyr)
+[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
 
-It uses `testthat` to run a battery of tests against a given database connection.  The idea is to find out what translations from `dplyr` are and what are not supported by a given database.  It also useful to test new translations that close the gap of what it is supported by `dplyr`.
+# Overview
+
+The package uses **testthat** to automate dbplyr SQL translation by running the tests against live database connections.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
 ```
 
 # Install
 
 ```{r, eval = FALSE}
-devtools::install_github("edgararuiz/dbtest")
+devtools::install_github("rstudio/dbtest")
 ```
 
 # Setup
@@ -34,6 +36,7 @@ default:
     port: 10000
 ```
 
+
 # Usage
 
 Use the `test_database` command to run the tests.  The arguments are as follows:
@@ -44,15 +47,14 @@ Use the `test_database` command to run the tests.  The arguments are as follows:
 
 Use a variable to retain the results.  The `test_database` function returns a `data.frame` with the results.
 
-```{r, eval = FALSE}
+```{r, include = FALSE}
 library(dbtest)
-results <- test_database("mssql")
 ```
 
 
-```{r, include = FALSE}
+```{r}
 library(dbtest)
-results <- test_database("mssql", "edgar")
+results <- test_database("sqlite")
 ```
 
 The resulting `data.frame` has the following variables:
