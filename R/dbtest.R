@@ -3,14 +3,13 @@
 #' @import purrr
 #' @import odbc
 #' @export
-test_database <- function(databases, configuration =  "default"){
+test_database <- function(databases = "", configuration =  "default", directory = ""){
 
   original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
   if(is.null(configuration)==FALSE) Sys.setenv(R_CONFIG_ACTIVE = configuration)
 
-
   all_results <- databases %>%
-    map(function(.x)run_script(.x))
+    map(function(.x)run_script(.x, test_directory = directory))
 
   text_results <- 1:length(databases) %>%
     map(function(x){
@@ -110,17 +109,21 @@ print_result <- function(record, id){
 }
 
 
-run_script <- function(connection_name){
+run_script <- function(connection_name, test_directory){
 
-  if(connection_name=="sqlite"){
+  # Swtiching between local project and installed package location
+
+  if(test_directory==""){
+    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
+  } else {
+    test_directory <- file.path(rprojroot::find_rstudio_root_file(), test_directory)
+  }
+
+
+  if(connection_name==""){
 
     con <<- DBI::dbConnect(RSQLite::SQLite(), path = ":memory:")
-    test_directory <- file.path(rprojroot::find_rstudio_root_file(), "sql-tests")
-
   } else {
-
-    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
-
     db <- config::get(connection_name)
 
     con <<- DBI::dbConnect(

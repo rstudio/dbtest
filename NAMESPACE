@@ -3,5 +3,6 @@
 export(html_report)
 export(test_database)
 import(dplyr)
+import(odbc)
 import(purrr)
 import(testthat)
