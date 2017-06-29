@@ -2,7 +2,6 @@
 #' @import testthat
 #' @import purrr
 #' @import htmltools
-#' @import rprojroot
 #' @import utils
 #' @import pracma
 #' @export
