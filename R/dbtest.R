@@ -1,10 +1,9 @@
 #' @import dplyr
 #' @import testthat
 #' @import purrr
-#' @import odbc
+#' @import htmltools
 #' @export
 test_database <- function(databases = "", configuration =  "default", directory = ""){
-
   original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
   if(is.null(configuration)==FALSE) Sys.setenv(R_CONFIG_ACTIVE = configuration)
 

@@ -13,7 +13,6 @@ Imports:
   DBI (>= 0.3.0),
   Rcpp (>= 0.12.11),
   config,
-  odbc,
   dplyr,
   dbplyr,
   testthat,
