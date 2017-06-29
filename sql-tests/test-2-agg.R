@@ -4,8 +4,8 @@ expect_summarise_equivalent <- function(expr,
                                         db = db_test_table,
                                         local = test_table){
 
-  expr <- enquo(expr)
-  manip <- . %>% summarise(value = !!expr) %>% pull()
+  expr <- rlang::enquo(expr)
+  manip <- . %>% dplyr::summarise(value = !!expr) %>% dplyr::pull()
   expect_equal(manip(db), manip(local))
 }
 

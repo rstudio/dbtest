@@ -4,8 +4,8 @@ expect_window_equivalent <- function(expr,
                                      db = db_test_table,
                                      local = test_table){
 
-  expr <- enquo(expr)
-  manip <- . %>% arrange(!!expr) %>% mutate(value = !!expr) %>% pull()
+  expr <- rlang::enquo(expr)
+  manip <- . %>% dplyr::arrange(!!expr) %>% dplyr::mutate(value = !!expr) %>% dplyr::pull()
   expect_equal(manip(db), manip(local))
 }
 
@@ -70,7 +70,7 @@ test_that("cummin()",{
 })
 
 test_that("sd() win",{
-  expect_window_equivalent(value = sd(fld_double))
+  expect_window_equivalent(sd(fld_double))
 })
 
 test_that("cummax()",{

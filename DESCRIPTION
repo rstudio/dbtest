@@ -18,5 +18,6 @@ Imports:
   testthat,
   purrr,
   pracma,
-  htmltools
+  htmltools,
+  RSQLite
 RoxygenNote: 6.0.1

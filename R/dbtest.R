@@ -46,8 +46,8 @@ test_database <- function(databases, configuration =  "default"){
 #' @export
 html_report <- function(
   results_variable,
-  filename = "test_report.html",
-  title = "RStudio Drivers - Testing Report",
+  filename = "dplyr_test_results.html",
+  title = "dplyr SQL translation tests",
   show_when_complete = TRUE
   ){
 
@@ -62,14 +62,6 @@ html_report <- function(
 
   if(show_when_complete)browseURL(filename)
 }
-
-test_data <- function(){
-  data <- dbtest::testdata
-  data$fld_double <- as.double(data$fld_double)
-  data$fld_character <- as.character(data$fld_character)
-  data
-}
-
 
 print_result <- function(record, id){
   list(
@@ -119,23 +111,31 @@ print_result <- function(record, id){
 
 run_script <- function(connection_name){
 
-  db <- config::get(connection_name)
+  if(connection_name=="sqlite"){
 
-  con <<- DBI::dbConnect(
-    odbc::odbc(),
-    Driver = db$Driver,
-    Server = db$Server,
-    Host = db$Host,
-    SVC = db$SVC,
-    Database = db$Database,
-    Schema = db$Schema,
-    UID  = db$UID,
-    PWD = db$PWD,
-    Port = db$Port)
+    con <<- DBI::dbConnect(RSQLite::SQLite(), path = ":memory:")
+    test_directory <- file.path(rprojroot::find_rstudio_root_file(), "sql-tests")
 
-  results <- testthat::test_dir(
-    file.path(system.file(package = "dbtest"), "sql-tests"),
-    reporter = "minimal")
+  } else {
+
+    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
+
+    db <- config::get(connection_name)
+
+    con <<- DBI::dbConnect(
+      odbc::odbc(),
+      Driver = db$Driver,
+      Server = db$Server,
+      Host = db$Host,
+      SVC = db$SVC,
+      Database = db$Database,
+      Schema = db$Schema,
+      UID  = db$UID,
+      PWD = db$PWD,
+      Port = db$Port)
+  }
+
+  results <- testthat::test_dir(test_directory, reporter = "minimal")
 
   DBI::dbDisconnect(con)
 
