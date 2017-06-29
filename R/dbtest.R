@@ -2,6 +2,9 @@
 #' @import testthat
 #' @import purrr
 #' @import htmltools
+#' @import rprojroot
+#' @import utils
+#' @import pracma
 #' @export
 test_database <- function(databases = "", configuration =  "default", directory = ""){
   original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
@@ -59,7 +62,7 @@ html_report <- function(
 
   save_html(html_result, filename)
 
-  if(show_when_complete)browseURL(filename)
+  if(show_when_complete)utils::browseURL(filename)
 }
 
 print_result <- function(record, id){
