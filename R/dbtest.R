@@ -1,38 +1,6 @@
-#' @export
-test_data <- function(){
-  data <- dbtest::testdata
-  data$fld_double <- as.double(data$fld_double)
-  data$fld_character <- as.character(data$fld_character)
-  data
-}
-
-
-
-#' @export
-run_script <- function(connection_name){
-
-  db <- config::get(connection_name)
-
-  con <<- DBI::dbConnect(
-    odbc::odbc(),
-    Driver = db$Driver,
-    Server = db$Server,
-    Host = db$Host,
-    SVC = db$SVC,
-    Database = db$Database,
-    Schema = db$Schema,
-    UID  = db$UID,
-    PWD = db$PWD,
-    Port = db$Port)
-
-  results <- testthat::test_dir(file.path(system.file( package = "dbtest"), "tests"), reporter = "minimal")
-
-  DBI::dbDisconnect(con)
-
-  return(results)
-}
-
-
+#' @import dplyr
+#' @import testthat
+#' @import purrr
 #' @export
 test_database <- function(databases, configuration =  "default"){
 
@@ -72,6 +40,34 @@ test_database <- function(databases, configuration =  "default"){
   Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
 
   new_results
+}
+
+
+#' @export
+html_report <- function(
+  results_variable,
+  filename = "test_report.html",
+  title = "RStudio Drivers - Testing Report",
+  show_when_complete = TRUE
+  ){
+
+  html_result <- list(
+    tags$h1(title) ,
+    1:nrow(results_variable) %>%
+      map(function(x){
+        print_result(results_variable[x,], x)
+      }))
+
+  save_html(html_result, filename)
+
+  if(show_when_complete)browseURL(filename)
+}
+
+test_data <- function(){
+  data <- dbtest::testdata
+  data$fld_double <- as.double(data$fld_double)
+  data$fld_character <- as.character(data$fld_character)
+  data
 }
 
 
@@ -120,28 +116,31 @@ print_result <- function(record, id){
   )
 }
 
-#' @export
-html_report <- function(
-  results_variable,
-  filename = "test_report.html",
-  title = "RStudio Drivers - Testing Report",
-  show_when_complete = TRUE
-  ){
 
-  html_result <- list(
-    tags$h1(title) ,
-    1:nrow(results_variable) %>%
-      map(function(x){
-        print_result(results_variable[x,], x)
-      }))
+run_script <- function(connection_name){
 
-  save_html(html_result, filename)
+  db <- config::get(connection_name)
 
-  if(show_when_complete)browseURL(filename)
+  con <<- DBI::dbConnect(
+    odbc::odbc(),
+    Driver = db$Driver,
+    Server = db$Server,
+    Host = db$Host,
+    SVC = db$SVC,
+    Database = db$Database,
+    Schema = db$Schema,
+    UID  = db$UID,
+    PWD = db$PWD,
+    Port = db$Port)
+
+  results <- testthat::test_dir(
+    file.path(system.file(package = "dbtest"), "sql-tests"),
+    reporter = "minimal")
+
+  DBI::dbDisconnect(con)
+
+  return(results)
 }
-
-
-
 
 
 
