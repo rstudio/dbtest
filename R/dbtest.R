@@ -133,6 +133,7 @@ run_script <- function(connection_name, test_directory){
       Server = db$Server,
       Host = db$Host,
       SVC = db$SVC,
+      DBCName = db$DBCName,
       Database = db$Database,
       Schema = db$Schema,
       UID  = db$UID,
