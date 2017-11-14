@@ -1,5 +1,9 @@
 context("initialize")
 
+library(dplyr)
+library(purrr)
+library(testthat)
+
 test_data <- function(){
   data <- dbtest::testdata
   data$fld_double <- as.double(data$fld_double)
@@ -19,6 +23,6 @@ test_that("copy_to()",{
 
 db_test_table <<- dplyr::tbl(con, table_name)
 
-
+test_config <<- config::get()
 
 

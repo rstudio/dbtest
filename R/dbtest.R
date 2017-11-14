@@ -12,6 +12,39 @@ test_database <- function(databases = "", configuration =  "default", directory 
   all_results <- databases %>%
     map(function(.x)run_script(.x, test_directory = directory))
 
+  new_results <- parse_results(databases,all_results)
+
+  Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
+
+  new_results
+}
+
+#' @import dplyr
+#' @import testthat
+#' @import purrr
+#' @import htmltools
+#' @import utils
+#' @import pracma
+#' @export
+test_connection <- function(con, test_directory = ""){
+
+  # Swtiching between local project and installed package location
+
+  if(test_directory==""){
+    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
+  } else {
+    test_directory <- file.path(rprojroot::find_rstudio_root_file(), test_directory)
+  }
+
+  con <<- con
+  results <- testthat::test_dir(test_directory, reporter = "minimal")
+
+  results <- parse_results("db", list(results))
+
+  return(results)
+}
+
+parse_results <- function(databases, all_results){
   text_results <- 1:length(databases) %>%
     map(function(x){
       1:length(all_results[[x]]) %>%
@@ -38,11 +71,7 @@ test_database <- function(databases = "", configuration =  "default", directory 
     mutate(res = ifelse(failed == 0 & error == FALSE, "Passed" , "Failed")) %>%
     arrange(desc(database))
 
-  Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
-
-  new_results
 }
-
 
 #' @export
 html_report <- function(
@@ -140,14 +169,33 @@ run_script <- function(connection_name, test_directory){
       PWD = db$PWD,
       Port = db$Port)
   }
-
   results <- testthat::test_dir(test_directory, reporter = "minimal")
-
   DBI::dbDisconnect(con)
-
   return(results)
 }
 
+
+#' @import tidyr
+#' @export
+coverage <- function(results){
+  coverage <- results %>%
+    group_by(database, res) %>%
+    tally %>%
+    spread(res, n) %>%
+    mutate(coverage = round(Passed / (Passed + Failed), digits = 2))
+
+  coverage
+}
+
+#' @import ggplot2
+#' @export
+plot_results <- function(results){
+  unique(results$context) %>%
+    map(~ggplot(data = results %>% filter(context == .x)) +
+          geom_raster(aes(x = database, y = test, fill = res)) +
+          scale_fill_discrete(limits = c("Failed", "Passed")) +
+          labs(title = .x, y = ""))
+}
 
 
 
