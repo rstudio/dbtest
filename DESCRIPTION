@@ -19,5 +19,6 @@ Imports:
   purrr,
   pracma,
   htmltools,
-  RSQLite
+  RSQLite,
+  ggplot2
 RoxygenNote: 6.0.1
