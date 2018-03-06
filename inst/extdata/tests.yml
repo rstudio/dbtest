@@ -1,0 +1,12 @@
+- test:
+    mutate: y = is.na(x)
+    filter: is.na(x)
+    summarise: sum(is.na(x), rm.na = TRUE)
+    group_by: is.na(x)
+    arrange: is.na(x)
+- test:
+    mutate: y = round(x)
+    filter: round(x) > 1
+    summarise: sum(round(x), rm.na = TRUE)
+    group_by: round(x)
+    arrange: round(x)
