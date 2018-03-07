@@ -1,39 +1,56 @@
 #' @export
-test_database <- function(tests = "default") {
+test_single_database <- function(datasource, label = NULL, tests = "default") {
+
   reporter <- MultiReporter$new(
     reporters = list(ProgressReporter$new(), ListReporter$new())
   )
-  r <- with_reporter(reporter, testthat_database("default"))
+
+  r <- with_reporter(
+    reporter,
+    testthat_database(
+      datasource = datasource,
+      tests = tests
+      )
+    )
+
+  if(is.null(label) & isS4(datasource))
+    label <- class(datasource)[1]
+  if(is.null(label) & "tbl_sql" %in% class(datasource))
+    label <- class(dbplyr::remote_con(datasource))[1]
+
 
   df <- structure(
     r$reporters[[2]]$results$as_list(),
     class = "testthat_results"
   )
-  df <- as.data.frame(df)
-  df[, 2:length(df)]
+
+  list(
+    connection = label,
+    results = df
+  )
 }
 
-testthat_database <- function(tests = "default") {
+testthat_database <- function(datasource, label = NULL, tests = "default") {
+
+  # Load test scripts from YAML format
   if (tests == "default") {
     tests <- read_yaml(default_tests_path())
   } else {
     if (class(tests) == "character") tests <- read_yaml(tests)
   }
-
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
-  local_df <- mtcars %>%
-    mutate(
-      x = mpg,
-      y = wt
-    )
+  # Address test data
+  if(isS4(datasource)){
+    remote_df <- copy_to(datasource, testdata)
+    local_df  <- testdata
+  }
+  if("tbl_sql" %in% class(datasource)){
+    remote_df <- head(datasource, 1000)
+    local_df  <- collect(remote_df)
+  }
 
-  remote_df <- mtcars %>%
-    mutate(
-      x = mpg,
-      y = wt
-    )
-
+  # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
     f <- parse_expr(vector_expression)
 
@@ -53,6 +70,7 @@ testthat_database <- function(tests = "default") {
     })
   }
 
+  # dplyr test orchestrator
   verbs <- c(
     "mutate",
     "filter",
@@ -60,7 +78,6 @@ testthat_database <- function(tests = "default") {
     "group_by",
     "arrange"
   )
-
   verbs %>%
     map(~{
       verb <- .x
