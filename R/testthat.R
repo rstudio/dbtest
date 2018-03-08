@@ -17,6 +17,11 @@ test_databases <- function(datasources = NULL, tests = "default"){
     # https://github.com/rstudio/config/issues/12
     if(datasources == ""){
       file_path = default_config_path()
+    } else if (
+      fs::path_ext(datasources) %in% c("yml","yaml")
+      && fs::file_exists(datasources)
+      ) {
+      file_path = datasources
     } else {
       file_path = NULL
     }
