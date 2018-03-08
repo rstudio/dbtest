@@ -20,5 +20,7 @@ Imports:
   pracma,
   htmltools,
   RSQLite,
-  ggplot2
+  ggplot2,
+  yaml,
+  rlang
 RoxygenNote: 6.0.1
