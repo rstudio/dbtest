@@ -10,9 +10,7 @@ test_databases <- function(datasources = NULL, tests = "default"){
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
-    }
-
-  if(datasources == "config" | datasources == ""){
+    } else if(datasources == "config" | datasources == ""){
     # Suppress warnings until config issue is resolved
     # https://github.com/rstudio/config/issues/12
     if(datasources == ""){
@@ -36,7 +34,15 @@ test_databases <- function(datasources = NULL, tests = "default"){
         tests
       })
 
+    } else {
+    stop(
+      paste0("Unrecognized value for `datasources`: '%s'"
+             ,", please use either an existing config YAML file, 'config', 'dsn' or NULL"
+             ) %>%
+        sprintf(datasources)
+    )
   }
+
 }
 
 rm_decoys <- function(x) {
