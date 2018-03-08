@@ -11,13 +11,20 @@ test_databases <- function(datasources = NULL,
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
-  } else if (datasources == "config" | datasources == "") {
+  } else if (datasources == "config" |
+             datasources == "" |
+             all(tolower(fs::path_ext(datasources)) %in% c("yml","yaml")) &&
+             all(fs::file_exists(datasources))
+             ) {
+
     # Suppress warnings until config issue is resolved
     # https://github.com/rstudio/config/issues/12
     if (datasources == "") {
       file_path = default_config_path()
-    } else if (fs::path_ext(datasources) %in% c("yml", "yaml")
-               && fs::file_exists(datasources)) {
+    } else if (
+      all(tolower(fs::path_ext(datasources)) %in% c("yml", "yaml"))
+      && all(fs::file_exists(datasources))
+      ) {
       file_path = datasources
     } else {
       file_path = NULL
