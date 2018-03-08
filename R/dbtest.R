@@ -11,7 +11,6 @@
 #' @import pracma
 #' @import dplyr
 #' @keywords internal
-#'
 "_PACKAGE"
 NULL
 utils::globalVariables(c("."))

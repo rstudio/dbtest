@@ -1,5 +1,4 @@
-#' @export
-test_database <- function(databases = "", configuration =  "default", directory = ""){
+old_test_database <- function(databases = "", configuration =  "default", directory = ""){
   original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
   if(is.null(configuration)==FALSE) Sys.setenv(R_CONFIG_ACTIVE = configuration)
 
@@ -13,8 +12,7 @@ test_database <- function(databases = "", configuration =  "default", directory 
   new_results
 }
 
-#' @export
-test_connection <- function(con, test_directory = ""){
+old_test_connection <- function(con, test_directory = ""){
 
   # Swtiching between local project and installed package location
 
@@ -60,7 +58,6 @@ parse_results <- function(databases, all_results){
     arrange(desc(database))
 }
 
-#' @export
 html_report <- function(
   results_variable,
   filename = "dplyr_test_results.html",
@@ -161,7 +158,6 @@ run_script <- function(connection_name, test_directory){
 }
 
 
-#' @export
 coverage <- function(results){
   coverage <- results %>%
     group_by(database, res) %>%
@@ -174,12 +170,20 @@ coverage <- function(results){
 
 
 #' @export
-plot_results <- function(results){
-  unique(results$context) %>%
-    map(~ggplot(data = results %>% filter(context == .x)) +
-          geom_raster(aes(x = database, y = test, fill = res)) +
-          scale_fill_discrete(limits = c("Failed", "Passed")) +
-          labs(title = .x, y = ""))
+plot_tests <- function(results){
+  results %>%
+    map_df(~as.data.frame(.x,  stringsAsFactors = FALSE)) %>%
+    mutate(
+      result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
+      test = paste0(results.test, "\n" ,results.context),
+      filler = ""
+    ) %>%
+    select(connection, test, result, filler) %>%
+    ggplot() +
+    geom_tile(aes(x = filler, y = test, fill = result), color = "black") +
+    scale_fill_discrete(limits = c("Failed", "Passed")) +
+    facet_grid(.~connection) +
+    labs(x = "", y = "")
 }
 
 

@@ -1,8 +1,48 @@
 #' @export
+test_databases <- function(datasources = NULL, tests = "default"){
+
+  if(is.null(datasources)) datasources <- ""
+
+  if(datasources == "dsn"){
+    odbc::odbcListDataSources() %>%
+      map(~{
+        con <- dbConnect(odbc::odbc(), dsn = .x)
+        test_single_database(con, tests = tests)
+        dbDisconnect(con)
+      })
+    }
+
+  if(datasources == "config" | datasources == ""){
+    # Suppress warnings until config issue is resolved
+    # https://github.com/rstudio/config/issues/12
+    if(datasources == ""){
+      file_path = default_config_path()
+    } else {
+      file_path = NULL
+    }
+    suppressWarnings(cons <- config::get(file = file_path))
+
+    names(cons) %>%
+      map(~{
+        curr <- purrr::flatten(cons[.x])
+        con <- do.call(DBI::dbConnect,args= curr)
+        tests <- test_single_database(con, label = .x)
+        dbDisconnect(con)
+        tests
+      })
+
+  }
+}
+
+rm_decoys <- function(x) {
+  x[!names(x) %in% c("Table","TableSchema")]
+}
+
+#' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
   reporter <- MultiReporter$new(
-    reporters = list(ProgressReporter$new(), ListReporter$new())
+    reporters = list(MinimalReporter$new(), ListReporter$new())
   )
 
   r <- with_reporter(
@@ -83,9 +123,9 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
       verb <- .x
       context(verb)
       tests %>%
-        flatten() %>%
+        purrr::flatten() %>%
         map(~.x[verb]) %>%
-        flatten() %>%
+        purrr::flatten() %>%
         map(~run_test(verb, .x))
     })
 }
