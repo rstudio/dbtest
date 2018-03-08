@@ -1,24 +1,23 @@
 #' @export
-test_databases <- function(datasources = NULL, tests = "default"){
+test_databases <- function(datasources = NULL,
+                           tests = "default") {
+  if (is.null(datasources))
+    datasources <- ""
 
-  if(is.null(datasources)) datasources <- ""
-
-  if(datasources == "dsn"){
+  if (datasources == "dsn") {
     odbc::odbcListDataSources() %>%
-      map(~{
+      map( ~ {
         con <- dbConnect(odbc::odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
-    } else if(datasources == "config" | datasources == ""){
+  } else if (datasources == "config" | datasources == "") {
     # Suppress warnings until config issue is resolved
     # https://github.com/rstudio/config/issues/12
-    if(datasources == ""){
+    if (datasources == "") {
       file_path = default_config_path()
-    } else if (
-      fs::path_ext(datasources) %in% c("yml","yaml")
-      && fs::file_exists(datasources)
-      ) {
+    } else if (fs::path_ext(datasources) %in% c("yml", "yaml")
+               && fs::file_exists(datasources)) {
       file_path = datasources
     } else {
       file_path = NULL
@@ -26,19 +25,21 @@ test_databases <- function(datasources = NULL, tests = "default"){
     suppressWarnings(cons <- config::get(file = file_path))
 
     names(cons) %>%
-      map(~{
+      map( ~ {
         curr <- purrr::flatten(cons[.x])
-        con <- do.call(DBI::dbConnect,args= curr)
+        con <- do.call(DBI::dbConnect, args = curr)
         tests <- test_single_database(con, label = .x)
         dbDisconnect(con)
         tests
       })
 
-    } else {
+  } else {
     stop(
-      paste0("Unrecognized value for `datasources`: '%s'"
-             ,", please use either an existing config YAML file, 'config', 'dsn' or NULL"
-             ) %>%
+      paste0(
+        "Unrecognized value for `datasources`: '%s'"
+        ,
+        ", please use either an existing config YAML file, 'config', 'dsn' or NULL"
+      ) %>%
         sprintf(datasources)
     )
   }
