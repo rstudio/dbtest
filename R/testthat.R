@@ -13,8 +13,8 @@ test_databases <- function(datasources = NULL,
       })
   } else if (datasources == "config" |
              datasources == "" |
-             all(tolower(fs::path_ext(datasources)) %in% c("yml","yaml")) &&
-             all(fs::file_exists(datasources))
+             (all(tolower(fs::path_ext(datasources)) %in% c("yml","yaml")) &&
+             all(fs::file_exists(datasources)))
              ) {
 
     # Suppress warnings until config issue is resolved
