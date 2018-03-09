@@ -29,6 +29,9 @@ test_databases <- function(datasources = NULL,
     } else {
       file_path = NULL
     }
+
+    if (length(file_path) > 1)
+      stop(sprintf("Multiple datasources are not currently supported"))
     suppressWarnings(cons <- config::get(file = file_path))
 
     names(cons) %>%
