@@ -17,8 +17,6 @@ test_databases <- function(datasources = NULL,
              all(fs::file_exists(datasources)))
              ) {
 
-    # Suppress warnings until config issue is resolved
-    # https://github.com/rstudio/config/issues/12
     if (datasources == "") {
       file_path = default_config_path()
     } else if (
@@ -32,6 +30,9 @@ test_databases <- function(datasources = NULL,
 
     if (length(file_path) > 1)
       stop(sprintf("Multiple datasources are not currently supported"))
+
+    # Suppress warnings until config issue is resolved
+    # https://github.com/rstudio/config/issues/12
     suppressWarnings(cons <- config::get(file = file_path))
 
     names(cons) %>%
