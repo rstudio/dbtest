@@ -69,7 +69,7 @@ test_single_database <- function(datasource, label = NULL, tests = "default") {
                      , testthat::ListReporter$new())
   )
 
-  r <- with_reporter(
+  r <- testthat::with_reporter(
     reporter,
     testthat_database(
       datasource = datasource,
