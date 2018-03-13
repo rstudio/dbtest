@@ -7,7 +7,7 @@ test_databases <- function(datasources = NULL,
   if (datasources == "dsn") {
     odbc::odbcListDataSources()$name %>%
       map( ~ {
-        con <- dbConnect(odbc::odbc(), dsn = .x)
+        con <- DBI::dbConnect(odbc::odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
@@ -64,7 +64,7 @@ rm_decoys <- function(x) {
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
-  reporter <- MultiReporter$new(
+  reporter <- testthat::MultiReporter$new(
     reporters = list(MinimalReporter$new(), ListReporter$new())
   )
 
@@ -97,9 +97,9 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Load test scripts from YAML format
   if (tests == "default") {
-    tests <- read_yaml(default_tests_path())
+    tests <- yaml::read_yaml(default_tests_path())
   } else {
-    if (class(tests) == "character") tests <- read_yaml(tests)
+    if (class(tests) == "character") tests <- yaml::read_yaml(tests)
   }
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
