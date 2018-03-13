@@ -116,7 +116,7 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
-    f <- parse_expr(vector_expression)
+    f <- rlang::parse_expr(vector_expression)
 
     if (verb == "summarise") manip <- . %>% summarise(!! f) %>% pull()
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
