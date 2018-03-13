@@ -149,14 +149,14 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
     "group_by",
     "arrange"
   )
-  verbs %>%
+
+  tests %>%
     map(~{
-      verb <- .x
-      context(verb)
-      tests %>%
+      curr_test <- .x
+      context(names(curr_test))
+      curr_test %>%
         purrr::flatten() %>%
-        map(~.x[verb]) %>%
-        purrr::flatten() %>%
-        map(~run_test(verb, .x))
+        map2(names(.)
+             , ~run_test(.y, .x))
     })
 }
