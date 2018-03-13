@@ -5,7 +5,7 @@ test_databases <- function(datasources = NULL,
     datasources <- ""
 
   if (datasources == "dsn") {
-    odbc::odbcListDataSources() %>%
+    odbc::odbcListDataSources()$name %>%
       map( ~ {
         con <- dbConnect(odbc::odbc(), dsn = .x)
         test_single_database(con, tests = tests)
