@@ -65,7 +65,8 @@ rm_decoys <- function(x) {
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
   reporter <- testthat::MultiReporter$new(
-    reporters = list(MinimalReporter$new(), ListReporter$new())
+    reporters = list(testthat::MinimalReporter$new()
+                     , testthat::ListReporter$new())
   )
 
   r <- with_reporter(
