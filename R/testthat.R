@@ -106,7 +106,14 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Address test data
   if(isS4(datasource)){
-    remote_df <- copy_to(datasource, testdata)
+    remote_df <- copy_to(datasource, testdata
+                         , name=tolower(
+                           paste(
+                             sample(LETTERS, size=20, replace=TRUE)
+                             ,collapse='')
+                           )
+                         )
+
     local_df  <- testdata
   }
   if("tbl_sql" %in% class(datasource)){
