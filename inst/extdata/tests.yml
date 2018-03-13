@@ -45,6 +45,7 @@
     filter: fld_integer != fld_double
     summarise: sum(fld_integer != fld_double, na.rm=TRUE)
     group_by: fld_integer != fld_double
+- logical_noteq_diff:
     mutate: fld_integer != fld_integer
     filter: fld_integer != fld_integer
     summarise: sum(fld_integer != fld_integer, na.rm=TRUE)
