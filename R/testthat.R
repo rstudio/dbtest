@@ -131,7 +131,7 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
     if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
     if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull()
 
-    test_that(paste0(vector_expression), {
+    test_that(paste0(verb,": ",vector_expression), {
       invisible({
         expect_equal(
           manip(local_df),
