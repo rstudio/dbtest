@@ -171,8 +171,13 @@ coverage <- function(results){
 
 #' @export
 plot_tests <- function(results){
-  dataset <- results %>%
-    as.data.frame(stringsAsFactors = FALSE) %>%
+  if (is.list(results) & is.null(names(results))) {
+    prep_results <- results %>%
+      map_df(~as.data.frame(.x, stringsAsFactors = FALSE))
+  } else {
+    prep_results <- results %>% as.data.frame(stringsAsFactors = FALSE)
+  }
+  dataset <- prep_results %>%
     mutate(
       result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
       test = paste0(results.test, "\n" ,results.context),
