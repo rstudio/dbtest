@@ -40,12 +40,12 @@
     summarise: sum((2 * fld_integer) %% (fld_integer + 1), na.rm=TRUE)
     group_by: (2 * fld_integer) %% (fld_integer + 1)
     arrange: (2 * fld_integer) %% (fld_integer + 1)
-- logical_noteq:
+- bool_neq:
     mutate: fld_integer != fld_double
     filter: fld_integer != fld_double
     summarise: sum(fld_integer != fld_double, na.rm=TRUE)
     group_by: fld_integer != fld_double
-- logical_noteq_diff:
+- bool_neq_same:
     mutate: fld_integer != fld_integer
     filter: fld_integer != fld_integer
     summarise: sum(fld_integer != fld_integer, na.rm=TRUE)
