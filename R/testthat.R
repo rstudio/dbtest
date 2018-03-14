@@ -125,7 +125,7 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
   run_test <- function(verb, vector_expression) {
     f <- rlang::parse_expr(vector_expression)
 
-    if (verb == "summarise") manip <- . %>% summarise(!! f) %>% pull()
+    if (verb %in% c("summarise","summarize")) manip <- . %>% summarise(!! f) %>% pull()
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
     if (verb == "arrange") manip <- . %>% arrange(!! f) %>% pull()
     if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
