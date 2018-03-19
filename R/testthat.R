@@ -1,37 +1,60 @@
 #' @export
-test_databases <- function(datasources = NULL, tests = "default"){
+test_databases <- function(datasources = NULL,
+                           tests = "default") {
+  if (is.null(datasources))
+    datasources <- ""
 
-  if(is.null(datasources)) datasources <- ""
-
-  if(datasources == "dsn"){
-    odbc::odbcListDataSources() %>%
-      map(~{
-        con <- dbConnect(odbc::odbc(), dsn = .x)
+  if (datasources == "dsn") {
+    odbc::odbcListDataSources()$name %>%
+      map( ~ {
+        con <- DBI::dbConnect(odbc::odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
-    }
+  } else if (datasources == "config" |
+             datasources == "" |
+             (all(tolower(fs::path_ext(datasources)) %in% c("yml","yaml")) &&
+             all(fs::file_exists(datasources)))
+             ) {
 
-  if(datasources == "config" | datasources == ""){
-    # Suppress warnings until config issue is resolved
-    # https://github.com/rstudio/config/issues/12
-    if(datasources == ""){
+    if (datasources == "") {
       file_path = default_config_path()
+    } else if (
+      all(tolower(fs::path_ext(datasources)) %in% c("yml", "yaml"))
+      && all(fs::file_exists(datasources))
+      ) {
+      file_path = datasources
     } else {
       file_path = NULL
     }
+
+    if (length(file_path) > 1)
+      stop(sprintf("Multiple datasources are not currently supported"))
+
+    # Suppress warnings until config issue is resolved
+    # https://github.com/rstudio/config/issues/12
     suppressWarnings(cons <- config::get(file = file_path))
 
     names(cons) %>%
-      map(~{
+      map( ~ {
         curr <- purrr::flatten(cons[.x])
-        con <- do.call(DBI::dbConnect,args= curr)
+        con <- do.call(DBI::dbConnect, args = curr)
         tests <- test_single_database(con, label = .x)
         dbDisconnect(con)
         tests
       })
 
+  } else {
+    stop(
+      paste0(
+        "Unrecognized value for `datasources`: '%s'"
+        ,
+        ", please use either an existing config YAML file, 'config', 'dsn' or NULL"
+      ) %>%
+        sprintf(datasources)
+    )
   }
+
 }
 
 rm_decoys <- function(x) {
@@ -41,11 +64,12 @@ rm_decoys <- function(x) {
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
-  reporter <- MultiReporter$new(
-    reporters = list(MinimalReporter$new(), ListReporter$new())
+  reporter <- testthat::MultiReporter$new(
+    reporters = list(testthat::MinimalReporter$new()
+                     , testthat::ListReporter$new())
   )
 
-  r <- with_reporter(
+  r <- testthat::with_reporter(
     reporter,
     testthat_database(
       datasource = datasource,
@@ -74,15 +98,22 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Load test scripts from YAML format
   if (tests == "default") {
-    tests <- read_yaml(default_tests_path())
+    tests <- yaml::read_yaml(default_tests_path())
   } else {
-    if (class(tests) == "character") tests <- read_yaml(tests)
+    if (class(tests) == "character") tests <- yaml::read_yaml(tests)
   }
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
   # Address test data
   if(isS4(datasource)){
-    remote_df <- copy_to(datasource, testdata)
+    remote_df <- copy_to(datasource, testdata
+                         , name=tolower(
+                           paste(
+                             sample(LETTERS, size=20, replace=TRUE)
+                             ,collapse='')
+                           )
+                         )
+
     local_df  <- testdata
   }
   if("tbl_sql" %in% class(datasource)){
@@ -92,15 +123,15 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
-    f <- parse_expr(vector_expression)
+    f <- rlang::parse_expr(vector_expression)
 
-    if (verb == "summarise") manip <- . %>% summarise(!! f) %>% pull()
+    if (verb %in% c("summarise","summarize")) manip <- . %>% summarise(!! f) %>% pull()
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
     if (verb == "arrange") manip <- . %>% arrange(!! f) %>% pull()
     if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
     if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull()
 
-    test_that(paste0(vector_expression), {
+    test_that(paste0(verb,": ",vector_expression), {
       invisible({
         expect_equal(
           manip(local_df),
@@ -118,14 +149,14 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
     "group_by",
     "arrange"
   )
-  verbs %>%
+
+  tests %>%
     map(~{
-      verb <- .x
-      context(verb)
-      tests %>%
+      curr_test <- .x
+      context(names(curr_test))
+      curr_test %>%
         purrr::flatten() %>%
-        map(~.x[verb]) %>%
-        purrr::flatten() %>%
-        map(~run_test(verb, .x))
+        map2(names(.)
+             , ~run_test(.y, .x))
     })
 }

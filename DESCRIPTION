@@ -22,5 +22,6 @@ Imports:
   RSQLite,
   ggplot2,
   yaml,
-  rlang
+  rlang, 
+  fs
 RoxygenNote: 6.0.1

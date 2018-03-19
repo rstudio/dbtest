@@ -171,18 +171,24 @@ coverage <- function(results){
 
 #' @export
 plot_tests <- function(results){
-  results %>%
-    map_df(~as.data.frame(.x,  stringsAsFactors = FALSE)) %>%
+  if (is.list(results) & is.null(names(results))) {
+    prep_results <- results %>%
+      map_df(~as.data.frame(.x, stringsAsFactors = FALSE))
+  } else {
+    prep_results <- results %>% as.data.frame(stringsAsFactors = FALSE)
+  }
+  dataset <- prep_results %>%
     mutate(
       result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
       test = paste0(results.test, "\n" ,results.context),
       filler = ""
     ) %>%
-    select(connection, test, result, filler) %>%
-    ggplot() +
-    geom_tile(aes(x = filler, y = test, fill = result), color = "black") +
+    select(connection, test, result, filler, justtest=results.test, context=results.context)
+
+    ggplot(dataset) +
+    geom_tile(aes(x = filler, y = justtest, fill = result), color = "black") +
     scale_fill_discrete(limits = c("Failed", "Passed")) +
-    facet_grid(.~connection) +
+    facet_grid(context~connection, scales = 'free') +
     labs(x = "", y = "")
 }
 
