@@ -91,41 +91,6 @@ print_result <- function(record, id){
 }
 
 
-run_script <- function(connection_name, test_directory){
-
-  # Swtiching between local project and installed package location
-
-  if(test_directory==""){
-    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
-  } else {
-    test_directory <- file.path(find_rstudio_root_file(), test_directory)
-  }
-
-    if(connection_name==""){
-
-    con <<- dbConnect(SQLite(), path = ":memory:")
-  } else {
-    db <- config::get(connection_name)
-
-    con <<- dbConnect(
-      odbc(),
-      Driver = db$Driver,
-      Server = db$Server,
-      Host = db$Host,
-      SVC = db$SVC,
-      DBCName = db$DBCName,
-      Database = db$Database,
-      Schema = db$Schema,
-      UID  = db$UID,
-      PWD = db$PWD,
-      Port = db$Port)
-  }
-  results <- test_dir(test_directory, reporter = "minimal")
-  dbDisconnect(con)
-  return(results)
-}
-
-
 coverage <- function(results){
   coverage <- results %>%
     group_by(database, res) %>%
