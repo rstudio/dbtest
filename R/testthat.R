@@ -7,21 +7,21 @@ test_databases <- function(datasources = NULL,
   if (datasources == "dsn") {
     odbc::odbcListDataSources()$name %>%
       map( ~ {
-        con <- DBI::dbConnect(odbc::odbc(), dsn = .x)
+        con <- dbConnect(odbc::odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
   } else if (datasources == "config" |
              datasources == "" |
-             (all(tolower(fs::path_ext(datasources)) %in% c("yml","yaml")) &&
-             all(fs::file_exists(datasources)))
+             (all(tolower(path_ext(datasources)) %in% c("yml","yaml")) &&
+             all(file_exists(datasources)))
              ) {
 
     if (datasources == "") {
       file_path = default_config_path()
     } else if (
-      all(tolower(fs::path_ext(datasources)) %in% c("yml", "yaml"))
-      && all(fs::file_exists(datasources))
+      all(tolower(path_ext(datasources)) %in% c("yml", "yaml"))
+      && all(file_exists(datasources))
       ) {
       file_path = datasources
     } else {
@@ -37,8 +37,8 @@ test_databases <- function(datasources = NULL,
 
     names(cons) %>%
       map( ~ {
-        curr <- purrr::flatten(cons[.x])
-        con <- do.call(DBI::dbConnect, args = curr)
+        curr <- flatten(cons[.x])
+        con <- do.call(dbConnect, args = curr)
         tests <- test_single_database(con, label = .x)
         dbDisconnect(con)
         tests
@@ -60,12 +60,12 @@ test_databases <- function(datasources = NULL,
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
-  reporter <- testthat::MultiReporter$new(
-    reporters = list(testthat::MinimalReporter$new()
-                     , testthat::ListReporter$new())
+  reporter <- MultiReporter$new(
+    reporters = list(MinimalReporter$new()
+                     , ListReporter$new())
   )
 
-  r <- testthat::with_reporter(
+  r <- with_reporter(
     reporter,
     testthat_database(
       datasource = datasource,
@@ -76,7 +76,7 @@ test_single_database <- function(datasource, label = NULL, tests = "default") {
   if(is.null(label) & isS4(datasource))
     label <- class(datasource)[1]
   if(is.null(label) & "tbl_sql" %in% class(datasource))
-    label <- class(dbplyr::remote_con(datasource))[1]
+    label <- class(remote_con(datasource))[1]
 
 
   df <- structure(
@@ -94,9 +94,9 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Load test scripts from YAML format
   if (tests == "default") {
-    tests <- yaml::read_yaml(default_tests_path())
+    tests <- read_yaml(default_tests_path())
   } else {
-    if (class(tests) == "character") tests <- yaml::read_yaml(tests)
+    if (class(tests) == "character") tests <- read_yaml(tests)
   }
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
@@ -119,7 +119,7 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
-    f <- rlang::parse_expr(vector_expression)
+    f <- parse_expr(vector_expression)
 
     if (verb %in% c("summarise","summarize")) manip <- . %>% summarise(!! f) %>% pull()
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
@@ -143,7 +143,7 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
       curr_test <- .x
       context(names(curr_test))
       curr_test %>%
-        purrr::flatten() %>%
+        flatten() %>%
         map2(names(.)
              , ~run_test(.y, .x))
     })

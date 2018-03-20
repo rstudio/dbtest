@@ -98,16 +98,16 @@ run_script <- function(connection_name, test_directory){
   if(test_directory==""){
     test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
   } else {
-    test_directory <- file.path(rprojroot::find_rstudio_root_file(), test_directory)
+    test_directory <- file.path(find_rstudio_root_file(), test_directory)
   }
 
     if(connection_name==""){
 
-    con <<- DBI::dbConnect(RSQLite::SQLite(), path = ":memory:")
+    con <<- dbConnect(SQLite(), path = ":memory:")
   } else {
     db <- config::get(connection_name)
 
-    con <<- DBI::dbConnect(
+    con <<- dbConnect(
       odbc::odbc(),
       Driver = db$Driver,
       Server = db$Server,
@@ -120,8 +120,8 @@ run_script <- function(connection_name, test_directory){
       PWD = db$PWD,
       Port = db$Port)
   }
-  results <- testthat::test_dir(test_directory, reporter = "minimal")
-  DBI::dbDisconnect(con)
+  results <- test_dir(test_directory, reporter = "minimal")
+  dbDisconnect(con)
   return(results)
 }
 
@@ -147,7 +147,7 @@ coverage <- function(results){
 #' @return ggplot2 object / graph
 #'
 #' @examples
-#' con <- odbc::dbConnect(RSQLite::SQLite(), ":memory:")
+#' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' tbl_data <- dplyr::copy_to(con, testdata)
 #' res <- test_single_database(tbl_data)
 #' plot_tests(res)
