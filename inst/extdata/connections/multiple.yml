@@ -2,3 +2,6 @@ default:
   sqlite:
     drv: !expr RSQLite::SQLite()
     path: ":memory:"
+  sqlite2:
+    drv: !expr RSQLite::SQLite()
+    path: ":memory:"
