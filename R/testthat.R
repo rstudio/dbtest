@@ -10,7 +10,7 @@
 #' `dbConnect` as-is
 #' @param tests optional The tests to execute.  References `dbtest` test suite by default
 #'
-#' @value Returns a list of lists containing the respective datasource labels and testthat output
+#' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
 #' @seealso test_single_database
 #'
