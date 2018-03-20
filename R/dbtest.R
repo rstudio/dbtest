@@ -25,5 +25,5 @@
 #' @import testthat
 #' @keywords internal
 "_PACKAGE"
-
+NULL
 utils::globalVariables(c("."))
