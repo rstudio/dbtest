@@ -1,3 +1,19 @@
+#' Test Databases
+#'
+#' A wrapper around `test_sigle_database` that iterates over multiple datasources
+#' and executes the testing suite on each.  Output is organized in such a way as to
+#' give nice, consolidated results.
+#'
+#' @param datasources optional Defaults to using a SQLite database.  Pass "dsn" to use
+#' all DSNs available on the system.  Use "config" or a path to a "config.yml" file to
+#' use connection parameters in a YAML file.  Connection parameters will be passed to
+#' `dbConnect` as-is
+#' @param tests optional The tests to execute.  References `dbtest` test suite by default
+#'
+#' @value Returns a list of lists containing the respective datasource labels and testthat output
+#'
+#' @seealso test_single_database
+#'
 #' @export
 test_databases <- function(datasources = NULL,
                            tests = "default") {
@@ -57,6 +73,19 @@ test_databases <- function(datasources = NULL,
 
 }
 
+#' Test Single Database
+#'
+#' Run a single datasource through the testing suite.  Typically, this
+#' object would be a connection or a `tbl_sql`
+#'
+#' @param datasource The datasource to test against.  Either a DBI connection or a tbl_sql
+#' @param label optional The label to give the test.  If not provided, one will be generated
+#' @param tests optional The tests to execute.  References `dbtest` test suite by default
+#'
+#' @return A list object with the label and testthat results
+#'
+#' @seealso test_databases
+#'
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
