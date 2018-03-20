@@ -27,6 +27,7 @@
 #' \dontrun{
 #' test_databases(datasources = "./path/to/conn.yml")
 #' }
+#'
 #' @export
 test_databases <- function(datasources = NULL,
                            tests = "default") {
@@ -34,9 +35,9 @@ test_databases <- function(datasources = NULL,
     datasources <- ""
 
   if (datasources == "dsn") {
-    odbc::odbcListDataSources()$name %>%
+    odbcListDataSources()$name %>%
       map( ~ {
-        con <- dbConnect(odbc::odbc(), dsn = .x)
+        con <- dbConnect(odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })

@@ -108,7 +108,7 @@ run_script <- function(connection_name, test_directory){
     db <- config::get(connection_name)
 
     con <<- dbConnect(
-      odbc::odbc(),
+      odbc(),
       Driver = db$Driver,
       Server = db$Server,
       Host = db$Host,
