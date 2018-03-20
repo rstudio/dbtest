@@ -22,6 +22,20 @@ A wrapper around `test_sigle_database` that iterates over multiple datasources
 and executes the testing suite on each.  Output is organized in such a way as to
 give nice, consolidated results.
 }
+\examples{
+# test all dsns with dbtest suite -----------------------
+\dontrun{
+test_databases(datasources = "dsn")
+}
+# test sqlite with custom suite -------------------------
+\dontrun{
+test_databases(tests = "./path/to/my.yml")
+}
+# test connection yaml file with dbtest suite -----------
+\dontrun{
+test_databases(datasources = "./path/to/conn.yml")
+}
+}
 \seealso{
 test_single_database
 }

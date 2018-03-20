@@ -1,6 +1,6 @@
-#' Test Databases
+#' @title Test Databases
 #'
-#' A wrapper around `test_sigle_database` that iterates over multiple datasources
+#' @description A wrapper around `test_sigle_database` that iterates over multiple datasources
 #' and executes the testing suite on each.  Output is organized in such a way as to
 #' give nice, consolidated results.
 #'
@@ -14,6 +14,19 @@
 #'
 #' @seealso test_single_database
 #'
+#' @examples
+#' # test all dsns with dbtest suite -----------------------
+#' \dontrun{
+#' test_databases(datasources = "dsn")
+#' }
+#' # test sqlite with custom suite -------------------------
+#' \dontrun{
+#' test_databases(tests = "./path/to/my.yml")
+#' }
+#' # test connection yaml file with dbtest suite -----------
+#' \dontrun{
+#' test_databases(datasources = "./path/to/conn.yml")
+#' }
 #' @export
 test_databases <- function(datasources = NULL,
                            tests = "default") {
@@ -73,9 +86,9 @@ test_databases <- function(datasources = NULL,
 
 }
 
-#' Test Single Database
+#' @title Test Single Database
 #'
-#' Run a single datasource through the testing suite.  Typically, this
+#' @description Run a single datasource through the testing suite.  Typically, this
 #' object would be a connection or a `tbl_sql`
 #'
 #' @param datasource The datasource to test against.  Either a DBI connection or a tbl_sql
@@ -85,7 +98,6 @@ test_databases <- function(datasources = NULL,
 #' @return A list object with the label and testthat results
 #'
 #' @seealso test_databases
-#'
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
