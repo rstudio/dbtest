@@ -57,10 +57,6 @@ test_databases <- function(datasources = NULL,
 
 }
 
-rm_decoys <- function(x) {
-  x[!names(x) %in% c("Table","TableSchema")]
-}
-
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = "default") {
 
@@ -142,14 +138,6 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
   }
 
   # dplyr test orchestrator
-  verbs <- c(
-    "mutate",
-    "filter",
-    "summarise",
-    "group_by",
-    "arrange"
-  )
-
   tests %>%
     map(~{
       curr_test <- .x
