@@ -154,7 +154,7 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
     if (verb == "arrange") manip <- . %>% arrange(!! f) %>% pull()
     if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
-    if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull()
+    if (verb == "group_by") manip <- . %>% group_by(!! f) %>% arrange(!! f) %>% summarise() %>% pull()
 
     test_that(paste0(verb,": ",vector_expression), {
       invisible({
