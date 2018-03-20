@@ -39,9 +39,9 @@ test_databases <- function(datasources = NULL,
       map( ~ {
         curr <- flatten(cons[.x])
         con <- do.call(dbConnect, args = curr)
-        tests <- test_single_database(con, label = .x)
+        test_output <- test_single_database(con, label = .x, tests = tests)
         dbDisconnect(con)
-        tests
+        test_output
       })
 
   } else {
