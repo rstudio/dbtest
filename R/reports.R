@@ -151,6 +151,7 @@ coverage <- function(results){
 #' tbl_data <- dplyr::copy_to(con, testdata)
 #' res <- test_single_database(tbl_data)
 #' plot_tests(res)
+#' DBI::dbDisconnect(con)
 #'
 #' @export
 plot_tests <- function(results){
