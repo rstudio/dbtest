@@ -1,35 +1,3 @@
-old_test_database <- function(databases = "", configuration =  "default", directory = ""){
-  original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
-  if(is.null(configuration)==FALSE) Sys.setenv(R_CONFIG_ACTIVE = configuration)
-
-  all_results <- databases %>%
-    map(function(.x)run_script(.x, test_directory = directory))
-
-  new_results <- parse_results(databases,all_results)
-
-  Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
-
-  new_results
-}
-
-old_test_connection <- function(con, test_directory = ""){
-
-  # Swtiching between local project and installed package location
-
-  if(test_directory==""){
-    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
-  } else {
-    test_directory <- file.path(rprojroot::find_rstudio_root_file(), test_directory)
-  }
-
-  con <<- con
-  results <- testthat::test_dir(test_directory, reporter = "minimal")
-
-  results <- parse_results("db", list(results))
-
-  return(results)
-}
-
 parse_results <- function(databases, all_results){
   text_results <- 1:length(databases) %>%
     map(function(x){
