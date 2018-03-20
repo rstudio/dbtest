@@ -9,7 +9,7 @@ Authors@R: c(
     )
 Description: The package uses testthat to automate tests of dbplyr SQL translation
     by running the tests against live database connections.
-License: MIT
+License: MIT + file LICENSE
 URL: https://github.com/rstudio/dbtest
 BugReports: https://github.com/rstudio/dbtest/issues
 Encoding: UTF-8
