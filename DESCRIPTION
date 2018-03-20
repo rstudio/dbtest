@@ -27,6 +27,7 @@ Imports:
   pracma,
   htmltools,
   RSQLite,
+  rprojroot,
   ggplot2,
   yaml,
   rlang, 
