@@ -22,14 +22,15 @@ Imports:
   config,
   dplyr,
   dbplyr,
-  testthat,
-  purrr,
-  pracma,
-  htmltools,
-  RSQLite,
-  rprojroot,
+  fs,
   ggplot2,
-  yaml,
+  htmltools,
+  odbc,
+  pracma,
+  purrr,
   rlang, 
-  fs
+  rprojroot,
+  RSQLite,
+  testthat,
+  yaml
 RoxygenNote: 6.0.1
