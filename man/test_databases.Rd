@@ -35,6 +35,7 @@ test_databases(tests = "./path/to/my.yml")
 \dontrun{
 test_databases(datasources = "./path/to/conn.yml")
 }
+
 }
 \seealso{
 test_single_database
