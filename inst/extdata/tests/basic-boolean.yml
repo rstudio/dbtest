@@ -1,0 +1,65 @@
+- neq:
+    mutate: fld_integer != fld_double
+    filter: fld_integer != fld_double
+    summarise: sum(fld_integer != fld_double, na.rm=TRUE)
+    group_by: fld_integer != fld_double
+- neq_same:
+    mutate: fld_integer != fld_integer
+    filter: fld_integer != fld_integer
+    summarise: sum(fld_integer != fld_integer, na.rm=TRUE)
+    group_by: fld_integer != fld_integer
+- eq_same:
+    mutate: fld_integer == fld_integer
+    filter: fld_integer == fld_integer
+    summarise: sum(fld_integer == fld_integer, na.rm=TRUE)
+    group_by: fld_integer == fld_integer
+- less:
+    mutate: fld_integer < fld_double
+    filter: fld_integer < fld_double
+    summarise: sum(fld_integer < fld_double, na.rm=TRUE)
+    group_by: fld_integer < fld_double
+- leq:
+    mutate: fld_integer <= fld_double
+    filter: fld_integer <= fld_double
+    summarise: sum(fld_integer <= fld_double, na.rm=TRUE)
+    group_by: fld_integer <= fld_double
+- greater:
+    mutate: fld_integer > fld_double
+    filter: fld_integer > fld_double
+    summarise: sum(fld_integer > fld_double, na.rm=TRUE)
+    group_by: fld_integer > fld_double
+- geq:
+    mutate: fld_integer >= fld_double
+    filter: fld_integer >= fld_double
+    summarise: sum(fld_integer >= fld_double, na.rm=TRUE)
+    group_by: fld_integer >= fld_double
+- not:
+    mutate: "!fld_logical"
+    filter: "!fld_logical"
+    summarise: "sum(!fld_logical, na.rm=TRUE)"
+    group_by: "!fld_logical"
+- and:
+    mutate: fld_logical & fld_logical
+    filter: fld_logical & fld_logical
+    summarise: sum(fld_logical & fld_logical, na.rm=TRUE)
+    group_by: fld_logical & fld_logical
+- and_and:
+    mutate: fld_logical && fld_logical
+    filter: fld_logical && fld_logical
+    summarise: sum(fld_logical && fld_logical, na.rm=TRUE)
+    group_by: fld_logical && fld_logical
+- or:
+    mutate: fld_logical | fld_logical
+    filter: fld_logical | fld_logical
+    summarise: sum(fld_logical | fld_logical, na.rm=TRUE)
+    group_by: fld_logical | fld_logical
+- or_or:
+    mutate: fld_logical || fld_logical
+    filter: fld_logical || fld_logical
+    summarise: sum(fld_logical || fld_logical, na.rm=TRUE)
+    group_by: fld_logical || fld_logical
+- xor:
+    mutate: xor(fld_logical, fld_logical)
+    filter: xor(fld_logical, fld_logical)
+    summarise: sum(xor(fld_logical, fld_logical), na.rm=TRUE)
+    group_by: xor(fld_logical, fld_logical)
