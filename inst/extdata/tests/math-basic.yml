@@ -36,7 +36,7 @@
     arrange: round(fld_double, 0)
 - sign:
     mutate: sign(fld_double)
-    filter: sign(fld_double)
+    filter: sign(fld_double) > 0
     summarise: sum(sign(fld_double), na.rm = TRUE)
     group_by: sign(fld_double)
     arrange: sign(fld_double)
