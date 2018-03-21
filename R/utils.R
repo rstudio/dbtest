@@ -7,7 +7,11 @@
 #'
 #' @export
 default_tests_path <- function(file = "simple-tests.yml"){
-  system.file("extdata", "tests", file, package = "dbtest")
+  system.file("extdata", "tests", fs::path_file(file), package = "dbtest")
+}
+
+all_tests <- function(dir = system.file("extdata", "tests", package = "dbtest")) {
+  fs::dir_ls(dir)
 }
 
 #' @rdname utils
