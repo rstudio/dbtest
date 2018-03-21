@@ -5,7 +5,7 @@
 \alias{default_config_path}
 \title{Utility Functions}
 \usage{
-default_tests_path(file = "tests.yml")
+default_tests_path(file = "simple-tests.yml")
 
 default_config_path(file = "config.yml")
 }
