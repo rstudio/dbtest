@@ -30,7 +30,7 @@
 #'
 #' @export
 test_databases <- function(datasources = NULL,
-                           tests = "default") {
+                           tests = default_test_path()) {
   if (is.null(datasources))
     datasources <- ""
 
@@ -100,7 +100,7 @@ test_databases <- function(datasources = NULL,
 #'
 #' @seealso test_databases
 #' @export
-test_single_database <- function(datasource, label = NULL, tests = "default") {
+test_single_database <- function(datasource, label = NULL, tests = default_test_path()) {
 
   reporter <- MultiReporter$new(
     reporters = list(MinimalReporter$new()
@@ -132,14 +132,11 @@ test_single_database <- function(datasource, label = NULL, tests = "default") {
   )
 }
 
-testthat_database <- function(datasource, label = NULL, tests = "default") {
+testthat_database <- function(datasource, label = NULL, tests = default_test_path()) {
 
   # Load test scripts from YAML format
-  if (tests == "default") {
-    tests <- read_yaml(default_tests_path())
-  } else {
-    if (class(tests) == "character") tests <- read_yaml(tests)
-  }
+  if (class(tests) == "character") tests <- read_yaml(tests)
+
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
   # Address test data

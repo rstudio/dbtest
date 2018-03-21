@@ -4,7 +4,7 @@
 \alias{test_databases}
 \title{Test Databases}
 \usage{
-test_databases(datasources = NULL, tests = "default")
+test_databases(datasources = NULL, tests = default_test_path())
 }
 \arguments{
 \item{datasources}{optional Defaults to using a SQLite database.  Pass "dsn" to use
