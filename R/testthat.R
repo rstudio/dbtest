@@ -93,8 +93,8 @@ test_databases <- function(datasources = NULL,
 #' object would be a connection or a `tbl_sql`
 #'
 #' @param datasource The datasource to test against.  Either a DBI connection or a tbl_sql
-#' @param label optional The label to give the test.  If not provided, one will be generated
 #' @param tests optional The tests to execute.  References `dbtest` test suite by default
+#' @param label optional The label to give the test.  If not provided, one will be generated
 #'
 #' @return A list object with the label and testthat results
 #'
@@ -106,7 +106,7 @@ test_databases <- function(datasources = NULL,
 #'
 #' @seealso test_databases
 #' @export
-test_single_database <- function(datasource, label = NULL, tests = default_test_path()) {
+test_single_database <- function(datasource, tests = default_test_path(), label = NULL) {
 
   reporter <- MultiReporter$new(
     reporters = list(MinimalReporter$new()
@@ -140,7 +140,7 @@ test_single_database <- function(datasource, label = NULL, tests = default_test_
   )
 }
 
-testthat_database <- function(datasource, label = NULL, tests = default_test_path()) {
+testthat_database <- function(datasource, tests = default_test_path()) {
 
   # Load test scripts from YAML format
   if (class(tests) == "character") tests <- read_yaml(tests)

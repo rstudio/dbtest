@@ -4,14 +4,14 @@
 \alias{test_single_database}
 \title{Test Single Database}
 \usage{
-test_single_database(datasource, label = NULL, tests = default_test_path())
+test_single_database(datasource, tests = default_test_path(), label = NULL)
 }
 \arguments{
 \item{datasource}{The datasource to test against.  Either a DBI connection or a tbl_sql}
 
-\item{label}{optional The label to give the test.  If not provided, one will be generated}
-
 \item{tests}{optional The tests to execute.  References `dbtest` test suite by default}
+
+\item{label}{optional The label to give the test.  If not provided, one will be generated}
 }
 \value{
 A list object with the label and testthat results
