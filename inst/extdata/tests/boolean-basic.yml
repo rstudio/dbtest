@@ -63,3 +63,8 @@
     filter: xor(fld_logical, fld_logical)
     summarise: sum(xor(fld_logical, fld_logical), na.rm=TRUE)
     group_by: xor(fld_logical, fld_logical)
+- %in%:
+    mutate: fld_factor %in% c("a","b")
+    filter: fld_factor %in% c("a","b")
+    summarise: sum(fld_factor %in% c("a","b"), na.rm = TRUE)
+    group_by: fld_factor %in% c("a","b")
