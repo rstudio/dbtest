@@ -1,0 +1,6 @@
+- acos:
+    mutate: acos(fld_double)
+    filter: acos(fld_double) < 0.5
+    summarise: sum(acos(fld_double), na.rm = TRUE)
+    group_by: acos(fld_double)
+    arrange: acos(fld_double)

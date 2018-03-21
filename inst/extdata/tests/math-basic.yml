@@ -42,7 +42,7 @@
     arrange: sign(fld_double)
 - sqrt:
     mutate: sqrt(fld_double)
-    filter: sqrt(fld_double)
+    filter: sqrt(fld_double) > 5
     summarise: sum(sqrt(fld_double), na.rm = TRUE)
     group_by: sqrt(fld_double)
     arrange: sqrt(fld_double)
