@@ -20,6 +20,13 @@ A list object with the label and testthat results
 Run a single datasource through the testing suite.  Typically, this
 object would be a connection or a `tbl_sql`
 }
+\examples{
+
+con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+res <- test_single_database(con, "simple-tests.yml")
+DBI::dbDisconnect(con)
+
+}
 \seealso{
 test_databases
 }

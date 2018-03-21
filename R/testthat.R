@@ -98,21 +98,29 @@ test_databases <- function(datasources = NULL,
 #'
 #' @return A list object with the label and testthat results
 #'
+#' @examples
+#'
+#' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' res <- test_single_database(con, "simple-tests.yml")
+#' DBI::dbDisconnect(con)
+#'
 #' @seealso test_databases
 #' @export
 test_single_database <- function(datasource, label = NULL, tests = default_test_path()) {
 
   reporter <- MultiReporter$new(
     reporters = list(MinimalReporter$new()
-                     , ListReporter$new())
+                     , ListReporter$new()
+                     )
   )
 
   r <- with_reporter(
-    reporter,
-    testthat_database(
-      datasource = datasource,
-      tests = tests
+    reporter, {
+      testthat_database(
+        datasource = datasource,
+        tests = tests
       )
+    }
     )
 
   if(is.null(label) & isS4(datasource))
