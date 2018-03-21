@@ -114,7 +114,7 @@ coverage <- function(results){
 #' @examples
 #' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' tbl_data <- dplyr::copy_to(con, testdata)
-#' res <- test_single_database(tbl_data)
+#' res <- test_single_database(tbl_data, "simple-tests.yml")
 #' plot_tests(res)
 #' DBI::dbDisconnect(con)
 #'
