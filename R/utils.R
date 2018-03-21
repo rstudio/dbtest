@@ -6,7 +6,7 @@
 #' @param file The file to reference at the default location
 #'
 #' @export
-default_tests_path <- function(file = "tests.yml"){
+default_tests_path <- function(file = "simple-tests.yml"){
   system.file("extdata", "tests", file, package = "dbtest")
 }
 
