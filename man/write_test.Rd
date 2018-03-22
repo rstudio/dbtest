@@ -12,7 +12,13 @@ write_test(file, header, expr, overwrite = FALSE, comparison = .x >
 
 \item{header}{The header to name the test section.  Preferably short}
 
-\item{expression}{The expression to use for writing tests}
+\item{expr}{The expression to use for writing tests}
+
+\item{overwrite}{optional Whether to overwrite the existing file or
+append.  Defaults to FALSE}
+
+\item{comparison}{optional The type of comparison to use for filter
+when creating the test.  Currently ignored}
 }
 \description{
 A utility to make writing tests a bit easier

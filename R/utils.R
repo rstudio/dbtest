@@ -34,7 +34,11 @@ pkg_config <- function(file = "config.yml"){
 #'
 #' @param file The file the tests should be written to
 #' @param header The header to name the test section.  Preferably short
-#' @param expression The expression to use for writing tests
+#' @param expr The expression to use for writing tests
+#' @param overwrite optional Whether to overwrite the existing file or
+#' append.  Defaults to FALSE
+#' @param comparison optional The type of comparison to use for filter
+#' when creating the test.  Currently ignored
 #'
 #' @export
 write_test <- function(
