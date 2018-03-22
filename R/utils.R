@@ -37,7 +37,13 @@ pkg_config <- function(file = "config.yml"){
 #' @param expression The expression to use for writing tests
 #'
 #' @export
-write_test <- function(file, header, expression, overwrite = FALSE, comparison = .x > sample(1:10,1)) {
+write_test <- function(
+  file
+  , header
+  , expr
+  , overwrite = FALSE
+  , comparison = .x > sample(1:10,1)
+  ) {
   existing <- if (fs::file_exists(file) && !overwrite) read_yaml(file) else list()
 
   #compare <- enquo(comparison)
@@ -48,11 +54,12 @@ write_test <- function(file, header, expression, overwrite = FALSE, comparison =
     setNames(
       list(
         list(
-          "mutate" = expression
-          , "filter" = expression
-          , "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
-          , "group_by" = expression
-          , "arrange" = expression
+          "mutate" = expr
+          , "filter" = expr
+          #, "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
+          , "summarize" = paste0("n_distinct(",expr,")")
+          , "group_by" = expr
+          , "arrange" = expr
           )
         )
       , header

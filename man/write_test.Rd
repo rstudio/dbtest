@@ -4,7 +4,7 @@
 \alias{write_test}
 \title{Write Tests}
 \usage{
-write_test(file, header, expression, overwrite = FALSE, comparison = .x >
+write_test(file, header, expr, overwrite = FALSE, comparison = .x >
   sample(1:10, 1))
 }
 \arguments{
