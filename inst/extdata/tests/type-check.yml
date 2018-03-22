@@ -1,0 +1,30 @@
+- is.null_null:
+    mutate: is.null(NULL)
+    filter: is.null(NULL)
+    summarize: n_distinct(is.null(NULL))
+    group_by: is.null(NULL)
+    arrange: is.null(NULL)
+- is.null:
+    mutate: is.null(fld_double)
+    filter: is.null(fld_double)
+    summarize: n_distinct(is.null(fld_double))
+    group_by: is.null(fld_double)
+    arrange: is.null(fld_double)
+- is.na:
+    mutate: is.na(fld_double)
+    filter: is.na(fld_double)
+    summarize: n_distinct(is.na(fld_double))
+    group_by: is.na(fld_double)
+    arrange: is.na(fld_double)
+- is.na_na:
+    mutate: is.na(NA)
+    filter: is.na(NA)
+    summarize: n_distinct(is.na(NA))
+    group_by: is.na(NA)
+    arrange: is.na(NA)
+- na_if:
+    mutate: na_if(fld_character,"a")
+    filter: is.na(na_if(fld_character,"a"))
+    summarize: n_distinct(na_if(fld_character,"a"))
+    group_by: na_if(fld_character,"a")
+    arrange: na_if(fld_character,"a")
