@@ -31,4 +31,26 @@
 #' @keywords internal
 "_PACKAGE"
 NULL
-utils::globalVariables(c("."))
+utils::globalVariables(
+  c("."
+    , ".x"
+    , "Failed"
+    , "Passed"
+    , "connection"
+    , "database"
+    , "error"
+    , "failed"
+    , "filler"
+    , "justtest"
+    , "res"
+    , "result"
+    , "results.context"
+    , "results.error"
+    , "results.failed"
+    , "results.test"
+    , "setNames"
+    , "spread"
+    , "test"
+    , "testdata"
+    )
+  )
