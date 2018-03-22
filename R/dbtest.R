@@ -6,6 +6,7 @@
 #' @importFrom odbc odbc
 #' @importFrom odbc odbcListDataSources
 #' @importFrom purrr flatten
+#' @importFrom purrr keep
 #' @importFrom purrr map
 #' @importFrom purrr map_df
 #' @importFrom purrr map2
@@ -20,6 +21,7 @@
 #' @importFrom testthat test_that
 #' @importFrom testthat with_reporter
 #' @importFrom yaml read_yaml
+#' @importFrom yaml write_yaml
 #' @import htmltools
 #' @import ggplot2
 #' @import DBI
