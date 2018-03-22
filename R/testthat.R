@@ -170,7 +170,8 @@ testthat_database <- function(datasource, tests = pkg_test()) {
 
     if (verb %in% c("summarise","summarize")) manip <- . %>% summarise(!! f) %>% pull()
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
-    if (verb == "arrange") manip <- . %>% arrange(!! f) %>% collect() %>% pull()
+    if (verb == "arrange") manip <- . %>% mutate(new_col = !!f) %>%
+        arrange(!! f) %>% collect() %>% pull("new_col")
     if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
     if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull() %>% sort()
 
