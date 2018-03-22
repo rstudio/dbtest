@@ -40,19 +40,22 @@ default_config_path <- function(file = "config.yml"){
 write_test <- function(file, header, expression, overwrite = FALSE, comparison = .x > sample(1:10,1)) {
   existing <- if (fs::file_exists(file) && !overwrite) read_yaml(file) else list()
 
-  compare <- enquo(comparison)
-  print(compare)
+  #compare <- enquo(comparison)
+  #print(compare)
   # need to figure out rlang semantics
 
   new <- list(
-    list(
-      header=list(
-        "mutate" = expression
-        , "filter" = expression
-        , "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
-        , "group_by" = expression
-        , "arrange" = expression
-      )
+    setNames(
+      list(
+        list(
+          "mutate" = expression
+          , "filter" = expression
+          , "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
+          , "group_by" = expression
+          , "arrange" = expression
+          )
+        )
+      , header
     )
   )
 
