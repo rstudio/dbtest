@@ -21,6 +21,27 @@ test_that("works with tbl_sql object", {
   expect_equal(length(output),2)
 })
 
+test_that("works with multiple test files", {
+  con <- dbConnect(RSQLite::SQLite(),":memory:")
+  output <- test_single_database(con
+                                 , c(
+                                   pkg_test("simple-tests.yml")
+                                   , pkg_test("simple-tests-alt.yml")
+                                   )
+  )
+  dbDisconnect(con)
+
+  expect_s3_class(output$results, "testthat_results")
+  expect_equal(length(output),2)
+  expect_equal(
+    output$results %>%
+      as.data.frame() %>%
+      .$file %>%
+      unique()
+    , c("simple-tests", "simple-tests-alt")
+  )
+})
+
 context("test_databases")
 
 test_that("works with a yaml file", {
@@ -45,5 +66,26 @@ test_that("works with multiple connections", {
   expect_equal(
     lapply(output, length) %>% as.double()
     , c(2,2)
+  )
+})
+
+test_that("works with multiple test files", {
+  con <- dbConnect(RSQLite::SQLite(),":memory:")
+  output <- test_databases(pkg_config("config.yml")
+                                 , c(
+                                   pkg_test("simple-tests.yml")
+                                   , pkg_test("simple-tests-alt.yml")
+                                 )
+  )
+  dbDisconnect(con)
+
+  expect_s3_class(output[[1]]$results, "testthat_results")
+  expect_equal(length(output[[1]]),2)
+  expect_equal(
+    output[[1]]$results %>%
+      as.data.frame() %>%
+      .$file %>%
+      unique()
+    , c("simple-tests", "simple-tests-alt")
   )
 })

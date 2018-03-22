@@ -2,6 +2,7 @@
 #' @importFrom fs dir_ls
 #' @importFrom fs file_exists
 #' @importFrom fs path_ext
+#' @importFrom fs path_ext_remove
 #' @importFrom fs path_file
 #' @importFrom odbc odbc
 #' @importFrom odbc odbcListDataSources

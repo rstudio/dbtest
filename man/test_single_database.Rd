@@ -9,7 +9,8 @@ test_single_database(datasource, tests = pkg_test(), label = NULL)
 \arguments{
 \item{datasource}{The datasource to test against.  Either a DBI connection or a tbl_sql}
 
-\item{tests}{optional The tests to execute.  References `dbtest` test suite by default}
+\item{tests}{optional A character vector of yaml tests to execute.
+References `dbtest` test suite by default}
 
 \item{label}{optional The label to give the test.  If not provided, one will be generated}
 }

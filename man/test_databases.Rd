@@ -12,7 +12,8 @@ all DSNs available on the system.  Use "config" or a path to a "config.yml" file
 use connection parameters in a YAML file.  Connection parameters will be passed to
 `dbConnect` as-is}
 
-\item{tests}{optional The tests to execute.  References `dbtest` test suite by default}
+\item{tests}{optional  A character vector of yaml tests to execute.
+References `dbtest` test suite by default}
 }
 \value{
 Returns a list of lists containing the respective datasource labels and testthat output

@@ -8,7 +8,8 @@
 #' all DSNs available on the system.  Use "config" or a path to a "config.yml" file to
 #' use connection parameters in a YAML file.  Connection parameters will be passed to
 #' `dbConnect` as-is
-#' @param tests optional The tests to execute.  References `dbtest` test suite by default
+#' @param tests optional  A character vector of yaml tests to execute.
+#' References `dbtest` test suite by default
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
@@ -93,7 +94,8 @@ test_databases <- function(datasources = NULL,
 #' object would be a connection or a `tbl_sql`
 #'
 #' @param datasource The datasource to test against.  Either a DBI connection or a tbl_sql
-#' @param tests optional The tests to execute.  References `dbtest` test suite by default
+#' @param tests optional A character vector of yaml tests to execute.
+#' References `dbtest` test suite by default
 #' @param label optional The label to give the test.  If not provided, one will be generated
 #'
 #' @return A list object with the label and testthat results
@@ -116,9 +118,27 @@ test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
 
   r <- with_reporter(
     reporter, {
-      testthat_database(
-        datasource = datasource,
-        tests = tests
+
+      tests %>% map(
+        ~ {
+          # get ListReporter, if any
+          lr <- reporter$reporters[
+            as.logical(
+              reporter$reporters %>%
+                lapply(function(x){
+                  "ListReporter" %in% class(x)
+                })
+            )
+            ]
+          # set test filename
+          if (length(lr) > 0)
+            lr[[1]]$start_file(path_ext_remove(path_file(.x)))
+
+          testthat_database(
+            datasource = datasource,
+            tests = .x
+          )
+        }
       )
     }
     )
