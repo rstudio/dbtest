@@ -46,4 +46,15 @@
     summarise: sum(sqrt(fld_double), na.rm = TRUE)
     group_by: sqrt(fld_double)
     arrange: sqrt(fld_double)
-
+- log10:
+    mutate: log10(abs(fld_double))
+    filter: log10(abs(fld_double)) < 5
+    summarize: sum(log10(abs(fld_double)), na.rm = TRUE)
+    group_by: log10(abs(fld_double))
+    arrange: log10(abs(fld_double))
+- log:
+    mutate: log(abs(fld_double))
+    filter: log(abs(fld_double)) < 5
+    summarize: sum(log(abs(fld_double)), na.rm = TRUE)
+    group_by: log(abs(fld_double))
+    arrange: log(abs(fld_double))
