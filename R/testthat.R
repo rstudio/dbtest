@@ -101,7 +101,7 @@ test_databases <- function(datasources = NULL,
 #' @examples
 #'
 #' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-#' res <- test_single_database(con, "simple-tests.yml")
+#' res <- test_single_database(con, pkg_test("simple-tests.yml"))
 #' DBI::dbDisconnect(con)
 #'
 #' @seealso test_databases

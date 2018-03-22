@@ -23,7 +23,7 @@ object would be a connection or a `tbl_sql`
 \examples{
 
 con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-res <- test_single_database(con, "simple-tests.yml")
+res <- test_single_database(con, pkg_test("simple-tests.yml"))
 DBI::dbDisconnect(con)
 
 }
