@@ -1,12 +1,12 @@
-context("default_test_path")
+context("pkg_test")
 
 test_that("returns yaml files", {
-  expect_is(default_test_path(), "character")
-  expect_match(default_test_path(),"*.yml")
+  expect_is(pkg_test(), "character")
+  expect_match(pkg_test(),"*.yml")
 })
 
 test_that("returns existing files", {
-  expect_true(all(fs::file_exists(default_test_path())))
+  expect_true(all(fs::file_exists(pkg_test())))
 })
 
 context("all_tests")
@@ -24,13 +24,13 @@ test_that("returns existing files",  {
   expect_true(all(fs::file_exists(all_tests())))
 })
 
-context("default_config_path")
+context("pkg_config")
 
 test_that("returns yaml files", {
-  expect_is(default_config_path(), "character")
-  expect_match(default_config_path(), "*.yml")
+  expect_is(pkg_config(), "character")
+  expect_match(pkg_config(), "*.yml")
 })
 
 test_that("returns existing files", {
-  expect_true(all(fs::file_exists(default_config_path())))
+  expect_true(all(fs::file_exists(pkg_config())))
 })

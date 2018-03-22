@@ -30,7 +30,7 @@
 #'
 #' @export
 test_databases <- function(datasources = NULL,
-                           tests = default_test_path()) {
+                           tests = pkg_test()) {
   if (is.null(datasources))
     datasources <- ""
 
@@ -48,7 +48,7 @@ test_databases <- function(datasources = NULL,
              ) {
 
     if (datasources == "") {
-      file_path = default_config_path()
+      file_path = pkg_config()
     } else if (
       all(tolower(path_ext(datasources)) %in% c("yml", "yaml"))
       && all(file_exists(datasources))
@@ -106,7 +106,7 @@ test_databases <- function(datasources = NULL,
 #'
 #' @seealso test_databases
 #' @export
-test_single_database <- function(datasource, tests = default_test_path(), label = NULL) {
+test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
 
   reporter <- MultiReporter$new(
     reporters = list(MinimalReporter$new()
@@ -140,7 +140,7 @@ test_single_database <- function(datasource, tests = default_test_path(), label 
   )
 }
 
-testthat_database <- function(datasource, tests = default_test_path()) {
+testthat_database <- function(datasource, tests = pkg_test()) {
 
   # Load test scripts from YAML format
   if (class(tests) == "character") tests <- read_yaml(tests)

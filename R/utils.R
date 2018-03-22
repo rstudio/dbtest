@@ -2,8 +2,8 @@
 #' @title Utility Functions
 #'
 #' @description Utility functions useful for package default behavior.
-#' `default_test_path` returns the path to tests from the `dbtest` package.
-#' `default_config_path` returns the path to connection config from the `dbtest`
+#' `pkg_test` returns the path to tests from the `dbtest` package.
+#' `pkg_config` returns the path to connection config from the `dbtest`
 #' package.  `all_tests` returns the path to all .yml or .yaml files in a given
 #' directory.  The default is to return all tests in the `dbtest` package
 #'
@@ -11,7 +11,7 @@
 #' @param dir optional The directory for which to show all_tests
 #'
 #' @export
-default_test_path <- function(file = "simple-tests.yml"){
+pkg_test <- function(file = "simple-tests.yml"){
   system.file("extdata", "tests", path_file(file), package = "dbtest")
 }
 
@@ -23,7 +23,7 @@ all_tests <- function(dir = system.file("extdata", "tests", package = "dbtest"))
 
 #' @rdname utils
 #' @export
-default_config_path <- function(file = "config.yml"){
+pkg_config <- function(file = "config.yml"){
   system.file("extdata", "connections", file, package = "dbtest")
 }
 

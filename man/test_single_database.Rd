@@ -4,7 +4,7 @@
 \alias{test_single_database}
 \title{Test Single Database}
 \usage{
-test_single_database(datasource, tests = default_test_path(), label = NULL)
+test_single_database(datasource, tests = pkg_test(), label = NULL)
 }
 \arguments{
 \item{datasource}{The datasource to test against.  Either a DBI connection or a tbl_sql}
