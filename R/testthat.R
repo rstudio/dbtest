@@ -169,13 +169,15 @@ testthat_database <- function(datasource, tests = pkg_test()) {
 
   # Address test data
   if(isS4(datasource)){
-    remote_df <- copy_to(datasource, testdata
+    remote_df <- suppressMessages(
+      copy_to(datasource, testdata
                          , name=tolower(
                            paste(
                              sample(LETTERS, size=20, replace=TRUE)
                              ,collapse='')
                            )
                          )
+    )
 
     local_df  <- testdata
   }
