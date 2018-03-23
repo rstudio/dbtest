@@ -11,19 +11,19 @@
 #' @param dir optional The directory for which to show all_tests
 #'
 #' @export
-pkg_test <- function(file = "simple-tests.yml"){
+pkg_test <- function(file = "simple-tests.yml") {
   system.file("extdata", "tests", path_file(file), package = "dbtest")
 }
 
 #' @rdname utils
 #' @export
 all_tests <- function(dir = system.file("extdata", "tests", package = "dbtest")) {
-  dir_ls(dir) %>% keep(tolower(path_ext(.)) %in% c("yml","yaml"))
+  dir_ls(dir) %>% keep(tolower(path_ext(.)) %in% c("yml", "yaml"))
 }
 
 #' @rdname utils
 #' @export
-pkg_config <- function(file = "config.yml"){
+pkg_config <- function(file = "config.yml") {
   system.file("extdata", "connections", file, package = "dbtest")
 }
 
@@ -42,16 +42,15 @@ pkg_config <- function(file = "config.yml"){
 #'
 #' @export
 write_test <- function(
-  file
-  , header
-  , expr
-  , overwrite = FALSE
-  , comparison = .x > sample(1:10,1)
-  ) {
+                       file
+                       , header
+                       , expr
+                       , overwrite = FALSE
+                       , comparison = .x > sample(1:10, 1)) {
   existing <- if (file_exists(file) && !overwrite) read_yaml(file) else list()
 
-  #compare <- enquo(comparison)
-  #print(compare)
+  # compare <- enquo(comparison)
+  # print(compare)
   # need to figure out rlang semantics
 
   new <- list(
@@ -60,18 +59,18 @@ write_test <- function(
         list(
           "mutate" = expr
           , "filter" = expr
-          #, "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
-          , "summarize" = paste0("n_distinct(",expr,")")
+          # , "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
+          , "summarize" = paste0("n_distinct(", expr, ")")
           , "group_by" = expr
           , "arrange" = expr
-          )
         )
+      )
       , header
     )
   )
 
   write_yaml(
     c(existing, new)
-    ,file
-    )
+    , file
+  )
 }

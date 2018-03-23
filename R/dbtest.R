@@ -33,7 +33,8 @@
 "_PACKAGE"
 NULL
 utils::globalVariables(
-  c("."
+  c(
+    "."
     , ".x"
     , "Failed"
     , "Passed"
@@ -53,5 +54,5 @@ utils::globalVariables(
     , "spread"
     , "test"
     , "testdata"
-    )
   )
+)
