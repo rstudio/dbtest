@@ -18,7 +18,7 @@ pkg_test <- function(file = "simple-tests.yml"){
 #' @rdname utils
 #' @export
 all_tests <- function(dir = system.file("extdata", "tests", package = "dbtest")) {
-  dir_ls(dir) %>% purrr::keep(tolower(path_ext(.)) %in% c("yml","yaml"))
+  dir_ls(dir) %>% keep(tolower(path_ext(.)) %in% c("yml","yaml"))
 }
 
 #' @rdname utils
@@ -48,7 +48,7 @@ write_test <- function(
   , overwrite = FALSE
   , comparison = .x > sample(1:10,1)
   ) {
-  existing <- if (fs::file_exists(file) && !overwrite) read_yaml(file) else list()
+  existing <- if (file_exists(file) && !overwrite) read_yaml(file) else list()
 
   #compare <- enquo(comparison)
   #print(compare)
