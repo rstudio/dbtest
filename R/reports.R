@@ -1,35 +1,3 @@
-old_test_database <- function(databases = "", configuration =  "default", directory = ""){
-  original_configuration <- Sys.getenv("R_CONFIG_ACTIVE")
-  if(is.null(configuration)==FALSE) Sys.setenv(R_CONFIG_ACTIVE = configuration)
-
-  all_results <- databases %>%
-    map(function(.x)run_script(.x, test_directory = directory))
-
-  new_results <- parse_results(databases,all_results)
-
-  Sys.setenv(R_CONFIG_ACTIVE = original_configuration)
-
-  new_results
-}
-
-old_test_connection <- function(con, test_directory = ""){
-
-  # Swtiching between local project and installed package location
-
-  if(test_directory==""){
-    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
-  } else {
-    test_directory <- file.path(rprojroot::find_rstudio_root_file(), test_directory)
-  }
-
-  con <<- con
-  results <- testthat::test_dir(test_directory, reporter = "minimal")
-
-  results <- parse_results("db", list(results))
-
-  return(results)
-}
-
 parse_results <- function(databases, all_results){
   text_results <- 1:length(databases) %>%
     map(function(x){
@@ -123,41 +91,6 @@ print_result <- function(record, id){
 }
 
 
-run_script <- function(connection_name, test_directory){
-
-  # Swtiching between local project and installed package location
-
-  if(test_directory==""){
-    test_directory <- file.path(system.file(package = "dbtest"), "sql-tests")
-  } else {
-    test_directory <- file.path(rprojroot::find_rstudio_root_file(), test_directory)
-  }
-
-    if(connection_name==""){
-
-    con <<- DBI::dbConnect(RSQLite::SQLite(), path = ":memory:")
-  } else {
-    db <- config::get(connection_name)
-
-    con <<- DBI::dbConnect(
-      odbc::odbc(),
-      Driver = db$Driver,
-      Server = db$Server,
-      Host = db$Host,
-      SVC = db$SVC,
-      DBCName = db$DBCName,
-      Database = db$Database,
-      Schema = db$Schema,
-      UID  = db$UID,
-      PWD = db$PWD,
-      Port = db$Port)
-  }
-  results <- testthat::test_dir(test_directory, reporter = "minimal")
-  DBI::dbDisconnect(con)
-  return(results)
-}
-
-
 coverage <- function(results){
   coverage <- results %>%
     group_by(database, res) %>%
@@ -169,6 +102,22 @@ coverage <- function(results){
 }
 
 
+#' Plot Tests
+#'
+#' Plot the output from `test_single_database` or `test_databases` as a ggplot2 object
+#' for easy visualization of test success or failure across databases.
+#'
+#' @param results Output from `test_single_database` or `test_databases`
+#'
+#' @return ggplot2 object / graph
+#'
+#' @examples
+#' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' tbl_data <- dplyr::copy_to(con, testdata)
+#' res <- test_single_database(tbl_data, pkg_test("simple-tests.yml"))
+#' plot_tests(res)
+#' DBI::dbDisconnect(con)
+#'
 #' @export
 plot_tests <- function(results){
   if (is.list(results) & is.null(names(results))) {

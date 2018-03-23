@@ -1,0 +1,60 @@
+- abs:
+    mutate: abs(fld_double)
+    filter: abs(fld_double) > 2
+    summarise: sum(abs(fld_double), na.rm=TRUE)
+    group_by: abs(fld_double)
+    arrange: abs(fld_double)
+- ceil:
+    mutate: ceil(fld_double)
+    filter: ceil(fld_double) < 10
+    summarise: sum(ceil(fld_double), na.rm=TRUE)
+    group_by: ceil(fld_double)
+    arrange: ceil(fld_double)
+- ceiling:
+    mutate: ceiling(fld_double)
+    filter: ceiling(fld_double) < 10
+    summarise: sum(ceiling(fld_double), na.rm=TRUE)
+    group_by: ceiling(fld_double)
+    arrange: ceiling(fld_double)
+- exp:
+    mutate: exp(fld_double)
+    filter: exp(fld_double) > 10
+    summarise: sum(exp(fld_double), na.rm=TRUE)
+    group_by: exp(fld_double)
+    arrange: exp(fld_double)
+- floor:
+    mutate: floor(fld_double)
+    filter: floor(fld_double) < 10
+    summarise: sum(floor(fld_double), na.rm=TRUE)
+    group_by: floor(fld_double)
+    arrange: floor(fld_double)
+- round:
+    mutate: round(fld_double, 0)
+    filter: round(fld_double, 0) > 1
+    summarise: sum(round(fld_double, 0), na.rm = TRUE)
+    group_by: round(fld_double, 0)
+    arrange: round(fld_double, 0)
+- sign:
+    mutate: sign(fld_double)
+    filter: sign(fld_double) > 0
+    summarise: sum(sign(fld_double), na.rm = TRUE)
+    group_by: sign(fld_double)
+    arrange: sign(fld_double)
+- sqrt:
+    mutate: sqrt(fld_double)
+    filter: sqrt(fld_double) > 5
+    summarise: sum(sqrt(fld_double), na.rm = TRUE)
+    group_by: sqrt(fld_double)
+    arrange: sqrt(fld_double)
+- log10:
+    mutate: log10(abs(fld_double))
+    filter: log10(abs(fld_double)) < 5
+    summarize: sum(log10(abs(fld_double)), na.rm = TRUE)
+    group_by: log10(abs(fld_double))
+    arrange: log10(abs(fld_double))
+- log:
+    mutate: log(abs(fld_double))
+    filter: log(abs(fld_double)) < 5
+    summarize: sum(log(abs(fld_double)), na.rm = TRUE)
+    group_by: log(abs(fld_double))
+    arrange: log(abs(fld_double))

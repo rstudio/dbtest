@@ -1,0 +1,6 @@
+- pi:
+    mutate: pi - fld_integer
+    filter: pi - fld_integer > -2
+    summarize: n_distinct(pi - fld_integer)
+    group_by: pi - fld_integer
+    arrange: pi - fld_integer

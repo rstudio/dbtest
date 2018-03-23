@@ -1,0 +1,90 @@
+- acos:
+    mutate: acos(1/fld_double)
+    filter: acos(1/fld_double) < 1
+    summarise: sum(acos(1/fld_double), na.rm = TRUE)
+    group_by: acos(1/fld_double)
+    arrange: acos(1/fld_double)
+- acosh:
+    mutate: acosh(abs(fld_double) + 1)
+    filter: acosh(abs(fld_double) + 1) < 10
+    summarize: sum(acosh(abs(fld_double) + 1), na.rm = TRUE)
+    group_by: acosh(abs(fld_double) + 1)
+    arrange: acosh(abs(fld_double) + 1)
+- asin:
+    mutate: asin(1/fld_double)
+    filter: asin(1/fld_double) < 1
+    summarize: sum(asin(1/fld_double), na.rm = TRUE)
+    group_by: asin(1/fld_double)
+    arrange: asin(1/fld_double)
+- asinh:
+    mutate: asinh(fld_double)
+    filter: asinh(fld_double) < 10
+    summarize: sum(asinh(fld_double), na.rm = TRUE)
+    group_by: asinh(fld_double)
+    arrange: asinh(fld_double)
+- atan:
+    mutate: atan(fld_double)
+    filter: atan(fld_double) < 0.5
+    summarize: sum(atan(fld_double), na.rm = TRUE)
+    group_by: atan(fld_double)
+    arrange: atan(fld_double)
+- atan2:
+    mutate: atan2(fld_double, fld_double)
+    filter: atan2(fld_double, fld_double) < 0.5
+    summarize: sum(atan2(fld_double, fld_double), na.rm = TRUE)
+    group_by: atan2(fld_double, fld_double)
+    arrange: atan2(fld_double, fld_double)
+- atanh:
+    mutate: atanh(1/fld_double)
+    filter: atanh(1/fld_double) < 10
+    summarize: sum(atanh(1/fld_double), na.rm = TRUE)
+    group_by: atanh(1/fld_double)
+    arrange: atanh(1/fld_double)
+- cos:
+    mutate: cos(fld_double)
+    filter: cos(fld_double) < 0.5
+    summarize: sum(cos(fld_double), na.rm = TRUE)
+    group_by: cos(fld_double)
+    arrange: cos(fld_double)
+- cosh:
+    mutate: cosh(fld_double)
+    filter: cosh(fld_double) < 10
+    summarize: sum(cosh(fld_double), na.rm = TRUE)
+    group_by: cosh(fld_double)
+    arrange: cosh(fld_double)
+- cot:
+    mutate: cot(fld_double)
+    filter: cot(fld_double) < 10
+    summarize: sum(cot(fld_double), na.rm = TRUE)
+    group_by: cot(fld_double)
+    arrange: cot(fld_double)
+- coth:
+    mutate: coth(fld_double - 1/(abs(fld_double)+1))
+    filter: coth(fld_double - 1/(abs(fld_double)+1)) > 10
+    summarize: sum(coth(fld_double - 1/(abs(fld_double)+1)), na.rm = TRUE)
+    group_by: coth(fld_double - 1/(abs(fld_double)+1))
+    arrange: coth(fld_double - 1/(abs(fld_double)+1))
+- sin:
+    mutate: sin(fld_double)
+    filter: sin(fld_double) < 0.5
+    summarize: sum(sin(fld_double), na.rm = TRUE)
+    group_by: sin(fld_double)
+    arrange: sin(fld_double)
+- sinh:
+    mutate: sinh(fld_double)
+    filter: sinh(fld_double) < 10
+    summarize: sum(sinh(fld_double), na.rm = TRUE)
+    group_by: sinh(fld_double)
+    arrange: sinh(fld_double)
+- tan:
+    mutate: tan(fld_double)
+    filter: tan(fld_double) < 10
+    summarize: sum(tan(fld_double), na.rm = TRUE)
+    group_by: tan(fld_double)
+    arrange: tan(fld_double)
+- tanh:
+    mutate: tanh(fld_double)
+    filter: tanh(fld_double) < 0.5
+    summarize: sum(tanh(fld_double), na.rm = TRUE)
+    group_by: tanh(fld_double)
+    arrange: tanh(fld_double)

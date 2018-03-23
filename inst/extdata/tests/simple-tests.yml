@@ -1,0 +1,12 @@
+- add:
+    mutate: fld_double + fld_integer
+    filter: fld_double + fld_integer < 10
+    summarise: sum(fld_double + fld_integer, na.rm=TRUE)
+    group_by: fld_double + fld_integer
+    arrange: fld_double + fld_integer
+- subtract:
+    mutate: fld_double - fld_integer
+    filter: fld_double - fld_integer < 1
+    summarise: sum(fld_double - fld_integer, na.rm=TRUE)
+    group_by: fld_double - fld_integer
+    arrange: fld_double - fld_integer

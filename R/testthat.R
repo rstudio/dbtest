@@ -1,27 +1,58 @@
+#' @title Test Databases
+#'
+#' @description A wrapper around `test_sigle_database` that iterates over multiple datasources
+#' and executes the testing suite on each.  Output is organized in such a way as to
+#' give nice, consolidated results.
+#'
+#' @param datasources optional Defaults to using a SQLite database.  Pass "dsn" to use
+#' all DSNs available on the system.  Use "config" or a path to a "config.yml" file to
+#' use connection parameters in a YAML file.  Connection parameters will be passed to
+#' `dbConnect` as-is
+#' @param tests optional  A character vector of yaml tests to execute.
+#' References `dbtest` test suite by default
+#'
+#' @return Returns a list of lists containing the respective datasource labels and testthat output
+#'
+#' @seealso test_single_database
+#'
+#' @examples
+#' # test all dsns with dbtest suite -----------------------
+#' \dontrun{
+#' test_databases(datasources = "dsn")
+#' }
+#' # test sqlite with custom suite -------------------------
+#' \dontrun{
+#' test_databases(tests = "./path/to/my.yml")
+#' }
+#' # test connection yaml file with dbtest suite -----------
+#' \dontrun{
+#' test_databases(datasources = "./path/to/conn.yml")
+#' }
+#'
 #' @export
 test_databases <- function(datasources = NULL,
-                           tests = "default") {
+                           tests = pkg_test()) {
   if (is.null(datasources))
     datasources <- ""
 
   if (datasources == "dsn") {
-    odbc::odbcListDataSources()$name %>%
+    odbcListDataSources()$name %>%
       map( ~ {
-        con <- DBI::dbConnect(odbc::odbc(), dsn = .x)
+        con <- dbConnect(odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
   } else if (datasources == "config" |
              datasources == "" |
-             (all(tolower(fs::path_ext(datasources)) %in% c("yml","yaml")) &&
-             all(fs::file_exists(datasources)))
+             (all(tolower(path_ext(datasources)) %in% c("yml","yaml")) &&
+             all(file_exists(datasources)))
              ) {
 
     if (datasources == "") {
-      file_path = default_config_path()
+      file_path = pkg_config()
     } else if (
-      all(tolower(fs::path_ext(datasources)) %in% c("yml", "yaml"))
-      && all(fs::file_exists(datasources))
+      all(tolower(path_ext(datasources)) %in% c("yml", "yaml"))
+      && all(file_exists(datasources))
       ) {
       file_path = datasources
     } else {
@@ -37,11 +68,11 @@ test_databases <- function(datasources = NULL,
 
     names(cons) %>%
       map( ~ {
-        curr <- purrr::flatten(cons[.x])
-        con <- do.call(DBI::dbConnect, args = curr)
-        tests <- test_single_database(con, label = .x)
+        curr <- flatten(cons[.x])
+        con <- do.call(dbConnect, args = curr)
+        test_output <- test_single_database(con, label = .x, tests = tests)
         dbDisconnect(con)
-        tests
+        test_output
       })
 
   } else {
@@ -57,30 +88,65 @@ test_databases <- function(datasources = NULL,
 
 }
 
-rm_decoys <- function(x) {
-  x[!names(x) %in% c("Table","TableSchema")]
-}
-
+#' @title Test Single Database
+#'
+#' @description Run a single datasource through the testing suite.  Typically, this
+#' object would be a connection or a `tbl_sql`
+#'
+#' @param datasource The datasource to test against.  Either a DBI connection or a tbl_sql
+#' @param tests optional A character vector of yaml tests to execute.
+#' References `dbtest` test suite by default
+#' @param label optional The label to give the test.  If not provided, one will be generated
+#'
+#' @return A list object with the label and testthat results
+#'
+#' @examples
+#'
+#' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' res <- test_single_database(con, pkg_test("simple-tests.yml"))
+#' DBI::dbDisconnect(con)
+#'
+#' @seealso test_databases
 #' @export
-test_single_database <- function(datasource, label = NULL, tests = "default") {
+test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
 
-  reporter <- testthat::MultiReporter$new(
-    reporters = list(testthat::MinimalReporter$new()
-                     , testthat::ListReporter$new())
+  reporter <- MultiReporter$new(
+    reporters = list(MinimalReporter$new()
+                     , ListReporter$new()
+                     )
   )
 
-  r <- testthat::with_reporter(
-    reporter,
-    testthat_database(
-      datasource = datasource,
-      tests = tests
+  r <- with_reporter(
+    reporter, {
+
+      tests %>% map(
+        ~ {
+          # get ListReporter, if any
+          lr <- reporter$reporters[
+            as.logical(
+              reporter$reporters %>%
+                lapply(function(x){
+                  "ListReporter" %in% class(x)
+                })
+            )
+            ]
+          # set test filename
+          if (length(lr) > 0)
+            lr[[1]]$start_file(path_ext_remove(path_file(.x)))
+
+          testthat_database(
+            datasource = datasource,
+            tests = .x
+          )
+        }
       )
+    }
     )
 
   if(is.null(label) & isS4(datasource))
     label <- class(datasource)[1]
   if(is.null(label) & "tbl_sql" %in% class(datasource))
-    label <- class(dbplyr::remote_con(datasource))[1]
+    label <- class(remote_con(datasource))[1]
 
 
   df <- structure(
@@ -94,14 +160,11 @@ test_single_database <- function(datasource, label = NULL, tests = "default") {
   )
 }
 
-testthat_database <- function(datasource, label = NULL, tests = "default") {
+testthat_database <- function(datasource, tests = pkg_test()) {
 
   # Load test scripts from YAML format
-  if (tests == "default") {
-    tests <- yaml::read_yaml(default_tests_path())
-  } else {
-    if (class(tests) == "character") tests <- yaml::read_yaml(tests)
-  }
+  if (class(tests) == "character") tests <- read_yaml(tests)
+
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
   # Address test data
@@ -123,13 +186,14 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
-    f <- rlang::parse_expr(vector_expression)
+    f <- parse_expr(vector_expression)
 
     if (verb %in% c("summarise","summarize")) manip <- . %>% summarise(!! f) %>% pull()
     if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
-    if (verb == "arrange") manip <- . %>% arrange(!! f) %>% pull()
+    if (verb == "arrange") manip <- . %>% mutate(new_col = !!f) %>%
+        arrange(!! f) %>% collect() %>% pull("new_col")
     if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
-    if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull()
+    if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull() %>% sort()
 
     test_that(paste0(verb,": ",vector_expression), {
       invisible({
@@ -142,20 +206,12 @@ testthat_database <- function(datasource, label = NULL, tests = "default") {
   }
 
   # dplyr test orchestrator
-  verbs <- c(
-    "mutate",
-    "filter",
-    "summarise",
-    "group_by",
-    "arrange"
-  )
-
   tests %>%
     map(~{
       curr_test <- .x
       context(names(curr_test))
       curr_test %>%
-        purrr::flatten() %>%
+        flatten() %>%
         map2(names(.)
              , ~run_test(.y, .x))
     })

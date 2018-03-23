@@ -1,0 +1,4 @@
+default:
+  sqlite:
+    drv: !expr RSQLite::SQLite()
+    path: ":memory:"

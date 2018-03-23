@@ -1,9 +1,3 @@
-- round:
-    mutate: round(fld_double, 0)
-    filter: round(fld_double, 0) > 1
-    summarise: sum(round(fld_double, 0), na.rm = TRUE)
-    group_by: round(fld_double, 0)
-    arrange: round(fld_double, 0)
 - add:
     mutate: fld_double + fld_integer
     filter: fld_double + fld_integer < 10
@@ -40,15 +34,3 @@
     summarise: sum((2 * fld_integer) %% (fld_integer + 1), na.rm=TRUE)
     group_by: (2 * fld_integer) %% (fld_integer + 1)
     arrange: (2 * fld_integer) %% (fld_integer + 1)
-- bool_neq:
-    mutate: fld_integer != fld_double
-    filter: fld_integer != fld_double
-    summarise: sum(fld_integer != fld_double, na.rm=TRUE)
-    group_by: fld_integer != fld_double
-- bool_neq_same:
-    mutate: fld_integer != fld_integer
-    filter: fld_integer != fld_integer
-    summarise: sum(fld_integer != fld_integer, na.rm=TRUE)
-    group_by: fld_integer != fld_integer
-
-

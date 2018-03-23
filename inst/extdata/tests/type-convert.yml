@@ -1,0 +1,24 @@
+- as.numeric:
+    mutate: as.numeric(fld_integer)
+    filter: as.numeric(fld_integer) < 5
+    summarize: sum(as.numeric(fld_integer), na.rm = TRUE)
+    group_by: as.numeric(fld_integer)
+    arrange: as.numeric(fld_integer)
+- as.double:
+    mutate: as.double(fld_integer)
+    filter: as.double(fld_integer) < 5
+    summarize: sum(as.double(fld_integer), na.rm = TRUE)
+    group_by: as.double(fld_integer)
+    arrange: as.double(fld_integer)
+- as.integer:
+    mutate: as.integer(fld_double)
+    filter: as.integer(fld_double) < 5
+    summarize: sum(as.integer(fld_double), na.rm = TRUE)
+    group_by: as.integer(fld_double)
+    arrange: as.integer(fld_double)
+- as.character:
+    mutate: as.character(fld_double)
+    filter: as.character(fld_double) == "1.1"
+    summarize: n_distinct(as.character(fld_double))
+    group_by: as.character(fld_double)
+    arrange: as.character(fld_double)

@@ -1,0 +1,18 @@
+- str_length:
+    mutate: str_length(fld_character)
+    filter: str_length(fld_character) > 1
+    summarize: n_distinct(str_length(fld_character))
+    group_by: str_length(fld_character)
+    arrange: str_length(fld_character)
+- str_to_upper:
+    mutate: str_to_upper(fld_character)
+    filter: str_to_upper(fld_character) %in% c("A","B")
+    summarize: n_distinct(str_to_upper(fld_character))
+    group_by: str_to_upper(fld_character)
+    arrange: str_to_upper(fld_character)
+- str_to_lower:
+    mutate: str_to_lower(fld_character)
+    filter: str_to_lower(fld_character) %in% c("a","b")
+    summarize: n_distinct(str_to_lower(fld_character))
+    group_by: str_to_lower(fld_character)
+    arrange: str_to_lower(fld_character)
