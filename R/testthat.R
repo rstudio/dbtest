@@ -32,49 +32,49 @@
 #' @export
 test_databases <- function(datasources = NULL,
                            tests = pkg_test()) {
-  if (is.null(datasources))
+  if (is.null(datasources)) {
     datasources <- ""
+  }
 
   if (datasources == "dsn") {
     odbcListDataSources()$name %>%
-      map( ~ {
+      map(~ {
         con <- dbConnect(odbc(), dsn = .x)
         test_single_database(con, tests = tests)
         dbDisconnect(con)
       })
   } else if (datasources == "config" |
-             datasources == "" |
-             (all(tolower(path_ext(datasources)) %in% c("yml","yaml")) &&
-             all(file_exists(datasources)))
-             ) {
-
+    datasources == "" |
+    (all(tolower(path_ext(datasources)) %in% c("yml", "yaml")) &&
+      all(file_exists(datasources)))
+  ) {
     if (datasources == "") {
-      file_path = pkg_config()
+      file_path <- pkg_config()
     } else if (
       all(tolower(path_ext(datasources)) %in% c("yml", "yaml"))
       && all(file_exists(datasources))
-      ) {
-      file_path = datasources
+    ) {
+      file_path <- datasources
     } else {
-      file_path = NULL
+      file_path <- NULL
     }
 
-    if (length(file_path) > 1)
+    if (length(file_path) > 1) {
       stop(sprintf("Multiple datasources are not currently supported"))
+    }
 
     # Suppress warnings until config issue is resolved
     # https://github.com/rstudio/config/issues/12
     suppressWarnings(cons <- config::get(file = file_path))
 
     names(cons) %>%
-      map( ~ {
+      map(~ {
         curr <- flatten(cons[.x])
         con <- do.call(dbConnect, args = curr)
         test_output <- test_single_database(con, label = .x, tests = tests)
         dbDisconnect(con)
         test_output
       })
-
   } else {
     stop(
       paste0(
@@ -85,7 +85,6 @@ test_databases <- function(datasources = NULL,
         sprintf(datasources)
     )
   }
-
 }
 
 #' @title Test Single Database
@@ -109,30 +108,30 @@ test_databases <- function(datasources = NULL,
 #' @seealso test_databases
 #' @export
 test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
-
   reporter <- MultiReporter$new(
-    reporters = list(MinimalReporter$new()
-                     , ListReporter$new()
-                     )
+    reporters = list(
+      MinimalReporter$new()
+      , ListReporter$new()
+    )
   )
 
   r <- with_reporter(
     reporter, {
-
       tests %>% map(
         ~ {
           # get ListReporter, if any
           lr <- reporter$reporters[
             as.logical(
               reporter$reporters %>%
-                lapply(function(x){
+                lapply(function(x) {
                   "ListReporter" %in% class(x)
                 })
             )
-            ]
+          ]
           # set test filename
-          if (length(lr) > 0)
+          if (length(lr) > 0) {
             lr[[1]]$start_file(path_ext_remove(path_file(.x)))
+          }
 
           testthat_database(
             datasource = datasource,
@@ -141,12 +140,14 @@ test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
         }
       )
     }
-    )
+  )
 
-  if(is.null(label) & isS4(datasource))
+  if (is.null(label) & isS4(datasource)) {
     label <- class(datasource)[1]
-  if(is.null(label) & "tbl_sql" %in% class(datasource))
+  }
+  if (is.null(label) & "tbl_sql" %in% class(datasource)) {
     label <- class(remote_con(datasource))[1]
+  }
 
 
   df <- structure(
@@ -168,34 +169,44 @@ testthat_database <- function(datasource, tests = pkg_test()) {
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
   # Address test data
-  if(isS4(datasource)){
-    remote_df <- copy_to(datasource, testdata
-                         , name=tolower(
-                           paste(
-                             sample(LETTERS, size=20, replace=TRUE)
-                             ,collapse='')
-                           )
-                         )
+  if (isS4(datasource)) {
+    remote_df <- suppressMessages(
+      copy_to(datasource, testdata
+        ,
+        name = tolower(
+          paste(
+            sample(LETTERS, size = 20, replace = TRUE)
+            ,
+            collapse = ""
+          )
+        )
+      )
+    )
 
-    local_df  <- testdata
+    local_df <- testdata
   }
-  if("tbl_sql" %in% class(datasource)){
+  if ("tbl_sql" %in% class(datasource)) {
     remote_df <- head(datasource, 1000)
-    local_df  <- collect(remote_df)
+    local_df <- collect(remote_df)
   }
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
     f <- parse_expr(vector_expression)
 
-    if (verb %in% c("summarise","summarize")) manip <- . %>% summarise(!! f) %>% pull()
-    if (verb == "mutate") manip <- . %>% mutate(!! f) %>% pull()
-    if (verb == "arrange") manip <- . %>% mutate(new_col = !!f) %>%
-        arrange(!! f) %>% collect() %>% pull("new_col")
-    if (verb == "filter") manip <- . %>% filter(!! f) %>% pull()
-    if (verb == "group_by") manip <- . %>% group_by(!! f) %>% summarise() %>% pull() %>% sort()
+    if (verb %in% c("summarise", "summarize")) manip <- . %>% summarise(!!f) %>% pull()
+    if (verb == "mutate") manip <- . %>% mutate(!!f) %>% pull()
+    if (verb == "arrange") {
+      manip <- . %>%
+        mutate(new_col = !!f) %>%
+        arrange(!!f) %>%
+        collect() %>%
+        pull("new_col")
+    }
+    if (verb == "filter") manip <- . %>% filter(!!f) %>% pull()
+    if (verb == "group_by") manip <- . %>% group_by(!!f) %>% summarise() %>% pull() %>% sort()
 
-    test_that(paste0(verb,": ",vector_expression), {
+    test_that(paste0(verb, ": ", vector_expression), {
       invisible({
         expect_equal(
           manip(local_df),
@@ -207,12 +218,14 @@ testthat_database <- function(datasource, tests = pkg_test()) {
 
   # dplyr test orchestrator
   tests %>%
-    map(~{
+    map(~ {
       curr_test <- .x
       context(names(curr_test))
       curr_test %>%
         flatten() %>%
-        map2(names(.)
-             , ~run_test(.y, .x))
+        map2(
+          names(.)
+          , ~ run_test(.y, .x)
+        )
     })
 }
