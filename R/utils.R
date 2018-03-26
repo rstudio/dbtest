@@ -74,3 +74,113 @@ write_test <- function(
     , file
   )
 }
+
+
+
+
+new_test_data <- function(numrow = 10){
+  tibble::tibble(
+
+    fld_factor = factor(sample(c("a","b","c"),size=numrow, replace=TRUE), levels=c("a","b","c"))
+
+    , fld_datetime = paste(
+      new_date_col(numrow)
+      , new_time_col(numrow)
+    ) %>% na_portion()
+    , fld_date = new_date_col(numrow) %>% na_portion()
+    , fld_time = new_time_col(numrow) %>% na_portion()
+
+    , fld_binary = sample(c(1,0), numrow, TRUE) %>% na_portion()
+
+    , fld_integer = new_integer_col(numrow) %>% na_portion()
+    , fld_integer_alt = new_integer_col(numrow) %>% na_portion()
+
+    , fld_double = runif(numrow, -10000, 10000) %>% na_portion()
+    , fld_double_alt = new_double_col(numrow) %>% na_portion()
+
+    , fld_logical = new_logical_col(numrow) %>% na_portion()
+    , fld_logical_alt = new_logical_col(numrow) %>% na_portion()
+
+    , fld_character = new_character_col(numrow = numrow) %>% na_portion()
+    , fld_character_symbol = new_character_col(
+      numrow
+      , strsplit("~!@#$%^&*(){}|[]\\;'./,?><-_==+","")[[1]]
+      ) %>% na_portion()
+    , fld_character_lead_trail_whitespace = paste0(
+      new_character_col(numrow, " ", 7)
+      , new_character_col( numrow , maxlength = 10)
+      , new_character_col(numrow, " ", 7)
+    ) %>% na_portion()
+
+    , fld_datetime_utc = paste(
+      new_date_col(numrow)
+      , new_time_col(numrow)
+      , "UTC"
+    ) %>% na_portion()
+  )
+}
+
+new_integer_col <- function(numrow = 10, magnitude=10000) {
+  as.integer(sample(-magnitude:magnitude, numrow, TRUE))
+}
+
+new_double_col <- function(numrow = 10, magnitude = 10000) {
+  runif(numrow, -magnitude, magnitude)
+}
+
+new_date_col <- function(numrow = 10) {
+  paste(
+    sprintf(sample(1:12,numrow,TRUE), fmt="%02d")
+    ,sprintf(sample(1:28,numrow,TRUE), fmt="%02d")
+    ,sample(2000:2020,numrow,TRUE)
+    ,sep="/"
+    )
+}
+
+new_time_col <- function(numrow = 10) {
+  paste(sprintf(sample(1:24,numrow,TRUE),fmt="%02d")
+        ,sprintf(sample(0:60,numrow,TRUE),fmt="%02d")
+        ,sprintf(sample(0:60,numrow,TRUE),fmt="%02d")
+        , sep=":"
+        )
+}
+
+new_character <- function(numrow = 10
+                          , charset = c(LETTERS, tolower(LETTERS))
+                          , maxlength = 20
+                          ) {
+  paste(
+    sample(
+      charset
+      , sample(1:maxlength,1)
+      , TRUE
+      )
+    , collapse = ''
+    )
+}
+
+new_character_col <- function(numrow = 10
+                              , charset = c(LETTERS, tolower(LETTERS))
+                              , maxlength = 20
+                                   ) {
+  as.character(lapply(1:numrow
+                      ,new_character
+                      , charset=charset
+                      , maxlength = maxlength
+                      )
+               )
+}
+
+new_logical_col <- function(numrow = 10) {
+  sample(c(TRUE,FALSE), numrow, TRUE)
+}
+
+
+na_portion <- function(input, minpct = 0.1, maxpct = 0.4) {
+  sel <- sample(1:length(input)
+                , size=sample(pmax(3,length(input)*minpct):(length(input)*maxpct),1)
+                , replace = FALSE
+                )
+  input[sel] <- NA
+  return(input)
+}
