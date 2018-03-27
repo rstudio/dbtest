@@ -79,45 +79,45 @@ write_test <- function(
 
 
 new_test_data <- function(numrow = 10){
-  tibble::tibble(
+  tibble(
 
     fld_factor = factor(sample(c("a","b","c"),size=numrow, replace=TRUE), levels=c("a","b","c"))
 
     , fld_datetime = paste(
       new_date_col(numrow)
       , new_time_col(numrow)
-    ) %>% na_portion()
-    , fld_date = new_date_col(numrow) %>% na_portion()
-    , fld_time = new_time_col(numrow) %>% na_portion()
+    )
+    , fld_date = new_date_col(numrow)
+    , fld_time = new_time_col(numrow)
 
-    , fld_binary = sample(c(1,0), numrow, TRUE) %>% na_portion()
+    , fld_binary = sample(c(1,0), numrow, TRUE)
 
-    , fld_integer = new_integer_col(numrow) %>% na_portion()
-    , fld_integer_alt = new_integer_col(numrow) %>% na_portion()
+    , fld_integer = new_integer_col(numrow)
+    , fld_integer_alt = new_integer_col(numrow)
 
-    , fld_double = runif(numrow, -10000, 10000) %>% na_portion()
-    , fld_double_alt = new_double_col(numrow) %>% na_portion()
+    , fld_double = runif(numrow, -10000, 10000)
+    , fld_double_alt = new_double_col(numrow)
 
-    , fld_logical = new_logical_col(numrow) %>% na_portion()
-    , fld_logical_alt = new_logical_col(numrow) %>% na_portion()
+    , fld_logical = new_logical_col(numrow)
+    , fld_logical_alt = new_logical_col(numrow)
 
-    , fld_character = new_character_col(numrow = numrow) %>% na_portion()
+    , fld_character = new_character_col(numrow = numrow)
     , fld_character_symbol = new_character_col(
       numrow
       , strsplit("~!@#$%^&*(){}|[]\\;'./,?><-_==+","")[[1]]
-      ) %>% na_portion()
+      )
     , fld_character_lead_trail_whitespace = paste0(
       new_character_col(numrow, " ", 7)
       , new_character_col( numrow , maxlength = 10)
       , new_character_col(numrow, " ", 7)
-    ) %>% na_portion()
+    )
 
     , fld_datetime_utc = paste(
       new_date_col(numrow)
       , new_time_col(numrow)
       , "UTC"
-    ) %>% na_portion()
-  )
+    )
+  ) %>% lapply(na_portion) %>% as_tibble()
 }
 
 new_integer_col <- function(numrow = 10, magnitude=10000) {
