@@ -5,6 +5,11 @@ output: github_document
 
 [![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
 
+```{r echo = FALSE}
+data("testdata", package="dbtest")
+set.seed(229997)
+```
+
 # Overview
 
 `dbtest` uses `testthat` to automate testing of `dbplyr` translations by running the tests against live database connections.  Tests are written in YAML files, and connections are either passed explicitly, read from system DSNs, or configured in YAML files.  Further, it is possible to execute a test suite against multiple database connections.
@@ -96,6 +101,7 @@ con <- DBI::dbConnect(odbc::odbc(), "PostgreSQL")
 dbWriteTable(con, "mytesttable", iris)
 my_tbl_sql <- dplyr::tbl(con, "mytesttable")
 dbtest::test_single_database(my_tbl_sql)
+dbDisconnect(con)
 ```
 
 # Usage
@@ -112,20 +118,72 @@ If you want to use specific test files included in `dbtest`, you can reference t
 Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests.  This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-test_output <- dbtest::test_databases("conn.yml", pkg_test("character-basic.yml"))
-plot_tests(test_output)
+test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
+dbtest::plot_tests(test_output)
 ```
 
 # Writing Test Files
 
-Writing test files in YAML can be a bit strange, because what `dbtest` expects is text.  For instance, do not use the `!expr` trick that the `config` package uses above for a connection object.  This text will get picked up into the testing process, which will do the following:
+Writing test files in YAML can be a bit strange, because what `dbtest` expects is text.  For instance, do _not_ use the `!expr` trick that the `config` package uses above for a connection object.  Rather, you specify a verb and then arbitrary text that will be interpreted as R code. This text will get picked up into the testing process, which will do the following:
 
 * ensure that test data is set up properly.  On most connections, this will result in a temporary table.
 * build a `dplyr` chain focused on the verb you selected
+* insert your arbitrary text into the selected verb
 * execute the `dplyr` chain against the database
 * execute the `dplyr` chain against a local copy of the same data
 * compare the outputs using `testthat::expect_equal`
 
 Currently supported verbs are:
 
-* 
+* summarise / summarize
+* mutate
+* arrange
+* filter
+* group_by
+
+## Example
+
+An example might be most illustrative.  Let's say that we want to test the base R functions `tolower` and `toupper` and how they get translated into SQL.  
+
+First, we would define a test YAML file like:
+```{r echo=FALSE}
+set.seed(1351255)
+```
+
+```{r echo=TRUE}
+test_file <- fs::path_temp("test-file.yml")
+yaml::write_yaml(
+  list(
+    setNames(
+    list(
+      list(
+        "mutate" = "tolower(fld_character)"
+        , "group_by" = "tolower(fld_character)"
+      )
+      , list(
+        "mutate" = "toupper(fld_character)"
+        , "group_by" = "toupper(fld_character)"
+      )
+    )
+    , c("test-tolower", "test-toupper")
+  ))
+  , file = test_file
+)
+```
+
+This test file looks like:
+
+_`r test_file`_
+```{r echo=FALSE, results='asis'}
+raw_file <- readLines(test_file)
+cat("<pre>")
+cat(paste(raw_file, collapse="<br>"))
+cat("</pre>")
+```
+
+When executed against databases, it might look like:
+
+```{r echo=TRUE, message = FALSE}
+test_results <- dbtest::test_databases("conn.yml", test_file)
+dbtest::plot_tests(test_results)
+```
