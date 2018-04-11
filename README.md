@@ -6,169 +6,198 @@ dbtest
 Overview
 ========
 
-The package uses **testthat** to automate dbplyr SQL translation by running the tests against live database connections.
+`dbtest` uses `testthat` to automate testing of `dbplyr` translations by running the tests against live database connections. Tests are written in YAML files, and connections are either passed explicitly, read from system DSNs, or configured in YAML files. Further, it is possible to execute a test suite against multiple database connections.
 
 Install
 =======
 
+To install `dbtest`, you can install the latest version from GitHub:
+
 ``` r
-devtools::install_github("rstudio/dbtest")
+remotes::install_github("rstudio/dbtest")
 ```
 
-Setup
-=====
+Connection
+==========
 
-The `config` package is used to secure the credentials and to allow to easily point the tests to different servers. The file needs to be named `config.yml`.
+The first step to use `dbtest` is to set up a [DBI](todo) connection object. There are many ways you can do this.
 
-Here is a sample of the structure:
+### DSN
 
-``` bash
+Sometimes, a system already has a handful of DSNs (Data Source Names) set up that make connection easy. In usual DBI, the connection might look like `DBI::dbConnect(odbc::odbc(), "My Data Source")`. On a linux operating system, these are usually defined in `/etc/odbc.ini` or `~/.odbc.ini`. If you have DSNs defined on your system, you can utilize them by using the value `"dsn"` as your connection. `dbtest` will use all of your DSNs and execute tests against them.
+
+``` r
+dbtest::test_databases("dsn")
+```
+
+### YAML File
+
+Every database has different connection parameters. To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection. Note that the [`config`](todo) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`. Otherwise, the `default` heading will be selected. An example might look like:
+
+``` yaml
 default:
+  pg:
+    drv: !expr odbc::odbc()
+    Driver: PostgreSQL
+    Host: postgres.example.com
+    Port: 5432
+    Database: postgres
+    UID: user
+    PWD: password
+
   mssql:
-    Driver: "MS SQL Driver"
-    server: "localhost"
-    Schema: "default"
-    UID: "rstudio"
-    PWD: "rstudio"
-    port: 10000
+    drv: !expr odbc::odbc()
+    Driver: SQLServer
+    Server: mssql.example.com
+    Port: 1433
+    UID: user
+    PWD: password
+
+  oracle:
+    drv: !expr odbc::odbc()
+    Driver: Oracle
+    Host: oracle.example.com
+    Port: 1521
+    SVC: xe
+    UID: user
+    PWD: password
+```
+
+Notice that the names of the various databases are different. This corresponds to the parameters that different database providers expect in the `dbConnect` function. Notice also that `drv` is `!expr odbc::odbc()`. This allows execution of R code to provide the necessary DBI driver to support the connection.
+
+You can test this behavior and create connection objects manually with:
+
+``` r
+cfg <- config::get(file = "./path/to/conn.yml")
+do.call(dbConnect, cfg$pg)
+do.call(dbConnect, cfg$mssql)
+do.call(dbConnect, cfg$oracle)
+```
+
+Or you can use the config file and `dbtest` to execute tests against all of these databae connections with:
+
+``` r
+dbtest::test_databases("./path/to/conn.yml")
+```
+
+### DBI Connection
+
+The most straightforward way to interactively use `dbtest` is to provide a DBI connection object directly to `dbtest::test_single_database`.
+
+``` r
+con <- DBI::dbConnect(odbc::odbc(), "My DSN")
+dbtest::test_single_database(con)
+```
+
+### tbl\_sql
+
+If you are familiar with `dbplyr` and already have a `tbl_sql` object (which combines a DBI connection object with a reference to a database table), you can pass that object to `test_single_database` as well. In this case, tests will be executed directly against that `tbl_sql` object.
+
+``` r
+con <- DBI::dbConnect(odbc::odbc(), "PostgreSQL")
+dbWriteTable(con, "mytesttable", iris)
+my_tbl_sql <- dplyr::tbl(con, "mytesttable")
+dbtest::test_single_database(my_tbl_sql)
+dbDisconnect(con)
 ```
 
 Usage
 =====
 
-Use the `test_database` command to run the tests. The arguments are as follows:
+Once you have decided how you are going to provide connection objects to `dbtest`, the usage is fairly straightforward. You can use either `test_databases` or `test_single_database`. `test_databases` is simply vectorized to make it easier for testing multiple databases. Going forwards, we will use `test_databases` for most of our examples.
 
--   **databases** - A vector of one or more databases that will be tested. The value should match the name should match the section inside the `config.yml` file.
+`test_databases` takes the following arguments:
 
--   **configuration** - Defaults to `default`. It refers to the main configuration selected that is in the `config.yml` file.
+-   datasources = a data source object used for connecting to a database (as described above)
+-   tests = a list or character vector of YAML files from which tests will be sourced. See the examples of test files below or the test files included with `dbtest` by executing `dbtest::all_tests()`
 
-Using the sample yml file from above, we would use `test_database("mssql")` to run the tests against that database.
+If you want to use specific test files included in `dbtest`, you can reference them explicitly with `dbtest::pkg_test("character-basic.yml")`, for instance. This is what we will do for ease of use.
 
-Passing a character vector to the **databases** argument allows us to run the same tests over multiple databases, for example: `test_database(c("mssql","oracle","hive"))`, will run the tests over the connections named "mssql", "oracle" and "hive" in a serial manner.
-
-Use a variable to retain the results. The `test_database` function returns a `data.frame` with the results.
-
-``` r
-library(dbtest)
-results <- test_database()
-```
-
-    ## ...EE....E.EEEEEEEEEEEEEEEEEEEEEEEE.......FFE......EEEEEEEEEEEEEEEEE.
-
-`test_database` uses the 'minimal' reporting from `testthat`. The result of each test will display as a single character:
-
--   Period means that the test passed with no errors
--   **E** means that the test passed but with errors
--   **F** means that the test failed
-
-This feature is useful if you wish to monitor the test while it runs. The real output of the test is a `data.frame` that is returned after all of the tests are complete. The resulting `data.frame` has the following variables:
-
--   **file** - Name of the R script - In GitHub the scripts are found in the */inst/sql-tests* folder
--   **context**
--   **test** - The test names coincide with the function it tests, the name is usually a single word long.
--   **nb**
--   **failed**
--   **skipped**
--   **error**
--   **warning**
--   **user**
--   **system**
--   **real** - Time elapsed for the test
--   **database**
--   **result** - Contains the actual error returned
--   **call** - Contains the code used in the test
--   **res** - If the test either fails or has errors then the value will be **Failed**, otherwise it will be **Passed**
-
-Analysis
-========
-
-Percentage passed
------------------
-
-A simple calculation of the percentage of the tests that passed helps to have a single number we can work on improving. Seeing the percentage climb after improvements to the translations are made is very motivating. Additionally, if multiple databases are being run at the same time, it's a great comparative number that provides context by giving us an idea who well our translation works on one database but not another.
-
-Here is the code I usually run:
+Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests. This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
 ``` r
-library(dplyr)
+test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
 ```
 
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following object is masked from 'package:testthat':
-    ## 
-    ##     matches
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
+    ## ..F....F....F..EEEEE.EF..
+    ## ...............EEEEE.E...
+    ## ..E....E....E..EEEEE.EE..
 
 ``` r
-library(tidyr)
-coverage <- results %>%
-  group_by(database, res) %>%
-  tally %>%
-  spread(res, n) %>%
-  mutate(coverage = round(Passed / (Passed + Failed), digits = 2))
-
-coverage
+dbtest::plot_tests(test_output)
 ```
 
-    ## # A tibble: 1 x 4
-    ## # Groups:   database [1]
-    ##   database Failed Passed coverage
-    ##      <chr>  <int>  <int>    <dbl>
-    ## 1              47     22     0.32
+![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
-ggplot2
+Writing Test Files
+==================
+
+Writing test files in YAML can be a bit strange, because what `dbtest` expects is text. For instance, do *not* use the `!expr` trick that the `config` package uses above for a connection object. Rather, you specify a verb and then arbitrary text that will be interpreted as R code. This text will get picked up into the testing process, which will do the following:
+
+-   ensure that test data is set up properly. On most connections, this will result in a temporary table.
+-   build a `dplyr` chain focused on the verb you selected
+-   insert your arbitrary text into the selected verb
+-   execute the `dplyr` chain against the database
+-   execute the `dplyr` chain against a local copy of the same data
+-   compare the outputs using `testthat::expect_equal`
+
+Currently supported verbs are:
+
+-   summarise / summarize
+-   mutate
+-   arrange
+-   filter
+-   group\_by
+
+Example
 -------
 
-A quick visualization so I can see at-a-glance what failed and passed.
+An example might be most illustrative. Let's say that we want to test the base R function `tolower` and how it gets translated into SQL.
+
+First, we would define a test YAML file like:
 
 ``` r
-library(ggplot2) 
-
-ggplot(data = results) +
-  geom_raster(aes(x = database, y = test, fill = res))
+test_file <- fs::path_temp("test-file.yml")
+yaml::write_yaml(
+  list(
+    setNames(
+    list(
+      list(
+        "mutate" = "tolower(fld_character)"
+        , "group_by" = "tolower(fld_character)"
+      )
+    )
+    , c("test-tolower")
+  ))
+  , file = test_file
+)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+This test file looks like:
 
-HTML Report
------------
-
-The package has a quick-n-easy report that takes the output from the `test_databases` output and creates an html based report. The flexible layout of the report allows the user to have an easier look at the results of each test.
+*/tmp/RtmpQIzVZ5/test-file.yml*
+<pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)</pre>
+When executed against databases, it might look like:
 
 ``` r
-html_report(results)
+test_results <- dbtest::test_databases("conn.yml", test_file)
 ```
 
-The code above will create a report of all the tests. Most time we just want to see what failed and why, here is what I normally use:
+    ## ..
+    ## ..
+    ## ..
 
 ``` r
-library(htmltools)
-html_report(results %>%
-              filter(res == "Failed"),
-            filename = "dbtest-exceptions.html")
+dbtest::plot_tests(test_results)
 ```
 
-In the report a test result will look like this:
+    ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
+    ## preserve their attributes
 
-    14 - impala - Test: row_number()
+    ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
+    ## preserve their attributes
 
-    File:       Result: Failed  Runtime (In Secs.): 0.09
+    ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
+    ## preserve their attributes
 
-    Test Message:
-
-    manip(db) not equal to manip(local). Attributes: < Modes: list, NULL > Attributes: < Lengths: 1, 0 > 
-    Attributes: < names for target but not for current > Attributes: < current is not list-like > target 
-    is integer64, current is numeric
-
-    Call:
-
-    expect_window_equivalent(row_number(fld_double))
+![](README_files/figure-markdown_github/unnamed-chunk-12-1.png)
