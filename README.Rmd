@@ -117,6 +117,21 @@ If you want to use specific test files included in `dbtest`, you can reference t
 
 Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests.  This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# ensure existence of a conn.yml file
+if (!fs::file_exists("conn.yml")) {
+  writeLines('default:
+  sqlite:
+    drv: !expr RSQLite::SQLite()
+    path: ":memory:"
+  sqlite2:
+    drv: !expr RSQLite::SQLite()
+    path: ":memory:"
+', "conn.yml") 
+}
+
+```
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
 dbtest::plot_tests(test_output)
