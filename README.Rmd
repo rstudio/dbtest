@@ -24,7 +24,7 @@ remotes::install_github("rstudio/dbtest")
 
 # Connection
 
-The first step to use `dbtest` is to set up a [DBI](todo) connection object.  There are many ways you can do this.
+The first step to use `dbtest` is to set up a [DBI](http://dbi.r-dbi.org/) connection object.  There are many ways you can do this.
 
 ### DSN
 
@@ -36,7 +36,7 @@ dbtest::test_databases("dsn")
 
 ### YAML File
 
-Every database has different connection parameters.  To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection.  Note that the [`config`](todo) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`.  Otherwise, the `default` heading will be selected. An example might look like:
+Every database has different connection parameters.  To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection.  Note that the [`config`](https://github.com/rstudio/config) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`.  Otherwise, the `default` heading will be selected. An example might look like:
 
 ```yaml
 default:
