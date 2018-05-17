@@ -155,17 +155,18 @@ test_file <- fs::path_temp("test-file.yml")
 yaml::write_yaml(
   list(
     setNames(
-    list(
-      list(
+      list(list(
         "mutate" = "tolower(fld_character)"
         , "group_by" = "tolower(fld_character)"
-      )
-      , list(
+      ))
+    , "test-tolower"
+  )
+  , setNames(
+    list(list(
         "mutate" = "toupper(fld_character)"
         , "group_by" = "toupper(fld_character)"
-      )
-    )
-    , c("test-tolower", "test-toupper")
+      ))
+    , "test-toupper"
   ))
   , file = test_file
 )
