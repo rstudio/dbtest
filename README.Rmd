@@ -77,7 +77,7 @@ do.call(dbConnect, cfg$mssql)
 do.call(dbConnect, cfg$oracle)
 ```
 
-Or you can use the config file and `dbtest` to execute tests against all of these databae connections with:
+Or you can use the config file and `dbtest` to execute tests against all of these database connections with:
 
 ```{r eval=FALSE}
 dbtest::test_databases("./path/to/conn.yml")
