@@ -14,7 +14,7 @@ test_that("false for bad list input", {
 test_that("true for valid input", {
   res <- list()
   class(res) <- "testthat_results"
-  obj <- list(connection="test", results=res)
+  obj <- as_dbtest_results(list(connection="test", results=res))
 
   expect_true(is_dbtest_results(obj))
 })
