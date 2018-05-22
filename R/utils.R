@@ -117,7 +117,9 @@ new_test_data <- function(numrow = 10){
       , new_time_col(numrow)
       , "UTC"
     )
-  ) %>% lapply(na_portion) %>% as_tibble()
+  ) %>%
+    lapply(na_portion) %>%
+    as_tibble()
 }
 
 new_integer_col <- function(numrow = 10, magnitude=10000) {
