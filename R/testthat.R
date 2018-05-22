@@ -158,7 +158,8 @@ test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
   list(
     connection = label,
     results = df
-  )
+  ) %>%
+    as_dbtest_results()
 }
 
 testthat_database <- function(datasource, tests = pkg_test()) {
