@@ -8,8 +8,7 @@ test_that("works with a connection object", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output$results, "testthat_results")
-  expect_equal(length(output), 2)
+  expect_s3_class(output, "dbtest_results")
 })
 
 test_that("works with tbl_sql object", {
@@ -21,8 +20,7 @@ test_that("works with tbl_sql object", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output$results, "testthat_results")
-  expect_equal(length(output), 2)
+  expect_s3_class(output, "dbtest_results")
 })
 
 test_that("works with multiple test files", {
@@ -36,8 +34,7 @@ test_that("works with multiple test files", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output$results, "testthat_results")
-  expect_equal(length(output), 2)
+  expect_s3_class(output, "dbtest_results")
   expect_equal(
     output$results %>%
       as.data.frame() %>%
@@ -57,8 +54,7 @@ test_that("works with a yaml file", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output[[1]]$results, "testthat_results")
-  expect_equal(length(output[[1]]), 2)
+  expect_s3_class(output[[1]], "dbtest_results")
 })
 
 test_that("works with multiple connections", {
@@ -69,8 +65,8 @@ test_that("works with multiple connections", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output[[1]]$results, "testthat_results")
-  expect_s3_class(output[[2]]$results, "testthat_results")
+  expect_s3_class(output[[1]], "dbtest_results")
+  expect_s3_class(output[[2]], "dbtest_results")
   expect_equal(length(output), 2)
   expect_equal(
     lapply(output, length) %>% as.double()
@@ -89,8 +85,7 @@ test_that("works with multiple test files", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output[[1]]$results, "testthat_results")
-  expect_equal(length(output[[1]]), 2)
+  expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
     output[[1]]$results %>%
       as.data.frame() %>%
