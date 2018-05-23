@@ -78,10 +78,9 @@ write_test <- function(
 
 
 
-new_test_data <- function(numrow = 10, seed=NULL){
+new_test_data <- function(numrow = 10, seed=NULL) {
   set_seed(seed)
   tibble(
-
     fld_factor = new_factor_col(numrow)
 
     , fld_datetime = paste(
@@ -91,7 +90,7 @@ new_test_data <- function(numrow = 10, seed=NULL){
     , fld_date = new_date_col(numrow)
     , fld_time = new_time_col(numrow)
 
-    , fld_binary = sample(c(1,0), numrow, TRUE)
+    , fld_binary = sample(c(1, 0), numrow, TRUE)
 
     , fld_integer = new_integer_col(numrow)
     , fld_integer_alt = new_integer_col(numrow)
@@ -105,11 +104,11 @@ new_test_data <- function(numrow = 10, seed=NULL){
     , fld_character = new_character_col(numrow = numrow)
     , fld_character_symbol = new_character_col(
       numrow
-      , strsplit("~!@#$%^&*(){}|[]\\;'./,?><-_==+","")[[1]]
-      )
+      , strsplit("~!@#$%^&*(){}|[]\\;'./,?><-_==+", "")[[1]]
+    )
     , fld_character_lead_trail_whitespace = paste0(
       new_character_col(numrow, " ", 7)
-      , new_character_col( numrow , maxlength = 10)
+      , new_character_col(numrow, maxlength = 10)
       , new_character_col(numrow, " ", 7)
     )
 
@@ -133,73 +132,75 @@ new_double_col <- function(numrow = 10, magnitude = 10000) {
 
 new_date_col <- function(numrow = 10) {
   paste(
-    sprintf(sample(1:12,numrow,TRUE), fmt="%02d")
-    ,sprintf(sample(1:28,numrow,TRUE), fmt="%02d")
-    ,sample(1990:2020,numrow,TRUE)
-    ,sep="/"
-    )
+    sprintf(sample(1:12, numrow, TRUE), fmt = "%02d")
+    , sprintf(sample(1:28, numrow, TRUE), fmt = "%02d")
+    , sample(1990:2020, numrow, TRUE)
+    ,
+    sep = "/"
+  )
 }
 
 new_time_col <- function(numrow = 10) {
-  paste(sprintf(sample(1:24,numrow,TRUE),fmt="%02d")
-        ,sprintf(sample(0:60,numrow,TRUE),fmt="%02d")
-        ,sprintf(sample(0:60,numrow,TRUE),fmt="%02d")
-        , sep=":"
-        )
+  paste(sprintf(sample(1:24, numrow, TRUE), fmt = "%02d")
+    , sprintf(sample(0:60, numrow, TRUE), fmt = "%02d")
+    , sprintf(sample(0:60, numrow, TRUE), fmt = "%02d")
+    ,
+    sep = ":"
+  )
 }
 
 new_character <- function(numrow = 10
                           , charset = c(LETTERS, tolower(LETTERS))
-                          , maxlength = 20
-                          ) {
+                          , maxlength = 20) {
   paste(
     sample(
       charset
-      , sample(1:maxlength,1)
+      , sample(1:maxlength, 1)
       , TRUE
-      )
-    , collapse = ''
     )
+    ,
+    collapse = ""
+  )
 }
 
 new_factor_col <- function(
-  numrow = 10
-  , charset = c(LETTERS, tolower(LETTERS))
-  , maxlength = 20
-  ) {
-  raw_chr <- new_character_col(numrow =  numrow, charset = charset, maxlength = maxlength)
-  return(factor(raw_chr, levels=raw_chr))
+                           numrow = 10
+                           , charset = c(LETTERS, tolower(LETTERS))
+                           , maxlength = 20) {
+  raw_chr <- new_character_col(numrow = numrow, charset = charset, maxlength = maxlength)
+  return(factor(raw_chr, levels = raw_chr))
 }
 
 new_character_col <- function(numrow = 10
                               , charset = c(LETTERS, tolower(LETTERS))
-                              , maxlength = 20
-                                   ) {
+                              , maxlength = 20) {
   as.character(lapply(1:numrow
-                      ,new_character
-                      , charset=charset
-                      , maxlength = maxlength
-                      )
-               )
+    , new_character
+    ,
+    charset = charset
+    , maxlength = maxlength
+  ))
 }
 
 new_logical_col <- function(numrow = 10) {
-  sample(c(TRUE,FALSE), numrow, TRUE)
+  sample(c(TRUE, FALSE), numrow, TRUE)
 }
 
 
 na_portion <- function(input, minpct = 0.1, maxpct = 0.4) {
   sel <- sample(1:length(input)
-                , size=sample(pmax(3,length(input)*minpct):(length(input)*maxpct),1)
-                , replace = FALSE
-                )
+    ,
+    size = sample(pmax(3, length(input) * minpct):(length(input) * maxpct), 1)
+    , replace = FALSE
+  )
   input[sel] <- NA
   return(input)
 }
 
 
 set_seed <- function(seed=NULL) {
-  if (!missing(seed))
+  if (!missing(seed)) {
     set.seed(seed)
+  }
   invisible()
 }
