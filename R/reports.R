@@ -118,11 +118,13 @@ coverage <- function(results) {
 #'
 #' @export
 plot_tests <- function(results) {
-  if (is.list(results) & is.null(names(results))) {
+  if (is.list(results) & all(as.logical(lapply(results, is_dbtest_results))) ) {
     prep_results <- results %>%
       map_df(~ as.data.frame(.x, stringsAsFactors = FALSE))
-  } else {
+  } else if (is_dbtest_results(results)) {
     prep_results <- results %>% as.data.frame(stringsAsFactors = FALSE)
+  } else {
+    stop("Invalid input: did not find a `dbtest_results` object or a list of `dbtest_results` objects")
   }
   dataset <- prep_results %>%
     mutate(
