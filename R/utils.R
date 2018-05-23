@@ -78,7 +78,8 @@ write_test <- function(
 
 
 
-new_test_data <- function(numrow = 10){
+new_test_data <- function(numrow = 10, seed=NULL){
+  set_seed(seed)
   tibble(
 
     fld_factor = factor(sample(c("a","b","c"),size=numrow, replace=TRUE), levels=c("a","b","c"))
@@ -185,4 +186,11 @@ na_portion <- function(input, minpct = 0.1, maxpct = 0.4) {
                 )
   input[sel] <- NA
   return(input)
+}
+
+
+set_seed <- function(seed=NULL) {
+  if (!missing(seed))
+    set.seed(seed)
+  invisible()
 }
