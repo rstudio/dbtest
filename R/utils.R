@@ -82,7 +82,7 @@ new_test_data <- function(numrow = 10, seed=NULL){
   set_seed(seed)
   tibble(
 
-    fld_factor = factor(sample(c("a","b","c"),size=numrow, replace=TRUE), levels=c("a","b","c"))
+    fld_factor = new_factor_col(numrow)
 
     , fld_datetime = paste(
       new_date_col(numrow)
@@ -160,6 +160,15 @@ new_character <- function(numrow = 10
       )
     , collapse = ''
     )
+}
+
+new_factor_col <- function(
+  numrow = 10
+  , charset = c(LETTERS, tolower(LETTERS))
+  , maxlength = 20
+  ) {
+  raw_chr <- new_character_col(numrow =  numrow, charset = charset, maxlength = maxlength)
+  return(factor(raw_chr, levels=raw_chr))
 }
 
 new_character_col <- function(numrow = 10
