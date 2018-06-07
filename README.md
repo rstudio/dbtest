@@ -14,7 +14,7 @@ Install
 To install `dbtest`, you can install the latest version from GitHub:
 
 ``` r
-remotes::install_github("rstudio/dbtest")
+devtools::install_github("rstudio/dbtest")
 ```
 
 Connection
