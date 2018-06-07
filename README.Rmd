@@ -24,7 +24,7 @@ remotes::install_github("rstudio/dbtest")
 
 # Connection
 
-The first step to use `dbtest` is to set up a [DBI](todo) connection object.  There are many ways you can do this.
+The first step to use `dbtest` is to set up a [DBI](http://dbi.r-dbi.org/) connection object.  There are many ways you can do this.
 
 ### DSN
 
@@ -36,7 +36,7 @@ dbtest::test_databases("dsn")
 
 ### YAML File
 
-Every database has different connection parameters.  To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection.  Note that the [`config`](todo) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`.  Otherwise, the `default` heading will be selected. An example might look like:
+Every database has different connection parameters.  To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection.  Note that the [`config`](https://github.com/rstudio/config) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`.  Otherwise, the `default` heading will be selected. An example might look like:
 
 ```yaml
 default:
@@ -77,7 +77,7 @@ do.call(dbConnect, cfg$mssql)
 do.call(dbConnect, cfg$oracle)
 ```
 
-Or you can use the config file and `dbtest` to execute tests against all of these databae connections with:
+Or you can use the config file and `dbtest` to execute tests against all of these database connections with:
 
 ```{r eval=FALSE}
 dbtest::test_databases("./path/to/conn.yml")
@@ -117,6 +117,21 @@ If you want to use specific test files included in `dbtest`, you can reference t
 
 Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests.  This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# ensure existence of a conn.yml file
+if (!fs::file_exists("conn.yml")) {
+  writeLines('default:
+  sqlite:
+    drv: !expr RSQLite::SQLite()
+    path: ":memory:"
+  sqlite2:
+    drv: !expr RSQLite::SQLite()
+    path: ":memory:"
+', "conn.yml") 
+}
+
+```
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
 dbtest::plot_tests(test_output)
@@ -155,17 +170,18 @@ test_file <- fs::path_temp("test-file.yml")
 yaml::write_yaml(
   list(
     setNames(
-    list(
-      list(
+      list(list(
         "mutate" = "tolower(fld_character)"
         , "group_by" = "tolower(fld_character)"
-      )
-      , list(
+      ))
+    , "test-tolower"
+  )
+  , setNames(
+    list(list(
         "mutate" = "toupper(fld_character)"
         , "group_by" = "toupper(fld_character)"
-      )
-    )
-    , c("test-tolower", "test-toupper")
+      ))
+    , "test-toupper"
   ))
   , file = test_file
 )

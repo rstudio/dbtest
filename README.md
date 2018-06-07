@@ -14,13 +14,13 @@ Install
 To install `dbtest`, you can install the latest version from GitHub:
 
 ``` r
-devtools::install_github("rstudio/dbtest")
+remotes::install_github("rstudio/dbtest")
 ```
 
 Connection
 ==========
 
-The first step to use `dbtest` is to set up a [DBI](todo) connection object. There are many ways you can do this.
+The first step to use `dbtest` is to set up a [DBI](http://dbi.r-dbi.org/) connection object. There are many ways you can do this.
 
 ### DSN
 
@@ -32,7 +32,7 @@ dbtest::test_databases("dsn")
 
 ### YAML File
 
-Every database has different connection parameters. To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection. Note that the [`config`](todo) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`. Otherwise, the `default` heading will be selected. An example might look like:
+Every database has different connection parameters. To make database connections easy to automate, `dbtest` will read a YAML file and pass the named parameters into `dbConnect` to create a DBI connection. Note that the [`config`](https://github.com/rstudio/config) package is used, so you must label the set of connections and refer to it with `R_CONFIG_ACTIVE=mylabel`. Otherwise, the `default` heading will be selected. An example might look like:
 
 ``` yaml
 default:
@@ -74,7 +74,7 @@ do.call(dbConnect, cfg$mssql)
 do.call(dbConnect, cfg$oracle)
 ```
 
-Or you can use the config file and `dbtest` to execute tests against all of these databae connections with:
+Or you can use the config file and `dbtest` to execute tests against all of these database connections with:
 
 ``` r
 dbtest::test_databases("./path/to/conn.yml")
@@ -119,7 +119,6 @@ Finally, `dbtest` provides reporting functions that make it easier to analyze an
 test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
 ```
 
-    ## ..F....F....F..EEEEE.EF..
     ## ...............EEEEE.E...
     ## ..E....E....E..EEEEE.EE..
 
@@ -127,7 +126,7 @@ test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-ba
 dbtest::plot_tests(test_output)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 Writing Test Files
 ==================
@@ -152,7 +151,7 @@ Currently supported verbs are:
 Example
 -------
 
-An example might be most illustrative. Let's say that we want to test the base R function `tolower` and how it gets translated into SQL.
+An example might be most illustrative. Let's say that we want to test the base R functions `tolower` and `toupper` and how they get translated into SQL.
 
 First, we would define a test YAML file like:
 
@@ -161,13 +160,18 @@ test_file <- fs::path_temp("test-file.yml")
 yaml::write_yaml(
   list(
     setNames(
-    list(
-      list(
+      list(list(
         "mutate" = "tolower(fld_character)"
         , "group_by" = "tolower(fld_character)"
-      )
-    )
-    , c("test-tolower")
+      ))
+    , "test-tolower"
+  )
+  , setNames(
+    list(list(
+        "mutate" = "toupper(fld_character)"
+        , "group_by" = "toupper(fld_character)"
+      ))
+    , "test-toupper"
   ))
   , file = test_file
 )
@@ -175,17 +179,16 @@ yaml::write_yaml(
 
 This test file looks like:
 
-*/tmp/RtmpQIzVZ5/test-file.yml*
-<pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)</pre>
+*/tmp/RtmpBxhyAt/test-file.yml*
+<pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
 ``` r
 test_results <- dbtest::test_databases("conn.yml", test_file)
 ```
 
-    ## ..
-    ## ..
-    ## ..
+    ## ....
+    ## ....
 
 ``` r
 dbtest::plot_tests(test_results)
@@ -197,7 +200,4 @@ dbtest::plot_tests(test_results)
     ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
     ## preserve their attributes
 
-    ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
-    ## preserve their attributes
-
-![](README_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-13-1.png)
