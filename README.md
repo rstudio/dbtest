@@ -14,7 +14,7 @@ Install
 To install `dbtest`, you can install the latest version from GitHub:
 
 ``` r
-remotes::install_github("rstudio/dbtest")
+devtools::install_github("rstudio/dbtest")
 ```
 
 Connection
@@ -155,31 +155,7 @@ An example might be most illustrative. Let's say that we want to test the base R
 
 First, we would define a test YAML file like:
 
-``` r
-test_file <- fs::path_temp("test-file.yml")
-yaml::write_yaml(
-  list(
-    setNames(
-      list(list(
-        "mutate" = "tolower(fld_character)"
-        , "group_by" = "tolower(fld_character)"
-      ))
-    , "test-tolower"
-  )
-  , setNames(
-    list(list(
-        "mutate" = "toupper(fld_character)"
-        , "group_by" = "toupper(fld_character)"
-      ))
-    , "test-toupper"
-  ))
-  , file = test_file
-)
-```
-
-This test file looks like:
-
-*/tmp/RtmpBxhyAt/test-file.yml*
+*/tmp/RtmpY67oS3/test-file.yml*
 <pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
@@ -193,11 +169,5 @@ test_results <- dbtest::test_databases("conn.yml", test_file)
 ``` r
 dbtest::plot_tests(test_results)
 ```
-
-    ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
-    ## preserve their attributes
-
-    ## Warning in bind_rows_(x, .id): Vectorizing 'fs_path' elements may not
-    ## preserve their attributes
 
 ![](README_files/figure-markdown_github/unnamed-chunk-13-1.png)
