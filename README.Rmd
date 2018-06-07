@@ -7,7 +7,7 @@ output: github_document
 
 ```{r echo = FALSE}
 data("testdata", package="dbtest")
-set.seed(229997)
+set.seed(228999)
 ```
 
 # Overview
@@ -19,7 +19,7 @@ set.seed(229997)
 To install `dbtest`, you can install the latest version from GitHub:
 
 ```{r eval=FALSE}
-remotes::install_github("rstudio/dbtest")
+devtools::install_github("rstudio/dbtest")
 ```
 
 # Connection
@@ -162,10 +162,10 @@ An example might be most illustrative.  Let's say that we want to test the base 
 
 First, we would define a test YAML file like:
 ```{r echo=FALSE}
-set.seed(1351255)
+set.seed(1351258)
 ```
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 test_file <- fs::path_temp("test-file.yml")
 yaml::write_yaml(
   list(
@@ -187,8 +187,6 @@ yaml::write_yaml(
 )
 ```
 
-This test file looks like:
-
 _`r test_file`_
 ```{r echo=FALSE, results='asis'}
 raw_file <- readLines(test_file)
@@ -199,7 +197,7 @@ cat("</pre>")
 
 When executed against databases, it might look like:
 
-```{r echo=TRUE, message = FALSE}
+```{r echo=TRUE, message = FALSE, warning=FALSE}
 test_results <- dbtest::test_databases("conn.yml", test_file)
 dbtest::plot_tests(test_results)
 ```
