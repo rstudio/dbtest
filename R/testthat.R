@@ -114,10 +114,12 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
 
 test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
   message("DBI")
+  test_single_database(datasource = datasources, tests = pkg_test(), label = class(datasources)[[1]])
 }
 
 test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
   message("TBL_SQL")
+  test_single_database(datasource = datasources, tests = pkg_test(), label = datasources[["ops"]][["x"]])
 }
 
 
