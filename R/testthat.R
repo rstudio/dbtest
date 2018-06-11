@@ -139,14 +139,22 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
     } else {
       # check that DSNs exist
       dsn_check <- non_config_files %in% all_dsns$name
-      warning(paste(non_config_files[!dsn_check], collapse=", "), " not found in available DSNs.  Removing.")
+      warning(paste(non_config_files[!dsn_check], collapse=", "), " not found in available DSNs.  Removing from tests.")
       non_config_dsns <- non_config_files[dsn_check]
     }
+
+    # connect to DBs
     if (length(non_config_dsns) > 0) {
       # connect to DSNs safely
-      non_config_output <- lapply(
-        as.list(non_config_dsns)
-        , function(dsn){odbc::dbConnect(odbc::odbc(), dsn)})
+      non_config_output <- non_config_dsns %>%
+        map(
+          ~ {
+            con <- DBI::dbConnect(odbc::odbc(), .x)
+            test_output <- test_databases(datasources = con, label = .x, tests = tests)
+            DBI::dbDisconnect(con)
+            test_output
+          }
+      )
     } else {
       non_config_output <- list()
     }
