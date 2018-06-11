@@ -117,13 +117,16 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
     }
 
     # connect to DBs
-    config_output <- names(config_files_exist) %>%
+    config_output <- config_files_exist %>%
       map(~ {
-        curr <- flatten(config_files_exist[.x])
-        con <- do.call(DBI::dbConnect, args = curr)
-        test_output <- test_databases(datasources = con, label = .x, tests = tests)
-        DBI::dbDisconnect(con)
-        test_output
+        cfg <- config::get(file = .x)
+        names(cfg) %>% map(~{
+          curr <- flatten(cfg[.x])
+          con <- do.call(DBI::dbConnect, args = curr)
+          test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+          DBI::dbDisconnect(con)
+          test_output
+        })
       })
 
   } else {
@@ -150,7 +153,7 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
         map(
           ~ {
             con <- DBI::dbConnect(odbc::odbc(), .x)
-            test_output <- test_databases(datasources = con, label = .x, tests = tests)
+            test_output <- test_single_database(datasource = con, label = .x, tests = tests)
             DBI::dbDisconnect(con)
             test_output
           }
@@ -160,7 +163,7 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
     }
   }
 
-  return(non_config_output)
+  return(c(config_output, non_config_output))
 }
 
 test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
