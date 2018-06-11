@@ -30,74 +30,17 @@
 #' }
 #'
 #' @export
-test_databases <- function(datasources = NULL,
-                           tests = pkg_test()) {
-  if (is.null(datasources)) {
-    datasources <- ""
-  }
-
-  if (datasources == "dsn") {
-    odbcListDataSources()$name %>%
-      map(~ {
-        con <- dbConnect(odbc(), dsn = .x)
-        test_single_database(con, tests = tests)
-        dbDisconnect(con)
-      })
-  } else if (datasources == "config" |
-    datasources == "" |
-    (all(tolower(path_ext(datasources)) %in% c("yml", "yaml")) &&
-      all(file_exists(datasources)))
-  ) {
-    if (datasources == "") {
-      file_path <- pkg_config()
-    } else if (
-      all(tolower(path_ext(datasources)) %in% c("yml", "yaml"))
-      && all(file_exists(datasources))
-    ) {
-      file_path <- datasources
-    } else {
-      file_path <- NULL
-    }
-
-    if (length(file_path) > 1) {
-      stop(sprintf("Multiple datasources are not currently supported"))
-    }
-
-    # Suppress warnings until config issue is resolved
-    # https://github.com/rstudio/config/issues/12
-    suppressWarnings(cons <- config::get(file = file_path))
-
-    names(cons) %>%
-      map(~ {
-        curr <- flatten(cons[.x])
-        con <- do.call(dbConnect, args = curr)
-        test_output <- test_single_database(con, label = .x, tests = tests)
-        dbDisconnect(con)
-        test_output
-      })
-
-  } else {
-    stop(
-      paste0(
-        "Unrecognized value for `datasources`: '%s'"
-        ,
-        ", please use either an existing config YAML file, 'config', 'dsn' or NULL"
-      ) %>%
-        sprintf(datasources)
-    )
-  }
-
-}
-
 test_databases <- function(datasources = NULL, tests = pkg_test()) {
   UseMethod("test_databases", datasources)
 }
 
+#' @export
 test_databases.list <- function(datasources = NULL, tests = pkg_test()) {
   message("LIST")
   lapply(datasources, test_databases)
 }
 
+#' @export
 test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
   message("CHARACTER")
 
@@ -106,6 +49,8 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
   non_config_files <- datasources[!config_check]
 
   # goal is a single list of connection objects...
+  config_output <- list()
+  non_config_output <- list()
 
   ## handle config files
   if (length(config_files) > 0) {
@@ -132,8 +77,6 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
         })
       })
 
-  } else {
-    config_output <- list()
   }
 
   ## handle non-config files (i.e. DSNs)
@@ -164,19 +107,19 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
             test_output
           }
       )
-    } else {
-      non_config_output <- list()
     }
   }
 
-  return(c(config_output, non_config_output))
+  return(c(unlist(config_output, recursive = FALSE), non_config_output))
 }
 
+#' @export
 test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
   message("DBI")
   test_single_database(datasource = datasources, tests = pkg_test(), label = class(datasources)[[1]])
 }
 
+#' @export
 test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
   message("TBL_SQL")
   test_single_database(datasource = datasources, tests = pkg_test(), label = datasources[["ops"]][["x"]])
