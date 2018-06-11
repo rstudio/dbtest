@@ -78,6 +78,34 @@ test_that("works with multiple connections", {
   )
 })
 
+test_that("works with multiple yaml files", {
+  skip("Need to write test")
+})
+
+test_that("throws out non-existent config files", {
+  skip("Need to write test")
+})
+
+test_that("works with a list of DBI connections", {
+  skip("Need to write test")
+})
+
+test_that("works with a list of tbl_sql objects", {
+  skip("Need to write test")
+})
+
+test_that("works with a DSN", {
+  skip("Need to write test - is this even possible? System dependent")
+})
+
+test_that("works with a list of DSNs", {
+  skip("Need to write test - is this even possible? System dependent")
+})
+
+test_that("throws out non-existent DSNs", {
+  skip("Need to write test")
+})
+
 test_that("works with multiple test files", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_databases(
@@ -99,3 +127,4 @@ test_that("works with multiple test files", {
     , c("simple-tests", "simple-tests-alt")
   )
 })
+
