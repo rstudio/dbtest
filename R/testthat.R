@@ -109,7 +109,25 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
 
   ## handle config files
   if (length(config_files) > 0) {
+    config_check <- file_exists(config_files);
+    config_files_exist <- config_files[config_check]
+    config_files_nonexist <- config_files[!config_check]
+    if (length(config_files_nonexist) > 0) {
+      warning(paste(config_files_nonexist, collapse=", "), " files do not exist.  Removing from tests.")
+    }
 
+    # connect to DBs
+    config_output <- names(config_files_exist) %>%
+      map(~ {
+        curr <- flatten(config_files_exist[.x])
+        con <- do.call(DBI::dbConnect, args = curr)
+        test_output <- test_databases(datasources = con, label = .x, tests = tests)
+        DBI::dbDisconnect(con)
+        test_output
+      })
+
+  } else {
+    config_output <- list()
   }
 
   ## handle non-config files (i.e. DSNs)
