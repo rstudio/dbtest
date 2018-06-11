@@ -205,7 +205,7 @@ testthat_database <- function(datasource, tests = pkg_test()) {
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
   # Address test data
-  if (isS4(datasource)) {
+  if (isS4(datasource) && inherits(datasource, "DBIConnection")) {
     remote_df <- suppressMessages(
       copy_to(datasource, testdata
         ,
@@ -225,6 +225,9 @@ testthat_database <- function(datasource, tests = pkg_test()) {
     remote_df <- head(datasource, 1000)
     local_df <- collect(remote_df)
   }
+  stopifnot(
+    inherits(remote_df, "tbl_sql")
+  )
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
