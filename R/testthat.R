@@ -104,12 +104,37 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
   config_check <- tolower(path_ext(datasources)) %in% c("yml","yaml")
   config_files <- datasources[config_check]
   non_config_files <- datasources[!config_check]
-  print(config_files)
-  print(non_config_files)
 
   # goal is a single list of connection objects...
 
-  invisible()
+  ## handle config files
+  if (length(config_files) > 0) {
+
+  }
+
+  ## handle non-config files (i.e. DSNs)
+  if (length(non_config_files) > 0) {
+    all_dsns <- odbc::odbcListDataSources()
+    if ("dsn" %in% non_config_files) {
+      # add all DSNS
+      non_config_dsns <- all_dsns$name
+    } else {
+      # check that DSNs exist
+      dsn_check <- non_config_files %in% all_dsns$name
+      warning(paste(non_config_files[!dsn_check], collapse=", "), " not found in available DSNs.  Removing.")
+      non_config_dsns <- non_config_files[dsn_check]
+    }
+    if (length(non_config_dsns) > 0) {
+      # connect to DSNs safely
+      non_config_output <- lapply(
+        as.list(non_config_dsns)
+        , function(dsn){odbc::dbConnect(odbc::odbc(), dsn)})
+    } else {
+      non_config_output <- list()
+    }
+  }
+
+  return(non_config_output)
 }
 
 test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
