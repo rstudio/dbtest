@@ -113,13 +113,16 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
     config_files_exist <- config_files[config_check]
     config_files_nonexist <- config_files[!config_check]
     if (length(config_files_nonexist) > 0) {
-      warning(paste(config_files_nonexist, collapse=", "), " files do not exist.  Removing from tests.")
+      warning(
+        "The following config files do not exist and will be removed: "
+        ,paste(paste0("'",config_files_nonexist, "'"), collapse=", ")
+        )
     }
 
     # connect to DBs
     config_output <- config_files_exist %>%
       map(~ {
-        cfg <- config::get(file = .x)
+        suppressWarnings(cfg <- config::get(file = .x))
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
           con <- do.call(DBI::dbConnect, args = curr)
@@ -142,7 +145,10 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
     } else {
       # check that DSNs exist
       dsn_check <- non_config_files %in% all_dsns$name
-      warning(paste(non_config_files[!dsn_check], collapse=", "), " not found in available DSNs.  Removing from tests.")
+      warning(
+        "The following DSNs were not found and will be removed: "
+        , paste(paste0("'",non_config_files[!dsn_check], "'"), collapse=", ")
+        )
       non_config_dsns <- non_config_files[dsn_check]
     }
 
