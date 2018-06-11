@@ -75,6 +75,7 @@ test_databases <- function(datasources = NULL,
         dbDisconnect(con)
         test_output
       })
+
   } else {
     stop(
       paste0(
@@ -85,7 +86,40 @@ test_databases <- function(datasources = NULL,
         sprintf(datasources)
     )
   }
+
 }
+
+test_databases <- function(datasources = NULL, tests = pkg_test()) {
+  UseMethod("test_databases", datasources)
+}
+
+test_databases.list <- function(datasources = NULL, tests = pkg_test()) {
+  message("LIST")
+  lapply(datasources, test_databases)
+}
+
+test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
+  message("CHARACTER")
+
+  config_check <- tolower(path_ext(datasources)) %in% c("yml","yaml")
+  config_files <- datasources[config_check]
+  non_config_files <- datasources[!config_check]
+  print(config_files)
+  print(non_config_files)
+
+  # goal is a single list of connection objects...
+
+  invisible()
+}
+
+test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
+  message("DBI")
+}
+
+test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
+  message("TBL_SQL")
+}
+
 
 #' @title Test Single Database
 #'
