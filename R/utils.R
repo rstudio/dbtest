@@ -175,8 +175,7 @@ new_character_col <- function(numrow = 10
                               , maxlength = 20) {
   as.character(lapply(1:numrow
     , new_character
-    ,
-    charset = charset
+    , charset = charset
     , maxlength = maxlength
   ))
 }
