@@ -213,8 +213,8 @@ testthat_database <- function(datasource, tests = pkg_test()) {
       copy_to(
         datasource
         , testdata
-        , name = new_character(numrow = 1, charset = tolower(LETTERS))
-        )
+        , name = new_character(charset = tolower(LETTERS))
+      )
     )
 
     local_df <- testdata

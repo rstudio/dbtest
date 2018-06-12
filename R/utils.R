@@ -149,8 +149,7 @@ new_time_col <- function(numrow = 10) {
   )
 }
 
-new_character <- function(numrow = 10
-                          , charset = c(LETTERS, tolower(LETTERS))
+new_character <- function(charset = c(LETTERS, tolower(LETTERS))
                           , maxlength = 20) {
   paste(
     sample(
