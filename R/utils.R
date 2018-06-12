@@ -202,3 +202,48 @@ set_seed <- function(seed=NULL) {
   }
   invisible()
 }
+
+
+
+
+build_remote_tbl <- function(
+  conn
+  , data
+  , name = new_character(numrow = 1, charset = tolower(LETTERS))
+  , verbose = FALSE
+) {
+  output <- tryCatch({
+    # try to build the table
+    output_tbl <-
+      dplyr::copy_to(
+        conn
+        , data
+        , name = name
+      )
+
+    output_tbl
+  }
+    , error = function(e){
+      if (grepl('Table.*exists in database',e)) {
+        # try referencing the table
+          output_tbl <- tryCatch({
+            output <- dplyr::tbl(conn, name)
+            if(verbose) message("Using existing table")
+            output
+          }
+         , error = function(e){
+           # try creating the table with a new name
+           name <- paste0(name,sample(tolower(LETTERS),1,FALSE))
+           tbl <- dplyr::copy_to(conn, data, name = name)
+           if(verbose) message(paste0("created new table name: ",name))
+           return(tbl)
+           })
+
+          return(output_tbl)
+      } else {
+        stop(e)
+      }
+    }
+  )
+  return(output)
+}
