@@ -214,12 +214,11 @@ build_remote_tbl <- function(
 ) {
   output <- tryCatch({
     # try to build the table
-    output_tbl <-
-      dplyr::copy_to(
+    output_tbl <- suppressMessages(dplyr::copy_to(
         conn
         , data
         , name = name
-      )
+      ))
 
     output_tbl
   }
@@ -234,7 +233,7 @@ build_remote_tbl <- function(
          , error = function(e){
            # try creating the table with a new name
            name <- paste0(name,sample(tolower(LETTERS),1,FALSE))
-           tbl <- dplyr::copy_to(conn, data, name = name)
+           tbl <- suppressMessages(dplyr::copy_to(conn, data, name = name))
            if(verbose) message(paste0("created new table name: ",name))
            return(tbl)
            })
