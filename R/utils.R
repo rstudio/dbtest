@@ -150,11 +150,12 @@ new_time_col <- function(numrow = 10) {
 }
 
 new_character <- function(charset = c(LETTERS, tolower(LETTERS))
-                          , maxlength = 20) {
+                          , maxlength = 20
+                          , minlength = 10) {
   paste(
     sample(
       charset
-      , sample(1:maxlength, 1)
+      , sample(minlength:maxlength, 1)
       , TRUE
     )
     ,
@@ -172,11 +173,13 @@ new_factor_col <- function(
 
 new_character_col <- function(numrow = 10
                               , charset = c(LETTERS, tolower(LETTERS))
-                              , maxlength = 20) {
+                              , maxlength = 20
+                              , minlength = 1) {
   as.character(lapply(1:numrow
     , new_character
     , charset = charset
     , maxlength = maxlength
+    , minlength = minlength
   ))
 }
 
