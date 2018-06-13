@@ -5,7 +5,7 @@ output: github_document
 
 [![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
 
-```{r echo = FALSE}
+```{r data-setup, echo = FALSE}
 data("testdata", package="dbtest")
 ```
 
@@ -17,7 +17,7 @@ data("testdata", package="dbtest")
 
 To install `dbtest`, you can install the latest version from GitHub:
 
-```{r eval=FALSE}
+```{r dev-version, eval=FALSE}
 devtools::install_github("rstudio/dbtest")
 ```
 
@@ -29,7 +29,7 @@ The first step to use `dbtest` is to set up a [DBI](http://dbi.r-dbi.org/) conne
 
 Sometimes, a system already has a handful of DSNs (Data Source Names) set up that make connection easy.  In usual DBI, the connection might look like `DBI::dbConnect(odbc::odbc(), "My Data Source")`.  On a linux operating system, these are usually defined in `/etc/odbc.ini` or `~/.odbc.ini`.  If you have DSNs defined on your system, you can utilize them by using the value `"dsn"` as your connection.  `dbtest` will use all of your DSNs and execute tests against them.
 
-```{r eval=FALSE}
+```{r show-dsn, eval=FALSE}
 dbtest::test_databases("dsn")
 ```
 
@@ -69,7 +69,7 @@ default:
 Notice that the names of the various databases are different.  This corresponds to the parameters that different database providers expect in the `dbConnect` function.  Notice also that `drv` is `!expr odbc::odbc()`.  This allows execution of R code to provide the necessary DBI driver to support the connection.
 
 You can test this behavior and create connection objects manually with:
-```{r eval=FALSE}
+```{r show-manual-yaml, eval=FALSE}
 cfg <- config::get(file = "./path/to/conn.yml")
 do.call(dbConnect, cfg$pg)
 do.call(dbConnect, cfg$mssql)
@@ -78,7 +78,7 @@ do.call(dbConnect, cfg$oracle)
 
 Or you can use the config file and `dbtest` to execute tests against all of these database connections with:
 
-```{r eval=FALSE}
+```{r show-yaml, eval=FALSE}
 dbtest::test_databases("./path/to/conn.yml")
 ```
 
@@ -86,7 +86,7 @@ dbtest::test_databases("./path/to/conn.yml")
 
 The most straightforward way to interactively use `dbtest` is to provide a DBI connection object directly to `dbtest::test_single_database`.  
 
-```{r eval=FALSE}
+```{r show-DBI, eval=FALSE}
 con <- DBI::dbConnect(odbc::odbc(), "My DSN")
 dbtest::test_single_database(con)
 ```
@@ -95,7 +95,7 @@ dbtest::test_single_database(con)
 
 If you are familiar with `dbplyr` and already have a `tbl_sql` object (which combines a DBI connection object with a reference to a database table), you can pass that object to `test_single_database` as well.  In this case, tests will be executed directly against that `tbl_sql` object.
 
-```{r eval=FALSE}
+```{r show-tbl_sql, eval=FALSE}
 con <- DBI::dbConnect(odbc::odbc(), "PostgreSQL")
 dbWriteTable(con, "mytesttable", iris)
 my_tbl_sql <- dplyr::tbl(con, "mytesttable")
@@ -116,7 +116,7 @@ If you want to use specific test files included in `dbtest`, you can reference t
 
 Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests.  This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r create-conn, echo=FALSE, message=FALSE, warning=FALSE}
 # ensure existence of a conn.yml file
 if (!fs::file_exists("conn.yml")) {
   writeLines('default:
@@ -131,7 +131,7 @@ if (!fs::file_exists("conn.yml")) {
 
 ```
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r run-test, echo=TRUE, message=FALSE, warning=FALSE}
 test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
 dbtest::plot_tests(test_output)
 ```
@@ -161,7 +161,7 @@ An example might be most illustrative.  Let's say that we want to test the base 
 
 First, we would define a test YAML file like:
 
-```{r echo=FALSE}
+```{r build-file, echo=FALSE}
 test_file <- fs::path_temp("test-file.yml")
 yaml::write_yaml(
   list(
@@ -184,7 +184,7 @@ yaml::write_yaml(
 ```
 
 _`r test_file`_
-```{r echo=FALSE, results='asis'}
+```{r show-file, echo=FALSE, results='asis'}
 raw_file <- readLines(test_file)
 cat("<pre>")
 cat(paste(raw_file, collapse="<br>"))
@@ -193,7 +193,7 @@ cat("</pre>")
 
 When executed against databases, it might look like:
 
-```{r echo=TRUE, message = FALSE, warning=FALSE}
+```{r exec-file, echo=TRUE, message = FALSE, warning=FALSE}
 test_results <- dbtest::test_databases("conn.yml", test_file)
 dbtest::plot_tests(test_results)
 ```
