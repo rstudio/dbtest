@@ -7,7 +7,6 @@ output: github_document
 
 ```{r echo = FALSE}
 data("testdata", package="dbtest")
-set.seed(228999)
 ```
 
 # Overview
@@ -161,9 +160,6 @@ Currently supported verbs are:
 An example might be most illustrative.  Let's say that we want to test the base R functions `tolower` and `toupper` and how they get translated into SQL.  
 
 First, we would define a test YAML file like:
-```{r echo=FALSE}
-set.seed(1351258)
-```
 
 ```{r echo=FALSE}
 test_file <- fs::path_temp("test-file.yml")
