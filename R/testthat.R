@@ -209,13 +209,7 @@ testthat_database <- function(datasource, tests = pkg_test()) {
 
   # Address test data
   if (isS4(datasource) && inherits(datasource, "DBIConnection")) {
-    remote_df <- suppressMessages(
-      copy_to(
-        datasource
-        , testdata
-        , name = new_character(charset = tolower(LETTERS))
-      )
-    )
+    remote_df <- build_remote_tbl(datasource, testdata)
 
     local_df <- testdata
   }
