@@ -209,7 +209,7 @@ set_seed <- function(seed=NULL) {
 build_remote_tbl <- function(
   conn
   , data
-  , name = new_character(numrow = 1, charset = tolower(LETTERS))
+  , name = new_character(maxlength = 1, charset = tolower(LETTERS))
   , verbose = FALSE
 ) {
   output <- tryCatch({
