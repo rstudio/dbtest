@@ -96,8 +96,20 @@ test_that("works with multiple test files", {
 })
 
 test_that("works with different integer types", {
-  tmp_file <- fs::file_temp("integer-test", ext=".yml")
-  write_test(tmp_file, "integer-conversion", "fld_integer + fld_integer", overwrite = TRUE)
 
-  output <- test_single_database(dbtest::pkg_config(), tmp_file, label = "test-integer")
+  skip("requires a postgres database")
+
+  tmp_file <- fs::file_temp("integer-test", ext=".yml")
+  write_test(file = tmp_file
+             , header = "integer-conversion"
+             , expr = "fld_integer"
+             , overwrite = TRUE
+             )
+
+  raw_conn <- yaml::read_yaml("conn.yml")
+  pg <- raw_conn$default$pg
+  con <- do.call(DBI::dbConnect, pg)
+  output <- test_single_database(con, tmp_file)
+
+  expect_equal(as.data.frame(output)[3,"results.failed"], 0, info = "Test should pass")
 })
