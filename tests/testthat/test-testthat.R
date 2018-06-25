@@ -120,6 +120,6 @@ test_that("works with different integer types", {
   expect_equal(
     as.data.frame(output)[3,"results.failed"]
     , 0
-    , info = "Test should pass"
+    , info = "Test should pass if integer64 compares to integer"
     )
 })
