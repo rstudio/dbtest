@@ -96,7 +96,7 @@ test_that("works with multiple test files", {
 })
 
 test_that("works with different integer types", {
-  conn_path <- rprojroot::find_rstudio_root_file("conn.yml")
+  conn_path <- rprojroot::find_testthat_root_file("conn.yml")
   if (!fs::file_exists(conn_path)) {
     skip("requires a postgres database")
   }
