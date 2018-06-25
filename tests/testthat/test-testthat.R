@@ -99,3 +99,10 @@ test_that("works with multiple test files", {
     , c("simple-tests", "simple-tests-alt")
   )
 })
+
+test_that("works with different integer types", {
+  tmp_file <- fs::file_temp("integer-test", ext=".yml")
+  write_test(tmp_file, "integer-conversion", "fld_integer + fld_integer", overwrite = TRUE)
+
+  output <- test_single_database(dbtest::pkg_config(), tmp_file, label = "test-integer")
+})
