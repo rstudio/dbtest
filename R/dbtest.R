@@ -1,3 +1,4 @@
+#' @importFrom bit64 is.integer64
 #' @importFrom dbplyr remote_con
 #' @importFrom fs dir_ls
 #' @importFrom fs file_exists
