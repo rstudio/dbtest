@@ -4,8 +4,7 @@
 \alias{write_test}
 \title{Write Tests}
 \usage{
-write_test(file, header, expr, overwrite = FALSE, comparison = .x >
-  sample(1:10, 1))
+write_test(file, header, expr, overwrite = FALSE, comparison = " > 10")
 }
 \arguments{
 \item{file}{The file the tests should be written to}
