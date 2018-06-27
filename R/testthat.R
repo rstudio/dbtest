@@ -1,10 +1,10 @@
-#' @title Test Databases
+#' @title Test Database
 #'
 #' @description A wrapper around `test_sigle_database` that iterates over multiple datasources
 #' and executes the testing suite on each.  Output is organized in such a way as to
 #' give nice, consolidated results.
 #'
-#' @param datasources optional Defaults to using a SQLite database.  Pass "dsn" to use
+#' @param datasource optional Defaults to using a SQLite database.  Pass "dsn" to use
 #' all DSNs available on the system.  Use "config" or a path to a "config.yml" file to
 #' use connection parameters in a YAML file.  Connection parameters will be passed to
 #' `dbConnect` as-is
@@ -18,35 +18,35 @@
 #' @examples
 #' # test all dsns with dbtest suite -----------------------
 #' \dontrun{
-#' test_databases(datasources = "dsn")
+#' test_database(datasource = "dsn")
 #' }
 #' # test sqlite with custom suite -------------------------
 #' \dontrun{
-#' test_databases(tests = "./path/to/my.yml")
+#' test_database(tests = "./path/to/my.yml")
 #' }
 #' # test connection yaml file with dbtest suite -----------
 #' \dontrun{
-#' test_databases(datasources = "./path/to/conn.yml")
+#' test_database(datasource = "./path/to/conn.yml")
 #' }
 #'
 #' @export
-test_databases <- function(datasources = NULL, tests = pkg_test()) {
-  UseMethod("test_databases", datasources)
+test_database <- function(datasource = NULL, tests = pkg_test()) {
+  UseMethod("test_database", datasource)
 }
 
 #' @export
-test_databases.list <- function(datasources = NULL, tests = pkg_test()) {
+test_database.list <- function(datasource = NULL, tests = pkg_test()) {
   message("LIST")
-  lapply(datasources, test_databases)
+  lapply(datasource, test_database)
 }
 
 #' @export
-test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
+test_database.character <- function(datasource = NULL, tests = pkg_test()) {
   message("CHARACTER")
 
-  config_check <- tolower(path_ext(datasources)) %in% c("yml","yaml")
-  config_files <- datasources[config_check]
-  non_config_files <- datasources[!config_check]
+  config_check <- tolower(path_ext(datasource)) %in% c("yml","yaml")
+  config_files <- datasource[config_check]
+  non_config_files <- datasource[!config_check]
 
   # goal is a single list of connection objects...
   config_output <- list()
@@ -114,15 +114,15 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
 }
 
 #' @export
-test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
+test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test()) {
   message("DBI")
-  test_single_database(datasource = datasources, tests = pkg_test(), label = class(datasources)[[1]])
+  test_single_database(datasource = datasource, tests = pkg_test(), label = class(datasource)[[1]])
 }
 
 #' @export
-test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
+test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test()) {
   message("TBL_SQL")
-  test_single_database(datasource = datasources, tests = pkg_test(), label = datasources[["ops"]][["x"]])
+  test_single_database(datasource = datasource, tests = pkg_test(), label = datasource[["ops"]][["x"]])
 }
 
 
@@ -144,7 +144,7 @@ test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
 #' res <- test_single_database(con, pkg_test("simple-tests.yml"))
 #' DBI::dbDisconnect(con)
 #'
-#' @seealso test_databases
+#' @seealso test_database
 #' @export
 test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
   reporter <- MultiReporter$new(
