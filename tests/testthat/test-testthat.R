@@ -44,6 +44,30 @@ test_that("works with multiple test files", {
   )
 })
 
+test_that("works on successive tests to same connection", {
+  con <- dbConnect(RSQLite::SQLite(), ":memory:")
+
+  set.seed(1234)
+  output <- test_single_database(
+    con
+    , pkg_test("simple-tests.yml")
+  )
+
+  set.seed(1234)
+  output2 <- tryCatch({test_single_database(
+    con
+    , pkg_test("simple-tests.yml")
+  )}, error = function(x){stop(x)})
+  dbDisconnect(con)
+
+  # expect results - TODO - class object
+  expect_s3_class(output$results, "testthat_results")
+  expect_equal(length(output), 2)
+
+  expect_s3_class(output2$results, "testthat_results")
+  expect_equal(length(output2), 2)
+})
+
 context("test_databases")
 
 test_that("works with a yaml file", {
@@ -74,6 +98,34 @@ test_that("works with multiple connections", {
   )
 })
 
+test_that("works with multiple yaml files", {
+  skip("Need to write test")
+})
+
+test_that("throws out non-existent config files", {
+  skip("Need to write test")
+})
+
+test_that("works with a list of DBI connections", {
+  skip("Need to write test")
+})
+
+test_that("works with a list of tbl_sql objects", {
+  skip("Need to write test")
+})
+
+test_that("works with a DSN", {
+  skip("Need to write test - is this even possible? System dependent")
+})
+
+test_that("works with a list of DSNs", {
+  skip("Need to write test - is this even possible? System dependent")
+})
+
+test_that("throws out non-existent DSNs", {
+  skip("Need to write test")
+})
+
 test_that("works with multiple test files", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_databases(
@@ -94,3 +146,4 @@ test_that("works with multiple test files", {
     , c("simple-tests", "simple-tests-alt")
   )
 })
+

@@ -120,13 +120,13 @@ test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-ba
 ```
 
     ## ...............EEEEE.E...
-    ## ..E....E....E..EEEEE.EE..
+    ## FFEFFFFEFFFFEFFEEEEEFEEFF
 
 ``` r
 dbtest::plot_tests(test_output)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](README_files/figure-markdown_github/run-test-1.png)
 
 Writing Test Files
 ==================
@@ -155,7 +155,7 @@ An example might be most illustrative. Let's say that we want to test the base R
 
 First, we would define a test YAML file like:
 
-*/tmp/RtmpY67oS3/test-file.yml*
+*/tmp/RtmpcMrv8J/test-file.yml*
 <pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
@@ -164,10 +164,10 @@ test_results <- dbtest::test_databases("conn.yml", test_file)
 ```
 
     ## ....
-    ## ....
+    ## FFFF
 
 ``` r
 dbtest::plot_tests(test_results)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](README_files/figure-markdown_github/exec-file-1.png)

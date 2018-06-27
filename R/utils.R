@@ -149,13 +149,13 @@ new_time_col <- function(numrow = 10) {
   )
 }
 
-new_character <- function(numrow = 10
-                          , charset = c(LETTERS, tolower(LETTERS))
-                          , maxlength = 20) {
+new_character <- function(charset = c(LETTERS, tolower(LETTERS))
+                          , maxlength = 20
+                          , minlength = 10) {
   paste(
     sample(
       charset
-      , sample(1:maxlength, 1)
+      , sample(minlength:maxlength, 1)
       , TRUE
     )
     ,
@@ -173,12 +173,13 @@ new_factor_col <- function(
 
 new_character_col <- function(numrow = 10
                               , charset = c(LETTERS, tolower(LETTERS))
-                              , maxlength = 20) {
+                              , maxlength = 20
+                              , minlength = 1) {
   as.character(lapply(1:numrow
     , new_character
-    ,
-    charset = charset
+    , charset = charset
     , maxlength = maxlength
+    , minlength = minlength
   ))
 }
 
@@ -203,4 +204,48 @@ set_seed <- function(seed=NULL) {
     set.seed(seed)
   }
   invisible()
+}
+
+
+
+
+build_remote_tbl <- function(
+  conn
+  , data
+  , name = new_character(maxlength = 1, charset = tolower(LETTERS))
+  , verbose = FALSE
+) {
+  output <- tryCatch({
+    # try to build the table
+    output_tbl <- suppressMessages(dplyr::copy_to(
+        conn
+        , data
+        , name = name
+      ))
+
+    output_tbl
+  }
+    , error = function(e){
+      if (grepl('Table.*exists in database',e)) {
+        # try referencing the table
+          output_tbl <- tryCatch({
+            output <- dplyr::tbl(conn, name)
+            if(verbose) message("Using existing table")
+            output
+          }
+         , error = function(e){
+           # try creating the table with a new name
+           name <- paste0(name,sample(tolower(LETTERS),1,FALSE))
+           tbl <- suppressMessages(dplyr::copy_to(conn, data, name = name))
+           if(verbose) message(paste0("created new table name: ",name))
+           return(tbl)
+           })
+
+          return(output_tbl)
+      } else {
+        stop(e)
+      }
+    }
+  )
+  return(output)
 }

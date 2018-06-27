@@ -14,6 +14,7 @@
 #' @importFrom purrr reduce
 #' @importFrom rlang parse_expr
 #' @importFrom rprojroot find_rstudio_root_file
+#' @importFrom stats runif
 #' @importFrom testthat context
 #' @importFrom testthat expect_equal
 #' @importFrom testthat ListReporter
