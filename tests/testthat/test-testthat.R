@@ -68,11 +68,11 @@ test_that("works on successive tests to same connection", {
   expect_equal(length(output2), 2)
 })
 
-context("test_databases")
+context("test_database")
 
 test_that("works with a yaml file", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_databases(
+  output <- test_database(
     pkg_config("config.yml")
     , pkg_test("simple-tests.yml")
   )
@@ -83,7 +83,7 @@ test_that("works with a yaml file", {
 
 test_that("works with multiple connections", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_databases(
+  output <- test_database(
     pkg_config("multiple.yml")
     , pkg_test("simple-tests.yml")
   )
@@ -128,7 +128,7 @@ test_that("throws out non-existent DSNs", {
 
 test_that("works with multiple test files", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_databases(
+  output <- test_database(
     pkg_config("config.yml")
     , c(
       pkg_test("simple-tests.yml")
