@@ -147,6 +147,9 @@ test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test()) {
 #' @seealso test_database
 #' @export
 test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
+  if (is.character(datasource)) {
+    stop("Character values for `datasource` are not accepted for `test_single_database`")
+  }
   reporter <- MultiReporter$new(
     reporters = list(
       MinimalReporter$new()
