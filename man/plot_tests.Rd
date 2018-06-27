@@ -7,13 +7,13 @@
 plot_tests(results)
 }
 \arguments{
-\item{results}{Output from `test_single_database` or `test_databases`}
+\item{results}{Output from `test_single_database` or `test_database`}
 }
 \value{
 ggplot2 object / graph
 }
 \description{
-Plot the output from `test_single_database` or `test_databases` as a ggplot2 object
+Plot the output from `test_single_database` or `test_database` as a ggplot2 object
 for easy visualization of test success or failure across databases.
 }
 \examples{
