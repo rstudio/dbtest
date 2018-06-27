@@ -27,7 +27,7 @@ The first step to use `dbtest` is to set up a [DBI](http://dbi.r-dbi.org/) conne
 Sometimes, a system already has a handful of DSNs (Data Source Names) set up that make connection easy. In usual DBI, the connection might look like `DBI::dbConnect(odbc::odbc(), "My Data Source")`. On a linux operating system, these are usually defined in `/etc/odbc.ini` or `~/.odbc.ini`. If you have DSNs defined on your system, you can utilize them by using the value `"dsn"` as your connection. `dbtest` will use all of your DSNs and execute tests against them.
 
 ``` r
-dbtest::test_databases("dsn")
+dbtest::test_database("dsn")
 ```
 
 ### YAML File
@@ -77,38 +77,38 @@ do.call(dbConnect, cfg$oracle)
 Or you can use the config file and `dbtest` to execute tests against all of these database connections with:
 
 ``` r
-dbtest::test_databases("./path/to/conn.yml")
+dbtest::test_database("./path/to/conn.yml")
 ```
 
 ### DBI Connection
 
-The most straightforward way to interactively use `dbtest` is to provide a DBI connection object directly to `dbtest::test_single_database`.
+The most straightforward way to interactively use `dbtest` is to provide a DBI connection object directly to `dbtest::test_database`.
 
 ``` r
 con <- DBI::dbConnect(odbc::odbc(), "My DSN")
-dbtest::test_single_database(con)
+dbtest::test_database(con)
 ```
 
 ### tbl\_sql
 
-If you are familiar with `dbplyr` and already have a `tbl_sql` object (which combines a DBI connection object with a reference to a database table), you can pass that object to `test_single_database` as well. In this case, tests will be executed directly against that `tbl_sql` object.
+If you are familiar with `dbplyr` and already have a `tbl_sql` object (which combines a DBI connection object with a reference to a database table), you can pass that object to `test_database` as well. In this case, tests will be executed directly against that `tbl_sql` object.
 
 ``` r
 con <- DBI::dbConnect(odbc::odbc(), "PostgreSQL")
 dbWriteTable(con, "mytesttable", iris)
 my_tbl_sql <- dplyr::tbl(con, "mytesttable")
-dbtest::test_single_database(my_tbl_sql)
+dbtest::test_database(my_tbl_sql)
 dbDisconnect(con)
 ```
 
 Usage
 =====
 
-Once you have decided how you are going to provide connection objects to `dbtest`, the usage is fairly straightforward. You can use either `test_databases` or `test_single_database`. `test_databases` is simply vectorized to make it easier for testing multiple databases. Going forwards, we will use `test_databases` for most of our examples.
+Once you have decided how you are going to provide connection objects to `dbtest`, the usage is fairly straightforward. You use `test_database`. `test_database` is also vectorized to make it easier for testing multiple databases.
 
-`test_databases` takes the following arguments:
+`test_database` takes the following arguments:
 
--   datasources = a data source object used for connecting to a database (as described above)
+-   datasource = a data source object used for connecting to a database (as described above)
 -   tests = a list or character vector of YAML files from which tests will be sourced. See the examples of test files below or the test files included with `dbtest` by executing `dbtest::all_tests()`
 
 If you want to use specific test files included in `dbtest`, you can reference them explicitly with `dbtest::pkg_test("character-basic.yml")`, for instance. This is what we will do for ease of use.
@@ -116,11 +116,12 @@ If you want to use specific test files included in `dbtest`, you can reference t
 Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests. This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
 ``` r
-test_output <- dbtest::test_databases("conn.yml", dbtest::pkg_test("character-basic.yml"))
+test_output <- dbtest::test_database("conn.yml", dbtest::pkg_test("character-basic.yml"))
 ```
 
     ## ...............EEEEE.E...
-    ## FFEFFFFEFFFFEFFEEEEEFEEFF
+    ## ...............EEEEE.E...
+    ## ..E....E....E..EEEEE.EE..
 
 ``` r
 dbtest::plot_tests(test_output)
@@ -155,16 +156,17 @@ An example might be most illustrative. Let's say that we want to test the base R
 
 First, we would define a test YAML file like:
 
-*/tmp/RtmpcMrv8J/test-file.yml*
+*/tmp/RtmpaRgYDx/test-file.yml*
 <pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
 ``` r
-test_results <- dbtest::test_databases("conn.yml", test_file)
+test_results <- dbtest::test_database("conn.yml", test_file)
 ```
 
     ## ....
-    ## FFFF
+    ## ....
+    ## ....
 
 ``` r
 dbtest::plot_tests(test_results)
