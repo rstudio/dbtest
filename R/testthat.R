@@ -30,62 +30,101 @@
 #' }
 #'
 #' @export
-test_databases <- function(datasources = NULL,
-                           tests = pkg_test()) {
-  if (is.null(datasources)) {
-    datasources <- ""
-  }
-
-  if (datasources == "dsn") {
-    odbcListDataSources()$name %>%
-      map(~ {
-        con <- dbConnect(odbc(), dsn = .x)
-        test_single_database(con, tests = tests)
-        dbDisconnect(con)
-      })
-  } else if (datasources == "config" |
-    datasources == "" |
-    (all(tolower(path_ext(datasources)) %in% c("yml", "yaml")) &&
-      all(file_exists(datasources)))
-  ) {
-    if (datasources == "") {
-      file_path <- pkg_config()
-    } else if (
-      all(tolower(path_ext(datasources)) %in% c("yml", "yaml"))
-      && all(file_exists(datasources))
-    ) {
-      file_path <- datasources
-    } else {
-      file_path <- NULL
-    }
-
-    if (length(file_path) > 1) {
-      stop(sprintf("Multiple datasources are not currently supported"))
-    }
-
-    # Suppress warnings until config issue is resolved
-    # https://github.com/rstudio/config/issues/12
-    suppressWarnings(cons <- config::get(file = file_path))
-
-    names(cons) %>%
-      map(~ {
-        curr <- flatten(cons[.x])
-        con <- do.call(dbConnect, args = curr)
-        test_output <- test_single_database(con, label = .x, tests = tests)
-        dbDisconnect(con)
-        test_output
-      })
-  } else {
-    stop(
-      paste0(
-        "Unrecognized value for `datasources`: '%s'"
-        ,
-        ", please use either an existing config YAML file, 'config', 'dsn' or NULL"
-      ) %>%
-        sprintf(datasources)
-    )
-  }
+test_databases <- function(datasources = NULL, tests = pkg_test()) {
+  UseMethod("test_databases", datasources)
 }
+
+#' @export
+test_databases.list <- function(datasources = NULL, tests = pkg_test()) {
+  message("LIST")
+  lapply(datasources, test_databases)
+}
+
+#' @export
+test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
+  message("CHARACTER")
+
+  config_check <- tolower(path_ext(datasources)) %in% c("yml","yaml")
+  config_files <- datasources[config_check]
+  non_config_files <- datasources[!config_check]
+
+  # goal is a single list of connection objects...
+  config_output <- list()
+  non_config_output <- list()
+
+  ## handle config files
+  if (length(config_files) > 0) {
+    config_check <- file_exists(config_files);
+    config_files_exist <- config_files[config_check]
+    config_files_nonexist <- config_files[!config_check]
+    if (length(config_files_nonexist) > 0) {
+      warning(
+        "The following config files do not exist and will be removed: "
+        ,paste(paste0("'",config_files_nonexist, "'"), collapse=", ")
+        )
+    }
+
+    # connect to DBs
+    config_output <- config_files_exist %>%
+      map(~ {
+        suppressWarnings(cfg <- config::get(file = .x))
+        names(cfg) %>% map(~{
+          curr <- flatten(cfg[.x])
+          con <- do.call(DBI::dbConnect, args = curr)
+          test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+          DBI::dbDisconnect(con)
+          test_output
+        })
+      })
+
+  }
+
+  ## handle non-config files (i.e. DSNs)
+  if (length(non_config_files) > 0) {
+    all_dsns <- odbc::odbcListDataSources()
+    if ("dsn" %in% non_config_files) {
+      # add all DSNS
+      non_config_dsns <- all_dsns$name
+    } else {
+      # check that DSNs exist
+      dsn_check <- non_config_files %in% all_dsns$name
+      warning(
+        "The following DSNs were not found and will be removed: "
+        , paste(paste0("'",non_config_files[!dsn_check], "'"), collapse=", ")
+        )
+      non_config_dsns <- non_config_files[dsn_check]
+    }
+
+    # connect to DBs
+    if (length(non_config_dsns) > 0) {
+      # connect to DSNs safely
+      non_config_output <- non_config_dsns %>%
+        map(
+          ~ {
+            con <- DBI::dbConnect(odbc::odbc(), .x)
+            test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+            DBI::dbDisconnect(con)
+            test_output
+          }
+      )
+    }
+  }
+
+  return(c(unlist(config_output, recursive = FALSE), non_config_output))
+}
+
+#' @export
+test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
+  message("DBI")
+  test_single_database(datasource = datasources, tests = pkg_test(), label = class(datasources)[[1]])
+}
+
+#' @export
+test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
+  message("TBL_SQL")
+  test_single_database(datasource = datasources, tests = pkg_test(), label = datasources[["ops"]][["x"]])
+}
+
 
 #' @title Test Single Database
 #'
@@ -170,19 +209,8 @@ testthat_database <- function(datasource, tests = pkg_test()) {
   if (class(tests) != "list") error("Tests need to be in YAML format")
 
   # Address test data
-  if (isS4(datasource)) {
-    remote_df <- suppressMessages(
-      copy_to(datasource, testdata
-        ,
-        name = tolower(
-          paste(
-            sample(LETTERS, size = 20, replace = TRUE)
-            ,
-            collapse = ""
-          )
-        )
-      )
-    )
+  if (isS4(datasource) && inherits(datasource, "DBIConnection")) {
+    remote_df <- build_remote_tbl(datasource, testdata)
 
     local_df <- testdata
   }
@@ -190,6 +218,9 @@ testthat_database <- function(datasource, tests = pkg_test()) {
     remote_df <- head(datasource, 1000)
     local_df <- collect(remote_df)
   }
+  stopifnot(
+    inherits(remote_df, "tbl_sql")
+  )
 
   # Create a testing function that lives inside the new testthat env
   run_test <- function(verb, vector_expression) {
