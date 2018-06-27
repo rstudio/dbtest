@@ -147,3 +147,31 @@ test_that("works with multiple test files", {
   )
 })
 
+test_that("works with different integer types", {
+  conn_path <- rprojroot::find_testthat_root_file("conn.yml")
+  if (!fs::file_exists(conn_path)) {
+    skip("requires a postgres database")
+  }
+  raw_conn <- yaml::read_yaml(conn_path)$default
+  if (!"pg" %in% names(raw_conn)) {
+    skip("requires a postgres database")
+  }
+
+  tmp_file <- fs::file_temp("integer-test", ext=".yml")
+  write_test(file = tmp_file
+             , header = "integer-conversion"
+             , expr = "fld_integer"
+             , overwrite = TRUE
+             )
+
+
+  pg <- raw_conn$pg
+  con <- do.call(DBI::dbConnect, pg)
+  output <- suppressMessages(test_single_database(con, tmp_file))
+
+  expect_equal(
+    as.data.frame(output)[3,"results.failed"]
+    , 0
+    , info = "Test should pass if integer64 compares to integer"
+    )
+})

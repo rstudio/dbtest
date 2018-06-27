@@ -238,11 +238,13 @@ testthat_database <- function(datasource, tests = pkg_test()) {
     if (verb == "filter") manip <- . %>% filter(!!f) %>% pull()
     if (verb == "group_by") manip <- . %>% group_by(!!f) %>% summarise() %>% pull() %>% sort()
 
+    integer64_fix <- function(x){if(is.integer64(x)){return(as.integer(x))} else {return(x)}}
     test_that(paste0(verb, ": ", vector_expression), {
       invisible({
         expect_equal(
           manip(local_df),
-          manip(remote_df)
+          manip(remote_df) %>%
+            integer64_fix()
         )
       })
     })

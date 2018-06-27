@@ -46,7 +46,7 @@ write_test <- function(
                        , header
                        , expr
                        , overwrite = FALSE
-                       , comparison = .x > sample(1:10, 1)) {
+                       , comparison = " > 10") {
   existing <- if (file_exists(file) && !overwrite) read_yaml(file) else list()
 
   # compare <- enquo(comparison)
@@ -58,7 +58,7 @@ write_test <- function(
       list(
         list(
           "mutate" = expr
-          , "filter" = expr
+          , "filter" = paste(expr, comparison)
           # , "summarize" = paste0("sum(",expression,", na.rm = TRUE)")
           , "summarize" = paste0("n_distinct(", expr, ")")
           , "group_by" = expr
