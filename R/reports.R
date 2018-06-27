@@ -102,10 +102,10 @@ coverage <- function(results) {
 
 #' Plot Tests
 #'
-#' Plot the output from `test_single_database` or `test_databases` as a ggplot2 object
+#' Plot the output from `test_single_database` or `test_database` as a ggplot2 object
 #' for easy visualization of test success or failure across databases.
 #'
-#' @param results Output from `test_single_database` or `test_databases`
+#' @param results Output from `test_single_database` or `test_database`
 #'
 #' @return ggplot2 object / graph
 #'
