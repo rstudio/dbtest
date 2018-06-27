@@ -29,5 +29,5 @@ DBI::dbDisconnect(con)
 
 }
 \seealso{
-test_databases
+test_database
 }
