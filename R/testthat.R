@@ -35,6 +35,12 @@ test_database <- function(datasource = NULL, tests = pkg_test()) {
 }
 
 #' @export
+test_databases <- function(datasource = NULL, tests = pkg_test()) {
+  .Deprecated("test_database", "dbtest")
+  test_database(datasource = datasource, tests = tests)
+}
+
+#' @export
 test_database.list <- function(datasource = NULL, tests = pkg_test()) {
   message("LIST")
   lapply(datasource, test_database)
