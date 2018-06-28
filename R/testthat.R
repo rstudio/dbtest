@@ -1,15 +1,18 @@
-#' @title Test Databases
+#' @title Test Database
 #'
 #' @description A wrapper around `test_sigle_database` that iterates over multiple datasources
 #' and executes the testing suite on each.  Output is organized in such a way as to
 #' give nice, consolidated results.
 #'
-#' @param datasources optional Defaults to using a SQLite database.  Pass "dsn" to use
+#' @param datasource optional Defaults to using a SQLite database.  Pass "dsn" to use
 #' all DSNs available on the system.  Use "config" or a path to a "config.yml" file to
 #' use connection parameters in a YAML file.  Connection parameters will be passed to
 #' `dbConnect` as-is
 #' @param tests optional  A character vector of yaml tests to execute.
 #' References `dbtest` test suite by default
+#' @param return_list optional Whether to return a list of `dbtest_results` objects. Defaults
+#' to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
+#' object directly.
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
@@ -18,35 +21,42 @@
 #' @examples
 #' # test all dsns with dbtest suite -----------------------
 #' \dontrun{
-#' test_databases(datasources = "dsn")
+#' test_database(datasource = "dsn")
 #' }
 #' # test sqlite with custom suite -------------------------
 #' \dontrun{
-#' test_databases(tests = "./path/to/my.yml")
+#' test_database(tests = "./path/to/my.yml")
 #' }
 #' # test connection yaml file with dbtest suite -----------
 #' \dontrun{
-#' test_databases(datasources = "./path/to/conn.yml")
+#' test_database(datasource = "./path/to/conn.yml")
 #' }
 #'
 #' @export
-test_databases <- function(datasources = NULL, tests = pkg_test()) {
-  UseMethod("test_databases", datasources)
+test_database <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+  UseMethod("test_database", datasource)
 }
 
 #' @export
-test_databases.list <- function(datasources = NULL, tests = pkg_test()) {
+#' @rdname test_database
+test_databases <- function(datasource = NULL, tests = pkg_test()) {
+  .Deprecated("test_database", "dbtest")
+  test_database(datasource = datasource, tests = tests, return_list = FALSE)
+}
+
+#' @export
+test_database.list <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("LIST")
-  lapply(datasources, test_databases)
+  lapply(datasource, test_database, tests = tests, return_list = FALSE)
 }
 
 #' @export
-test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
+test_database.character <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("CHARACTER")
 
-  config_check <- tolower(path_ext(datasources)) %in% c("yml","yaml")
-  config_files <- datasources[config_check]
-  non_config_files <- datasources[!config_check]
+  config_check <- tolower(path_ext(datasource)) %in% c("yml","yaml")
+  config_files <- datasource[config_check]
+  non_config_files <- datasource[!config_check]
 
   # goal is a single list of connection objects...
   config_output <- list()
@@ -71,7 +81,7 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
           con <- do.call(DBI::dbConnect, args = curr)
-          test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+          test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
           DBI::dbDisconnect(con)
           test_output
         })
@@ -102,7 +112,7 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
         map(
           ~ {
             con <- DBI::dbConnect(odbc::odbc(), .x)
-            test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
             DBI::dbDisconnect(con)
             test_output
           }
@@ -114,15 +124,27 @@ test_databases.character <- function(datasources = NULL, tests = pkg_test()) {
 }
 
 #' @export
-test_databases.DBIConnection <- function(datasources = NULL, tests = pkg_test()) {
+test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("DBI")
-  test_single_database(datasource = datasources, tests = pkg_test(), label = class(datasources)[[1]])
+  output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]])
+
+  if (return_list) {
+    return(list(output))
+  } else {
+    return(output)
+  }
 }
 
 #' @export
-test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
+test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("TBL_SQL")
-  test_single_database(datasource = datasources, tests = pkg_test(), label = datasources[["ops"]][["x"]])
+  output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]])
+
+  if (return_list) {
+    return(list(output))
+  } else {
+    return(output)
+  }
 }
 
 
@@ -140,13 +162,24 @@ test_databases.tbl_sql <- function(datasources = NULL, tests = pkg_test()) {
 #'
 #' @examples
 #'
+#' \dontrun{
 #' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' res <- test_single_database(con, pkg_test("simple-tests.yml"))
 #' DBI::dbDisconnect(con)
+#' }
 #'
-#' @seealso test_databases
+#' @seealso test_database
 #' @export
 test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
+  .Deprecated("test_database", package = "dbtest")
+  test_single_database_impl(datasource = datasource, tests = tests, label = label)
+}
+
+
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
+  if (is.character(datasource)) {
+    stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
+  }
   reporter <- MultiReporter$new(
     reporters = list(
       MinimalReporter$new()

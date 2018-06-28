@@ -102,27 +102,27 @@ coverage <- function(results) {
 
 #' Plot Tests
 #'
-#' Plot the output from `test_single_database` or `test_databases` as a ggplot2 object
+#' Plot the output from `test_single_database` or `test_database` as a ggplot2 object
 #' for easy visualization of test success or failure across databases.
 #'
-#' @param results Output from `test_single_database` or `test_databases`
+#' @param results Output from `test_single_database` or `test_database`
 #'
 #' @return ggplot2 object / graph
 #'
 #' @examples
 #' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' tbl_data <- dplyr::copy_to(con, testdata)
-#' res <- test_single_database(tbl_data, pkg_test("simple-tests.yml"))
+#' res <- test_database(tbl_data, pkg_test("simple-tests.yml"))
 #' plot_tests(res)
 #' DBI::dbDisconnect(con)
 #'
 #' @export
 plot_tests <- function(results) {
   if (is.list(results) & all(as.logical(lapply(results, is_dbtest_results))) ) {
-    prep_results <- results %>%
-      map_df(~ as.data.frame(.x, stringsAsFactors = FALSE))
+    prep_results <- suppressWarnings(results %>%
+      map_df(~ as.data.frame(.x)))
   } else if (is_dbtest_results(results)) {
-    prep_results <- results %>% as.data.frame(stringsAsFactors = FALSE)
+    prep_results <- results %>% as.data.frame()
   } else {
     stop("Invalid input: did not find a `dbtest_results` object or a list of `dbtest_results` objects")
   }

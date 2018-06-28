@@ -2,7 +2,7 @@ context("plot_tests")
 
 test_that("works with test_single_database", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_single_database(
+  output <- test_database(
     con
     , pkg_test("simple-tests.yml")
   )
@@ -12,9 +12,9 @@ test_that("works with test_single_database", {
   expect_s3_class(gg, c("gg", "ggplot"))
 })
 
-test_that("works witih test_databases", {
+test_that("works with test_database", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_databases(
+  output <- test_database(
     pkg_config("config.yml")
     , pkg_test("simple-tests.yml")
   )
@@ -24,9 +24,9 @@ test_that("works witih test_databases", {
   expect_s3_class(gg, c("gg", "ggplot"))
 })
 
-test_that("works with multiple test_databases", {
+test_that("works with multiple test_database", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_databases(
+  output <- test_database(
     pkg_config("multiple.yml")
     , pkg_test("simple-tests.yml")
   )
