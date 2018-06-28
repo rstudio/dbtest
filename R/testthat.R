@@ -162,7 +162,7 @@ test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
 
 test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
   if (is.character(datasource)) {
-    stop("Character values for `datasource` are not accepted for `test_single_database`")
+    stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
   reporter <- MultiReporter$new(
     reporters = list(
