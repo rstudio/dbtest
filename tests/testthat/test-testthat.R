@@ -8,7 +8,7 @@ test_that("works with a connection object", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output, "dbtest_results")
+  expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
     output$results %>% as.data.frame() %>%
       distinct(file) %>% pull()
@@ -25,7 +25,7 @@ test_that("works with tbl_sql object", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output, "dbtest_results")
+  expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
     output$results %>% as.data.frame() %>%
       distinct(file) %>% pull()
@@ -44,7 +44,7 @@ test_that("works with multiple test files", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output, "dbtest_results")
+  expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
     output$results %>%
       as.data.frame() %>%
@@ -70,9 +70,9 @@ test_that("works on successive tests to same connection", {
   )}, error = function(x){stop(x)})
   dbDisconnect(con)
 
-  expect_s3_class(output, "dbtest_results")
+  expect_s3_class(output[[1]], "dbtest_results")
 
-  expect_s3_class(output, "dbtest_results")
+  expect_s3_class(output[[1]], "dbtest_results")
 })
 
 test_that("works with a yaml file", {
