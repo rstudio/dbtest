@@ -23,9 +23,11 @@ object would be a connection or a `tbl_sql`
 }
 \examples{
 
+\dontrun{
 con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 res <- test_single_database(con, pkg_test("simple-tests.yml"))
 DBI::dbDisconnect(con)
+}
 
 }
 \seealso{
