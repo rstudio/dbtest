@@ -102,11 +102,44 @@ test_that("throws out non-existent config files", {
 })
 
 test_that("works with a list of DBI connections", {
-  skip("Need to write test")
+  con <- dbConnect(RSQLite::SQLite(), ":memory:")
+  con2 <- dbConnect(RSQLite::SQLite(), ":memory:")
+  output <- test_database(
+    list(con, con2)
+    , pkg_test("simple-tests-alt.yml")
+  )
+  lapply(output, expect_s3_class, class = "dbtest_results")
+  lapply(output, function(x){
+    expect_equal(
+      x$results %>%
+        as.data.frame() %>%
+        distinct(file) %>%
+        pull()
+      , "simple-tests-alt"
+    )
+  })
 })
 
 test_that("works with a list of tbl_sql objects", {
-  skip("Need to write test")
+  con <- dbConnect(RSQLite::SQLite(), ":memory:")
+  tdat <- copy_to(con, testdata, "test-list-tbl-sql")
+  tdat2 <- copy_to(con, testdata, "test-list-tbl-sql2")
+  output <- test_database(
+    list(tdat, tdat2)
+    , pkg_test("simple-tests-alt.yml")
+  )
+  dbDisconnect(con)
+
+  lapply(output, expect_s3_class, class = "dbtest_results")
+  lapply(output, function(x){
+    expect_equal(
+      x$results %>%
+        as.data.frame() %>%
+        distinct(file) %>%
+        pull()
+      , "simple-tests-alt"
+    )
+  })
 })
 
 test_that("works with a DSN", {
