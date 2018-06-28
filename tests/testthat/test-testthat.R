@@ -1,8 +1,8 @@
-context("test_single_database")
+context("test_database")
 
 test_that("works with a connection object", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_single_database(
+  output <- test_database(
     con
     , pkg_test("simple-tests.yml")
   )
@@ -14,7 +14,7 @@ test_that("works with a connection object", {
 test_that("works with tbl_sql object", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   tdat <- copy_to(con, testdata, "test-single-database")
-  output <- test_single_database(
+  output <- test_database(
     tdat
     , pkg_test("simple-tests.yml")
   )
@@ -25,7 +25,7 @@ test_that("works with tbl_sql object", {
 
 test_that("works with multiple test files", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_single_database(
+  output <- test_database(
     con
     , c(
       pkg_test("simple-tests.yml")
@@ -48,13 +48,13 @@ test_that("works on successive tests to same connection", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
 
   set.seed(1234)
-  output <- test_single_database(
+  output <- test_database(
     con
     , pkg_test("simple-tests.yml")
   )
 
   set.seed(1234)
-  output2 <- tryCatch({test_single_database(
+  output2 <- tryCatch({test_database(
     con
     , pkg_test("simple-tests.yml")
   )}, error = function(x){stop(x)})
@@ -67,8 +67,6 @@ test_that("works on successive tests to same connection", {
   expect_s3_class(output2$results, "testthat_results")
   expect_equal(length(output2), 2)
 })
-
-context("test_database")
 
 test_that("works with a yaml file", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
