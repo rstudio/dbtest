@@ -77,7 +77,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test()) {
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
           con <- do.call(DBI::dbConnect, args = curr)
-          test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+          test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
           DBI::dbDisconnect(con)
           test_output
         })
@@ -108,7 +108,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test()) {
         map(
           ~ {
             con <- DBI::dbConnect(odbc::odbc(), .x)
-            test_output <- test_single_database(datasource = con, label = .x, tests = tests)
+            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
             DBI::dbDisconnect(con)
             test_output
           }
@@ -122,13 +122,13 @@ test_database.character <- function(datasource = NULL, tests = pkg_test()) {
 #' @export
 test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test()) {
   message("DBI")
-  test_single_database(datasource = datasource, tests = pkg_test(), label = class(datasource)[[1]])
+  test_single_database_impl(datasource = datasource, tests = pkg_test(), label = class(datasource)[[1]])
 }
 
 #' @export
 test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test()) {
   message("TBL_SQL")
-  test_single_database(datasource = datasource, tests = pkg_test(), label = datasource[["ops"]][["x"]])
+  test_single_database_impl(datasource = datasource, tests = pkg_test(), label = datasource[["ops"]][["x"]])
 }
 
 
@@ -146,13 +146,21 @@ test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test()) {
 #'
 #' @examples
 #'
+#' \dontrun{
 #' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' res <- test_single_database(con, pkg_test("simple-tests.yml"))
 #' DBI::dbDisconnect(con)
+#' }
 #'
 #' @seealso test_database
 #' @export
 test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
+  .Deprecated("test_database", package = "dbtest")
+  test_single_database_impl(datasource = datasource, tests = tests, label = label)
+}
+
+
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database`")
   }
