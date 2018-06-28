@@ -12,7 +12,7 @@ test_that("works with test_single_database", {
   expect_s3_class(gg, c("gg", "ggplot"))
 })
 
-test_that("works witih test_database", {
+test_that("works with test_database", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_database(
     pkg_config("config.yml")
