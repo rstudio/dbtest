@@ -60,12 +60,9 @@ test_that("works on successive tests to same connection", {
   )}, error = function(x){stop(x)})
   dbDisconnect(con)
 
-  # expect results - TODO - class object
-  expect_s3_class(output$results, "testthat_results")
-  expect_equal(length(output), 2)
+  expect_s3_class(output, "dbtest_results")
 
-  expect_s3_class(output2$results, "testthat_results")
-  expect_equal(length(output2), 2)
+  expect_s3_class(output, "dbtest_results")
 })
 
 test_that("works with a yaml file", {
