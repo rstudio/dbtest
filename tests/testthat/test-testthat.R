@@ -10,7 +10,7 @@ test_that("works with a connection object", {
 
   expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
-    output$results %>% as.data.frame() %>%
+    output[[1]]$results %>% as.data.frame() %>%
       distinct(file) %>% pull()
     , "simple-tests-alt"
   )
@@ -27,7 +27,7 @@ test_that("works with tbl_sql object", {
 
   expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
-    output$results %>% as.data.frame() %>%
+    output[[1]]$results %>% as.data.frame() %>%
       distinct(file) %>% pull()
     , "simple-tests-alt"
   )
@@ -46,7 +46,7 @@ test_that("works with multiple test files", {
 
   expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
-    output$results %>%
+    output[[1]]$results %>%
       as.data.frame() %>%
       .$file %>%
       unique()
@@ -72,18 +72,26 @@ test_that("works on successive tests to same connection", {
 
   expect_s3_class(output[[1]], "dbtest_results")
 
-  expect_s3_class(output[[1]], "dbtest_results")
+  expect_s3_class(output2[[1]], "dbtest_results")
 })
 
 test_that("works with a yaml file", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_database(
     pkg_config("config.yml")
-    , pkg_test("simple-tests.yml")
+    , pkg_test("simple-tests-alt.yml")
   )
   dbDisconnect(con)
 
   expect_s3_class(output[[1]], "dbtest_results")
+
+  expect_equal(
+    output[[1]]$results %>%
+      as.data.frame() %>%
+      .$file %>%
+      unique()
+    , c("simple-tests-alt")
+  )
 })
 
 test_that("works with multiple connections in a yaml file", {
@@ -96,10 +104,6 @@ test_that("works with multiple connections in a yaml file", {
 
   lapply(output, expect_s3_class, class = "dbtest_results")
   expect_equal(length(output), 2)
-  expect_equal(
-    lapply(output, length) %>% as.double()
-    , c(2, 2)
-  )
 })
 
 test_that("works with multiple yaml files", {
@@ -164,7 +168,6 @@ test_that("throws out non-existent DSNs", {
 })
 
 test_that("works with multiple test files", {
-  con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_database(
     pkg_config("config.yml")
     , c(
@@ -172,7 +175,6 @@ test_that("works with multiple test files", {
       , pkg_test("simple-tests-alt.yml")
     )
   )
-  dbDisconnect(con)
 
   expect_s3_class(output[[1]], "dbtest_results")
   expect_equal(
