@@ -4,23 +4,33 @@ test_that("works with a connection object", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_database(
     con
-    , pkg_test("simple-tests.yml")
+    , pkg_test("simple-tests-alt.yml")
   )
   dbDisconnect(con)
 
   expect_s3_class(output, "dbtest_results")
+  expect_equal(
+    output$results %>% as.data.frame() %>%
+      distinct(file) %>% pull()
+    , "simple-tests-alt"
+  )
 })
 
 test_that("works with tbl_sql object", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  tdat <- copy_to(con, testdata, "test-single-database")
+  tdat <- copy_to(con, testdata, "test-database")
   output <- test_database(
     tdat
-    , pkg_test("simple-tests.yml")
+    , pkg_test("simple-tests-alt.yml")
   )
   dbDisconnect(con)
 
   expect_s3_class(output, "dbtest_results")
+  expect_equal(
+    output$results %>% as.data.frame() %>%
+      distinct(file) %>% pull()
+    , "simple-tests-alt"
+  )
 })
 
 test_that("works with multiple test files", {
