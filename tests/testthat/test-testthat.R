@@ -94,8 +94,7 @@ test_that("works with multiple connections in a yaml file", {
   )
   dbDisconnect(con)
 
-  expect_s3_class(output[[1]], "dbtest_results")
-  expect_s3_class(output[[2]], "dbtest_results")
+  lapply(output, expect_s3_class, class = "dbtest_results")
   expect_equal(length(output), 2)
   expect_equal(
     lapply(output, length) %>% as.double()
