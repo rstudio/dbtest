@@ -76,7 +76,7 @@ test_that("works with a yaml file", {
   expect_s3_class(output[[1]], "dbtest_results")
 })
 
-test_that("works with multiple connections", {
+test_that("works with multiple connections in a yaml file", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   output <- test_database(
     pkg_config("multiple.yml")
