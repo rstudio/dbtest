@@ -2,9 +2,12 @@
 % Please edit documentation in R/testthat.R
 \name{test_database}
 \alias{test_database}
+\alias{test_databases}
 \title{Test Database}
 \usage{
-test_database(datasource = NULL, tests = pkg_test())
+test_database(datasource = NULL, tests = pkg_test(), return_list = TRUE)
+
+test_databases(datasource = NULL, tests = pkg_test())
 }
 \arguments{
 \item{datasource}{optional Defaults to using a SQLite database.  Pass "dsn" to use
@@ -14,6 +17,10 @@ use connection parameters in a YAML file.  Connection parameters will be passed 
 
 \item{tests}{optional  A character vector of yaml tests to execute.
 References `dbtest` test suite by default}
+
+\item{return_list}{optional Whether to return a list of `dbtest_results` objects. Defaults
+to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
+object directly.}
 }
 \value{
 Returns a list of lists containing the respective datasource labels and testthat output
