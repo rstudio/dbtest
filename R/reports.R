@@ -119,8 +119,8 @@ coverage <- function(results) {
 #' @export
 plot_tests <- function(results) {
   if (is.list(results) & all(as.logical(lapply(results, is_dbtest_results))) ) {
-    prep_results <- results %>%
-      map_df(~ as.data.frame(.x))
+    prep_results <- suppressWarnings(results %>%
+      map_df(~ as.data.frame(.x)))
   } else if (is_dbtest_results(results)) {
     prep_results <- results %>% as.data.frame()
   } else {
