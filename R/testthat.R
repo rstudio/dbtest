@@ -10,6 +10,9 @@
 #' `dbConnect` as-is
 #' @param tests optional  A character vector of yaml tests to execute.
 #' References `dbtest` test suite by default
+#' @param return_list optional Whether to return a list of `dbtest_results` objects. Defaults
+#' to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
+#' object directly.
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
@@ -35,6 +38,7 @@ test_database <- function(datasource = NULL, tests = pkg_test(), return_list = T
 }
 
 #' @export
+#' @rdname test_database
 test_databases <- function(datasource = NULL, tests = pkg_test()) {
   .Deprecated("test_database", "dbtest")
   test_database(datasource = datasource, tests = tests, return_list = FALSE)
