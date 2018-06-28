@@ -2,7 +2,7 @@ context("plot_tests")
 
 test_that("works with test_single_database", {
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  output <- test_single_database(
+  output <- test_database(
     con
     , pkg_test("simple-tests.yml")
   )
