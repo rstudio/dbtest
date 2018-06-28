@@ -107,11 +107,11 @@ test_that("works with multiple connections in a yaml file", {
 })
 
 test_that("works with multiple yaml files", {
-  skip("Need to write test")
+  skip("TODO: need to write test")
 })
 
 test_that("throws out non-existent config files", {
-  skip("Need to write test")
+  skip("TODO: need to write test")
 })
 
 test_that("works with a list of DBI connections", {
@@ -156,15 +156,19 @@ test_that("works with a list of tbl_sql objects", {
 })
 
 test_that("works with a DSN", {
-  skip("Need to write test - is this even possible? System dependent")
+  skip("TODO: need to write test - is this even possible? System dependent")
 })
 
 test_that("works with a list of DSNs", {
-  skip("Need to write test - is this even possible? System dependent")
+  skip("TODO: need to write test - is this even possible? System dependent")
 })
 
 test_that("throws out non-existent DSNs", {
-  skip("Need to write test")
+  skip("TODO: need to write test")
+})
+
+test_that("works with a hybrid list of objects", {
+  skip("TODO: need to write test")
 })
 
 test_that("works with multiple test files", {
@@ -215,3 +219,6 @@ test_that("works with different integer types", {
     )
 })
 
+test_that("return_list parameter works as expected", {
+  skip("TODO: write test")
+})
