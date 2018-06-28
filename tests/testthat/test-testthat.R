@@ -213,3 +213,4 @@ test_that("works with different integer types", {
     , info = "Test should pass if integer64 compares to integer"
     )
 })
+
