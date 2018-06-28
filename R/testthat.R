@@ -30,24 +30,24 @@
 #' }
 #'
 #' @export
-test_database <- function(datasource = NULL, tests = pkg_test()) {
+test_database <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   UseMethod("test_database", datasource)
 }
 
 #' @export
 test_databases <- function(datasource = NULL, tests = pkg_test()) {
   .Deprecated("test_database", "dbtest")
-  test_database(datasource = datasource, tests = tests)
+  test_database(datasource = datasource, tests = tests, return_list = FALSE)
 }
 
 #' @export
-test_database.list <- function(datasource = NULL, tests = pkg_test()) {
+test_database.list <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("LIST")
-  lapply(datasource, test_database)
+  lapply(datasource, test_database, tests = tests, return_list = FALSE)
 }
 
 #' @export
-test_database.character <- function(datasource = NULL, tests = pkg_test()) {
+test_database.character <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("CHARACTER")
 
   config_check <- tolower(path_ext(datasource)) %in% c("yml","yaml")
@@ -120,15 +120,27 @@ test_database.character <- function(datasource = NULL, tests = pkg_test()) {
 }
 
 #' @export
-test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test()) {
+test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("DBI")
-  test_single_database_impl(datasource = datasource, tests = pkg_test(), label = class(datasource)[[1]])
+  output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]])
+
+  if (return_list) {
+    return(list(output))
+  } else {
+    return(output)
+  }
 }
 
 #' @export
-test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test()) {
+test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("TBL_SQL")
-  test_single_database_impl(datasource = datasource, tests = pkg_test(), label = datasource[["ops"]][["x"]])
+  output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]])
+
+  if (return_list) {
+    return(list(output))
+  } else {
+    return(output)
+  }
 }
 
 
