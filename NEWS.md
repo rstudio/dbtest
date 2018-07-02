@@ -4,6 +4,9 @@
 executing on a single database, can turn this off with `return_list = FALSE`.
 `test_databases` and `test_single_database` should continue with old behavior
 
+* BREAKING (sort of): change `plot_tests` implementation now returns a list instead
+of a ggplot object
+
 * Deprecated `test_databases` and `test_single_database` in favor of `test_database`
 
 * Added a `NEWS.md` file to track changes to the package.
