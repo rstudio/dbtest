@@ -35,3 +35,9 @@ test_that("works with multiple test_database", {
 test_that("works with multiple test files", {
   skip("TODO: write test")
 })
+
+context("print_interactive")
+
+test_that("works in a non-interactive session", {
+  skip("TODO: write test")
+})
