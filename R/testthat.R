@@ -126,6 +126,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
 #' @export
 test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("DBI")
+  cleanup_connection(datasource)
   output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]])
 
   if (return_list) {
@@ -175,6 +176,15 @@ test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
   test_single_database_impl(datasource = datasource, tests = tests, label = label)
 }
 
+cleanup_connection <- function(con){
+  tryCatch({
+   DBI::dbRollback(con)
+  }, error = function(e){print(e)})
+  tryCatch({
+    DBI::dbExecute(con, "ROLLBACK;")
+  }, error = function(e){print(e)})
+  invisible(con)
+}
 
 test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
   if (is.character(datasource)) {
