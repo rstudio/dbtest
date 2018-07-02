@@ -151,6 +151,37 @@ plot_tests <- function(results) {
           )
 }
 
+#' @rdname plot_tests
+#' @export
+plot_summary <- function(results) {
+  if (is.list(results) & all(as.logical(lapply(results, is_dbtest_results))) ) {
+    prep_results <- suppressWarnings(results %>%
+      map_df(~ as.data.frame(.x)))
+  } else if (is_dbtest_results(results)) {
+    prep_results <- results %>% as.data.frame()
+  } else {
+    stop("Invalid input: did not find a `dbtest_results` object or a list of `dbtest_results` objects")
+  }
+  dataset <- prep_results %>%
+    mutate(
+      result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
+      test = paste0(results.test, "\n", results.context),
+      filler = "",
+      justverb = sub("\\:\\ .*$", "", x = results.test)
+    ) %>%
+    select(connection, test, result, filler
+           , justverb
+           , justtest = results.test, context = results.context
+           , testfile = results.file
+           )
+
+  dataset %>%
+    group_by(connection, testfile, result) %>%
+    summarize(count = n()) %>%
+    mutate(total = sum(count)
+           , pct = count / total) %>%
+    ungroup()
+}
 
 #' Print Interactively
 #'
