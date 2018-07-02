@@ -150,3 +150,67 @@ plot_tests <- function(results) {
           labs(x = "", y = "")
           )
 }
+
+
+#' Print Interactively
+#'
+#' Prints a list object by executing print on each element.
+#' If in an interactive session, prompts to continue after
+#' each print.
+#'
+#' @param .obj The object which needs to be printed interactively
+#'
+#' @return List of printed objects
+#'
+#' @rdname print_interactive
+#' @export
+print_interactive <- function(.obj){
+  UseMethod("print_interactive", .obj)
+}
+
+#' @rdname print_interactive
+#' @export
+print_interactive.list <- function(.obj){
+  returned <- lapply(
+    .obj
+    , print_interactive
+  )
+  invisible(returned)
+}
+
+#' @rdname print_interactive
+#' @export
+print_interactive.default <- function(.obj){
+  print(.obj);
+  if (interactive()) {
+    invisible(readline(prompt="Press [enter] to continue"));
+  }
+  invisible(.obj)
+}
+
+#' Print Interactively
+#'
+#' @export
+print_interactive <- function(.obj){
+  UseMethod("print_interactive", .obj)
+}
+
+#' @rdname print_interactive
+#' @export
+print_interactive.list <- function(.obj){
+  returned <- lapply(
+    .obj
+    , print_interactive
+  )
+  invisible(returned)
+}
+
+#' @rdname print_interactive
+#' @export
+print_interactive.default <- function(.obj){
+  print(.obj);
+  if (interactive()) {
+    invisible(readline(prompt="Press [enter] to continue"));
+  }
+  invisible(.obj)
+}
