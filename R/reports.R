@@ -188,30 +188,3 @@ print_interactive.default <- function(.obj, .interactive = interactive()){
   }
   invisible(.obj)
 }
-
-#' Print Interactively
-#'
-#' @export
-print_interactive <- function(.obj){
-  UseMethod("print_interactive", .obj)
-}
-
-#' @rdname print_interactive
-#' @export
-print_interactive.list <- function(.obj){
-  returned <- lapply(
-    .obj
-    , print_interactive
-  )
-  invisible(returned)
-}
-
-#' @rdname print_interactive
-#' @export
-print_interactive.default <- function(.obj){
-  print(.obj);
-  if (interactive()) {
-    invisible(readline(prompt="Press [enter] to continue"));
-  }
-  invisible(.obj)
-}
