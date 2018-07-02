@@ -228,11 +228,13 @@ test_that("recovers from a bad connection state", {
   # inherently a temporary test... until we can fix getting
   # into a bad state, in the first place
 
+  # why does this only fail interactively...?
+
   conn_path <- rprojroot::find_testthat_root_file("conn.yml")
   if (!fs::file_exists(conn_path)) {
     skip("requires a postgres database")
   }
-  raw_conn <- yaml::read_yaml(conn_path)$default
+  suppressWarnings(raw_conn <- yaml::read_yaml(conn_path)$default)
   if (!"pg" %in% names(raw_conn)) {
     skip("requires a postgres database")
   }
@@ -247,5 +249,8 @@ test_that("recovers from a bad connection state", {
     con
     , pkg_test("simple-tests.yml")
   )
+  #cat(capture.output(str(test_output)), file = "test.txt")
   expect_s3_class(test_output[[1]], "dbtest_results")
+
+  DBI::dbDisconnect(con)
 })
