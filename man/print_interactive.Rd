@@ -23,6 +23,8 @@ print_interactive(.obj)
 }
 \arguments{
 \item{.obj}{The object which needs to be printed interactively}
+
+\item{.interactive}{Whether to prompt for interactivity}
 }
 \value{
 List of printed objects
