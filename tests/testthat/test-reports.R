@@ -8,7 +8,7 @@ test_that("works with test_single_database", {
   )
   dbDisconnect(con)
 
-  gg <- plot_tests(output)
+  gg <- plot_tests(output)[[1]]
   expect_s3_class(gg, c("gg", "ggplot"))
 })
 
@@ -20,7 +20,7 @@ test_that("works with test_database", {
   )
   dbDisconnect(con)
 
-  gg <- plot_tests(output)
+  gg <- plot_tests(output)[[1]]
   expect_s3_class(gg, c("gg", "ggplot"))
 })
 
@@ -32,6 +32,6 @@ test_that("works with multiple test_database", {
   )
   dbDisconnect(con)
 
-  gg <- plot_tests(output)
+  gg <- plot_tests(output)[[1]]
   expect_s3_class(gg, c("gg", "ggplot"))
 })
