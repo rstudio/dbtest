@@ -159,30 +159,31 @@ plot_tests <- function(results) {
 #' each print.
 #'
 #' @param .obj The object which needs to be printed interactively
+#' @param .interactive Whether to prompt for interactivity
 #'
 #' @return List of printed objects
 #'
 #' @rdname print_interactive
 #' @export
-print_interactive <- function(.obj){
+print_interactive <- function(.obj, .interactive = interactive()){
   UseMethod("print_interactive", .obj)
 }
 
 #' @rdname print_interactive
 #' @export
-print_interactive.list <- function(.obj){
+print_interactive.list <- function(.obj, .interactive = interactive()){
   returned <- lapply(
     .obj
-    , print_interactive
+    , function(x){print_interactive(x, .interactive = .interactive)}
   )
   invisible(returned)
 }
 
 #' @rdname print_interactive
 #' @export
-print_interactive.default <- function(.obj){
+print_interactive.default <- function(.obj, .interactive = interactive()){
   print(.obj);
-  if (interactive()) {
+  if (.interactive) {
     invisible(readline(prompt="Press [enter] to continue"));
   }
   invisible(.obj)
