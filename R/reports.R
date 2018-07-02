@@ -107,7 +107,7 @@ coverage <- function(results) {
 #'
 #' @param results Output from `test_single_database` or `test_database`
 #'
-#' @return ggplot2 object / graph
+#' @return list of ggplot2 objects / graphs
 #'
 #' @examples
 #' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
@@ -140,3 +140,4 @@ plot_tests <- function(results) {
     facet_grid(context ~ connection, scales = "free") +
     labs(x = "", y = "")
 }
+
