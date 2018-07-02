@@ -130,13 +130,61 @@ plot_tests <- function(results) {
     mutate(
       result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
       test = paste0(results.test, "\n", results.context),
-      filler = ""
+      filler = "",
+      justverb = sub("\\:\\ .*$", "", x = results.test)
     ) %>%
-    select(connection, test, result, filler, justtest = results.test, context = results.context)
+    select(connection, test, result, filler
+           , justverb
+           , justtest = results.test, context = results.context
+           , testfile = results.file
+           )
 
-  ggplot(dataset) +
-    geom_tile(aes(x = filler, y = justtest, fill = result), color = "black") +
-    scale_fill_discrete(limits = c("Failed", "Passed")) +
-    facet_grid(context ~ connection, scales = "free") +
-    labs(x = "", y = "")
+  dataset %>%
+    split(.$testfile) %>% # break different files into different plots
+    map(~ .x %>%
+          ggplot() +
+          ggtitle(label = .x$testfile[[1]]) +
+          geom_tile(aes(x = filler, y = justverb, fill = result), color = "black") +
+          scale_fill_discrete(limits = c("Failed", "Passed")) +
+          facet_grid(context ~ connection, scales = "free") +
+          labs(x = "", y = "")
+          )
+}
+
+
+#' Print Interactively
+#'
+#' Prints a list object by executing print on each element.
+#' If in an interactive session, prompts to continue after
+#' each print.
+#'
+#' @param .obj The object which needs to be printed interactively
+#' @param .interactive Whether to prompt for interactivity
+#'
+#' @return List of printed objects
+#'
+#' @rdname print_interactive
+#' @export
+print_interactive <- function(.obj, .interactive = interactive()){
+  UseMethod("print_interactive", .obj)
+}
+
+#' @rdname print_interactive
+#' @export
+print_interactive.list <- function(.obj, .interactive = interactive()){
+  returned <- lapply(
+    .obj
+    , function(x){print_interactive(x, .interactive = .interactive)}
+  )
+  invisible(returned)
+}
+
+#' @rdname print_interactive
+#' @export
+print_interactive.default <- function(.obj, .interactive = interactive()){
+  print(.obj);
+  if (.interactive) {
+    invisible(readline(prompt="Press [enter] to continue"));
+  }
+  invisible(.obj)
 }
