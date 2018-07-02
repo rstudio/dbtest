@@ -222,3 +222,30 @@ test_that("works with different integer types", {
 test_that("return_list parameter works as expected", {
   skip("TODO: write test")
 })
+
+test_that("recovers from a bad connection state", {
+
+  # inherently a temporary test... until we can fix getting
+  # into a bad state, in the first place
+
+  conn_path <- rprojroot::find_testthat_root_file("conn.yml")
+  if (!fs::file_exists(conn_path)) {
+    skip("requires a postgres database")
+  }
+  raw_conn <- yaml::read_yaml(conn_path)$default
+  if (!"pg" %in% names(raw_conn)) {
+    skip("requires a postgres database")
+  }
+  con <- do.call(DBI::dbConnect, raw_conn$pg)
+
+  # break connection
+  DBI::dbBegin(con)
+  expect_error(DBI::dbExecute(con, "SELECT 1/0;"), "division by zero")
+  expect_error(DBI::dbGetQuery(con, "SELECT 1;"), "current transaction is aborted")
+
+  test_output <- test_database(
+    con
+    , pkg_test("simple-tests.yml")
+  )
+  expect_s3_class(test_output[[1]], "dbtest_results")
+})
