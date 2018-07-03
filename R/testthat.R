@@ -320,7 +320,7 @@ testthat_database <- function(datasource
     if (verb == "filter") manip <- . %>% filter(!!f) %>% pull()
     if (verb == "group_by") manip <- . %>% group_by(!!f) %>% summarise() %>% pull() %>% sort()
 
-    integer64_fix <- function(x){if(is.integer64(x)){return(as.integer(x))} else {return(x)}}
+
     test_that(paste0(verb, ": ", vector_expression), {
       invisible({
 
@@ -350,4 +350,12 @@ testthat_database <- function(datasource
         )
       })
     })
+  }
+
+integer64_fix <- function(x){
+  if(is.integer64(x)){
+    return(as.integer(x))
+  } else {
+      return(x)
+  }
   }
