@@ -145,7 +145,8 @@ plot_tests <- function(results) {
           ggplot() +
           ggtitle(label = .x$testfile[[1]]) +
           geom_tile(aes(x = filler, y = justverb, fill = result), color = "black") +
-          scale_fill_discrete(limits = c("Failed", "Passed")) +
+          scale_fill_manual(values = c(Passed = "#4dac26"
+                                       , Failed = "#d01c8b")) +
           facet_grid(context ~ connection, scales = "free") +
           labs(x = "", y = "")
           )
@@ -175,12 +176,33 @@ plot_summary <- function(results) {
            , testfile = results.file
            )
 
-  dataset %>%
+
+  agg_dataset <- dataset %>%
     group_by(connection, testfile, result) %>%
     summarize(count = n()) %>%
     mutate(total = sum(count)
-           , pct = count / total) %>%
-    ungroup()
+           , pct = count / total
+           ) %>%
+    ungroup() %>%
+    # show only Passed
+    group_by(connection, testfile) %>%
+    summarize(pct = max(case_when(result == "Passed" ~ pct, TRUE ~ 0))) %>%
+    mutate(filler = "")
+
+  plot <- agg_dataset %>%
+    ggplot() +
+    ggtitle(label = "Test Summary") +
+    geom_tile(aes(x = filler, y = testfile, fill = pct), color = "black") +
+    scale_fill_gradient2(
+      low = "#d01c8b"
+      , mid = "#f7f7f7"
+      , high = "#4dac26"
+      , midpoint = 0.5
+      ) +
+    facet_grid( ~ connection, scales = "free") +
+    labs(x = "", y = "")
+
+  return(plot)
 }
 
 #' Print Interactively
