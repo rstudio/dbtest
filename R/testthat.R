@@ -196,6 +196,13 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
     )
   )
 
+  if (is.null(label) & isS4(datasource)) {
+    label <- class(datasource)[1]
+  }
+  if (is.null(label) & "tbl_sql" %in% class(datasource)) {
+    label <- class(remote_con(datasource))[1]
+  }
+
   r <- with_reporter(
     reporter, {
       tests %>% map(
@@ -209,26 +216,24 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
                 })
             )
           ]
+
+          filename <- path_ext_remove(path_file(.x))
           # set test filename
           if (length(lr) > 0) {
-            lr[[1]]$start_file(path_ext_remove(path_file(.x)))
+            lr[[1]]$start_file(filename)
           }
 
           testthat_database(
             datasource = datasource,
-            tests = .x
+            tests = .x,
+            label = label,
+            filename = filename
           )
         }
       )
     }
   )
 
-  if (is.null(label) & isS4(datasource)) {
-    label <- class(datasource)[1]
-  }
-  if (is.null(label) & "tbl_sql" %in% class(datasource)) {
-    label <- class(remote_con(datasource))[1]
-  }
 
 
   df <- structure(
@@ -243,7 +248,12 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
     as_dbtest_results()
 }
 
-testthat_database <- function(datasource, tests = pkg_test()) {
+testthat_database <- function(datasource
+                              , tests = pkg_test()
+                              , label = NULL
+                              , filename = NULL
+                              , skip_data = NULL
+                              ) {
 
   # Load test scripts from YAML format
   if (class(tests) == "character") tests <- read_yaml(tests)
@@ -266,7 +276,15 @@ testthat_database <- function(datasource, tests = pkg_test()) {
   )
 
   # Create a testing function that lives inside the new testthat env
-  run_test <- function(verb, vector_expression) {
+  run_test <- function(verb
+                       , vector_expression
+                       , local_df
+                       , remote_df
+                       , label = NULL
+                       , filename = NULL
+                       , context = NULL
+                       , skip_data = list()
+                       ) {
     f <- parse_expr(vector_expression)
 
     if (verb %in% c("summarise", "summarize")) manip <- . %>% summarise(!!f) %>% pull()
@@ -284,6 +302,26 @@ testthat_database <- function(datasource, tests = pkg_test()) {
     integer64_fix <- function(x){if(is.integer64(x)){return(as.integer(x))} else {return(x)}}
     test_that(paste0(verb, ": ", vector_expression), {
       invisible({
+
+        match_skip <- which(
+          as.logical(
+            lapply(
+              skip_data
+              , function(x){
+                label %in% x$db &&
+                  filename %in% x$file &&
+                  context %in% x$context &&
+                  verb %in% x$test
+                }
+              )
+            )
+          )
+        if (any(match_skip)){
+          # take the first skip that matches
+          skip(skip_data[[match_skip[[1]]]][["text"]])
+        }
+
+
         expect_equal(
           manip(local_df),
           manip(remote_df) %>%
@@ -302,7 +340,15 @@ testthat_database <- function(datasource, tests = pkg_test()) {
         flatten() %>%
         map2(
           names(.)
-          , ~ run_test(.y, .x)
+          , ~ run_test(.y
+                       , .x
+                       , local_df = local_df
+                       , remote_df = remote_df
+                       , label = label
+                       , filename = filename
+                       , context = names(curr_test)
+                       , skip_data = skip_data
+                       )
         )
     })
 }
