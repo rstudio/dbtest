@@ -275,7 +275,28 @@ testthat_database <- function(datasource
     inherits(remote_df, "tbl_sql")
   )
 
-  # Create a testing function that lives inside the new testthat env
+  # dplyr test orchestrator
+  tests %>%
+    map(~ {
+      curr_test <- .x
+      context(names(curr_test))
+      curr_test %>%
+        flatten() %>%
+        map2(
+          names(.)
+          , ~ run_test(.y
+                       , .x
+                       , local_df = local_df
+                       , remote_df = remote_df
+                       , label = label
+                       , filename = filename
+                       , context = names(curr_test)
+                       , skip_data = skip_data
+                       )
+        )
+    })
+}
+
   run_test <- function(verb
                        , vector_expression
                        , local_df
@@ -330,25 +351,3 @@ testthat_database <- function(datasource
       })
     })
   }
-
-  # dplyr test orchestrator
-  tests %>%
-    map(~ {
-      curr_test <- .x
-      context(names(curr_test))
-      curr_test %>%
-        flatten() %>%
-        map2(
-          names(.)
-          , ~ run_test(.y
-                       , .x
-                       , local_df = local_df
-                       , remote_df = remote_df
-                       , label = label
-                       , filename = filename
-                       , context = names(curr_test)
-                       , skip_data = skip_data
-                       )
-        )
-    })
-}
