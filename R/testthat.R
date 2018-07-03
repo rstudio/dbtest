@@ -175,6 +175,15 @@ test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
   test_single_database_impl(datasource = datasource, tests = tests, label = label)
 }
 
+cleanup_connection <- function(con, verbose = FALSE){
+  tryCatch({
+   DBI::dbRollback(con)
+  }, error = function(e){if(verbose) print(e)})
+  tryCatch({
+    DBI::dbExecute(con, "ROLLBACK;")
+  }, error = function(e){if(verbose) print(e)})
+  invisible(con)
+}
 
 test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
   if (is.character(datasource)) {
@@ -243,6 +252,7 @@ testthat_database <- function(datasource, tests = pkg_test()) {
 
   # Address test data
   if (isS4(datasource) && inherits(datasource, "DBIConnection")) {
+    cleanup_connection(datasource)
     remote_df <- build_remote_tbl(datasource, testdata)
 
     local_df <- testdata
