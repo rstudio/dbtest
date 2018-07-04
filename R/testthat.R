@@ -185,7 +185,15 @@ cleanup_connection <- function(con, verbose = FALSE){
   invisible(con)
 }
 
-test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip_data = yaml::read_yaml("dbtest-skip.yml")) {
+safe_read_yaml <- function(file) {
+  if (fs::file_exists(file)) {
+    return(yaml::read_yaml(file))
+  } else {
+    return(NULL)
+  }
+}
+
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip_data = safe_read_yaml("dbtest-skip.yml")) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
