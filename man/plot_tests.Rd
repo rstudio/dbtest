@@ -2,15 +2,18 @@
 % Please edit documentation in R/reports.R
 \name{plot_tests}
 \alias{plot_tests}
+\alias{plot_summary}
 \title{Plot Tests}
 \usage{
 plot_tests(results)
+
+plot_summary(results)
 }
 \arguments{
 \item{results}{Output from `test_single_database` or `test_database`}
 }
 \value{
-ggplot2 object / graph
+list of ggplot2 objects / graphs
 }
 \description{
 Plot the output from `test_single_database` or `test_database` as a ggplot2 object
