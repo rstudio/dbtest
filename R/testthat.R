@@ -227,7 +227,8 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
             datasource = datasource,
             tests = .x,
             label = label,
-            filename = filename
+            filename = filename,
+            skip_data = skip_data
           )
         }
       )
@@ -304,7 +305,7 @@ testthat_database <- function(datasource
                        , label = NULL
                        , filename = NULL
                        , context = NULL
-                       , skip_data = list()
+                       , skip_data = NULL
                        ) {
     f <- parse_expr(vector_expression)
 
