@@ -124,7 +124,7 @@ test_output <- dbtest::test_database("conn.yml", dbtest::pkg_test("character-bas
     ## ..E....E....E..EEEEE.EE..
 
 ``` r
-dbtest::plot_tests(test_output)
+dbtest::plot_tests(test_output)[[1]]
 ```
 
 ![](README_files/figure-markdown_github/run-test-1.png)
@@ -156,7 +156,7 @@ An example might be most illustrative. Let's say that we want to test the base R
 
 First, we would define a test YAML file like:
 
-*/tmp/RtmpaRgYDx/test-file.yml*
+*/tmp/RtmpSO1noP/test-file.yml*
 <pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
@@ -169,7 +169,7 @@ test_results <- dbtest::test_database("conn.yml", test_file)
     ## ....
 
 ``` r
-dbtest::plot_tests(test_results)
+dbtest::plot_tests(test_results)[[1]]
 ```
 
 ![](README_files/figure-markdown_github/exec-file-1.png)

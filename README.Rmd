@@ -133,7 +133,7 @@ if (!fs::file_exists("conn.yml")) {
 
 ```{r run-test, echo=TRUE, message=FALSE, warning=FALSE}
 test_output <- dbtest::test_database("conn.yml", dbtest::pkg_test("character-basic.yml"))
-dbtest::plot_tests(test_output)
+dbtest::plot_tests(test_output)[[1]]
 ```
 
 # Writing Test Files
@@ -195,5 +195,5 @@ When executed against databases, it might look like:
 
 ```{r exec-file, echo=TRUE, message = FALSE, warning=FALSE}
 test_results <- dbtest::test_database("conn.yml", test_file)
-dbtest::plot_tests(test_results)
+dbtest::plot_tests(test_results)[[1]]
 ```

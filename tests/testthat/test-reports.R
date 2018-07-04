@@ -36,8 +36,19 @@ test_that("works with multiple test files", {
   skip("TODO: write test")
 })
 
+context("plot_summary")
+
+test_that("works with test_database", {
+  skip("TODO: write test")
+})
+
+test_that("works with multiple test files", {
+  skip("TODO: write test")
+})
+
 context("print_interactive")
 
 test_that("works in a non-interactive session", {
   skip("TODO: write test")
 })
+

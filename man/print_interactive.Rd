@@ -4,22 +4,13 @@
 \alias{print_interactive}
 \alias{print_interactive.list}
 \alias{print_interactive.default}
-\alias{print_interactive}
-\alias{print_interactive.list}
-\alias{print_interactive.default}
 \title{Print Interactively}
 \usage{
-print_interactive(.obj)
+print_interactive(.obj, .interactive = interactive())
 
-\method{print_interactive}{list}(.obj)
+\method{print_interactive}{list}(.obj, .interactive = interactive())
 
-\method{print_interactive}{default}(.obj)
-
-print_interactive(.obj)
-
-\method{print_interactive}{list}(.obj)
-
-\method{print_interactive}{default}(.obj)
+\method{print_interactive}{default}(.obj, .interactive = interactive())
 }
 \arguments{
 \item{.obj}{The object which needs to be printed interactively}
@@ -33,6 +24,4 @@ List of printed objects
 Prints a list object by executing print on each element.
 If in an interactive session, prompts to continue after
 each print.
-
-Print Interactively
 }

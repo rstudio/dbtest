@@ -195,7 +195,7 @@ test_that("works with different integer types", {
   if (!fs::file_exists(conn_path)) {
     skip("requires a postgres database")
   }
-  raw_conn <- yaml::read_yaml(conn_path)$default
+  raw_conn <- suppressWarnings(yaml::read_yaml(conn_path)$default)
   if (!"pg" %in% names(raw_conn)) {
     skip("requires a postgres database")
   }
@@ -210,7 +210,7 @@ test_that("works with different integer types", {
 
   pg <- raw_conn$pg
   con <- do.call(DBI::dbConnect, pg)
-  output <- suppressMessages(test_single_database(con, tmp_file))
+  output <- suppressMessages(test_database(con, tmp_file))
 
   expect_equal(
     as.data.frame(output)[3,"results.failed"]
