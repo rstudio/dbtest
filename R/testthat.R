@@ -329,10 +329,10 @@ testthat_database <- function(datasource
             lapply(
               skip_data
               , function(x){
-                label %in% x$db &&
-                  filename %in% x$file &&
-                  context %in% x$context &&
-                  verb %in% x$test
+                (label %in% x[["db"]] || is.null(x[["db"]])) &&
+                  (filename %in% x[["file"]] || is.null(x[["file"]])) &&
+                  (context %in% x[["context"]] || is.null(x[["context"]])) &&
+                 ( verb %in% x[["test"]] || is.null(x[["test"]]))
                 }
               )
             )
