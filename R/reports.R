@@ -142,24 +142,29 @@ plot_summary <- function(results) {
   agg_dataset <- dataset %>%
     group_by(connection, testfile, result) %>%
     summarize(count = n()) %>%
-    mutate(total = sum(count)
-           , pct = count / total
-           ) %>%
     ungroup() %>%
-    # show only Passed
     group_by(connection, testfile) %>%
-    summarize(pct = max(case_when(result == "Passed" ~ pct, TRUE ~ 0))) %>%
-    mutate(filler = "")
+    summarize(
+      pass = sum(ifelse(result == "Passed", count, 0))
+      ,fail = sum(ifelse(result == "Failed", count, 0))
+      ,skip = sum(ifelse(result == "Skipped", count, 0))
+      ) %>%
+    mutate(
+      score = ifelse(pass + fail == 0, 0, (pass - fail) / (pass + fail))
+      , label = paste(pass, fail, skip, sep = " / ")
+      , filler = ""
+      )
 
   plot <- agg_dataset %>%
     ggplot() +
-    ggtitle(label = "Test Summary") +
-    geom_tile(aes(x = filler, y = testfile, fill = pct), color = "black") +
+    ggtitle(label = "Test Summary", subtitle = "PASS / FAIL / SKIP") +
+    geom_tile(aes(x = filler, y = testfile, fill = score), color = "black") +
+    geom_text(aes(x = filler, y = testfile, label = label)) +
     scale_fill_gradient2(
       low = "#d01c8b"
       , mid = "#f7f7f7"
       , high = "#4dac26"
-      , midpoint = 0.5
+      , midpoint = 0
       ) +
     facet_grid( ~ connection, scales = "free") +
     labs(x = "", y = "")
