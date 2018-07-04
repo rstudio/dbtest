@@ -185,7 +185,7 @@ cleanup_connection <- function(con, verbose = FALSE){
   invisible(con)
 }
 
-test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip_data = yaml::read_yaml("dbtest-skip.yml")) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
