@@ -324,6 +324,7 @@ testthat_database <- function(datasource
     test_that(paste0(verb, ": ", vector_expression), {
       invisible({
 
+        # check for skipping this test
         match_skip <- which(
           as.logical(
             lapply(
