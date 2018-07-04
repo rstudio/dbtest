@@ -127,7 +127,8 @@ plot_tests <- function(results) {
           ggtitle(label = .x$testfile[[1]]) +
           geom_tile(aes(x = filler, y = justverb, fill = result), color = "black") +
           scale_fill_manual(values = c(Passed = "#4dac26"
-                                       , Failed = "#d01c8b")) +
+                                       , Failed = "#d01c8b"
+                                       , Skipped = "#f7f7f7")) +
           facet_grid(context ~ connection, scales = "free") +
           labs(x = "", y = "")
           )
@@ -177,7 +178,11 @@ plot_prep_helper <- function(results){
   }
   dataset <- prep_results %>%
     mutate(
-      result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
+      result = case_when(
+        results.skipped ~ "Skipped"
+        , results.failed == 1 | results.error ~ "Failed"
+        , TRUE ~ "Passed"
+      ),
       test = paste0(results.test, "\n", results.context),
       filler = "",
       justverb = sub("\\:\\ .*$", "", x = results.test)
