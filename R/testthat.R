@@ -178,7 +178,24 @@ test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), r
 #' @export
 test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("TBL_SQL")
-  output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]])
+  test_output <- withRestarts({
+    tryCatch({
+      output <- test_single_database_impl(
+        datasource = datasource
+        , tests = tests
+        , label = datasource[["ops"]][["x"]]
+        )
+      invisible(output)
+    }, error = function(e){
+      message(e);
+      invokeRestart(
+        "fail_tests"
+        , msg = e
+        , tests = tests
+        , label = label
+      )
+    })
+  }, "fail_tests" = force_failed_tests)
 
   if (return_list) {
     return(list(output))
