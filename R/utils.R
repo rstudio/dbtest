@@ -250,6 +250,14 @@ build_remote_tbl <- function(
   return(output)
 }
 
-null_dbtest_results <- function(){
-
+null_dbtest_results <- function(label = NULL){
+  null_testthat_results <- data.frame()
+  class(null_testthat_results) <- c("testthat_results")
+  prep <- list(
+    connection = label
+    , results = null_testthat_results
+    )
+  as_dbtest_results(
+    prep
+  )
 }
