@@ -135,7 +135,9 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
 #' @export
 test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
   message("DBI")
-  output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]])
+  tryCatch({
+    output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]])
+  }, error = function(e){print(e)})
 
   if (return_list) {
     return(list(output))
