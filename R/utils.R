@@ -249,3 +249,14 @@ build_remote_tbl <- function(
   )
   return(output)
 }
+
+force_failed_tests <- function(msg, label, tests) {
+  return(
+    test_single_database_impl(
+      datasource = NULL
+      , tests = tests
+      , label = label
+      , fail = msg
+    )
+  )
+}
