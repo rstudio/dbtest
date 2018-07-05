@@ -249,3 +249,7 @@ build_remote_tbl <- function(
   )
   return(output)
 }
+
+null_dbtest_results <- function(){
+
+}
