@@ -196,7 +196,7 @@ cleanup_connection <- function(con, verbose = FALSE){
   invisible(con)
 }
 
-test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL) {
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, fail = NULL) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
@@ -227,7 +227,8 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
 
           testthat_database(
             datasource = datasource,
-            tests = .x
+            tests = .x,
+            fail = fail
           )
         }
       )
@@ -254,7 +255,7 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
     as_dbtest_results()
 }
 
-testthat_database <- function(datasource, tests = pkg_test()) {
+testthat_database <- function(datasource, tests = pkg_test(), fail = NULL) {
 
   # Load test scripts from YAML format
   if (class(tests) == "character") tests <- read_yaml(tests)
@@ -272,12 +273,14 @@ testthat_database <- function(datasource, tests = pkg_test()) {
     remote_df <- head(datasource, 1000)
     local_df <- collect(remote_df)
   }
-  stopifnot(
-    inherits(remote_df, "tbl_sql")
-  )
+  if (is.null(fail)){
+    stopifnot(
+      inherits(remote_df, "tbl_sql")
+    )
+  }
 
   # Create a testing function that lives inside the new testthat env
-  run_test <- function(verb, vector_expression) {
+  run_test <- function(verb, vector_expression, fail_msg = NULL) {
     f <- parse_expr(vector_expression)
 
     if (verb %in% c("summarise", "summarize")) manip <- . %>% summarise(!!f) %>% pull()
@@ -294,6 +297,10 @@ testthat_database <- function(datasource, tests = pkg_test()) {
 
     integer64_fix <- function(x){if(is.integer64(x)){return(as.integer(x))} else {return(x)}}
     test_that(paste0(verb, ": ", vector_expression), {
+
+      if (!is.null(fail_msg)){
+        testthat::fail(fail_msg)
+      }
       invisible({
         expect_equal(
           manip(local_df),
@@ -313,7 +320,7 @@ testthat_database <- function(datasource, tests = pkg_test()) {
         flatten() %>%
         map2(
           names(.)
-          , ~ run_test(.y, .x)
+          , ~ run_test(.y, .x, fail_msg = fail)
         )
     })
 }
