@@ -86,8 +86,8 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
             DBI::dbDisconnect(con)
           }, error = function(e){print(e)}
           , finally = {
-            if (!is_dbtest_results(test_output)) {
-              test_output <- as_dbtest_results(list(connection = .x, results = data.frame()))
+            if (!"test_output" %in% ls()) {
+              test_output <- null_dbtest_results(.x)
             }
           }
           )
