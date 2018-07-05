@@ -80,9 +80,18 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
         suppressWarnings(cfg <- config::get(file = .x))
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
-          con <- do.call(DBI::dbConnect, args = curr)
-          test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
-          DBI::dbDisconnect(con)
+          tryCatch({
+            con <- do.call(DBI::dbConnect, args = curr)
+            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
+            DBI::dbDisconnect(con)
+          }, error = function(e){print(e)}
+          , finally = {
+            if (!is_dbtest_results(test_output)) {
+              test_output <- as_dbtest_results(list(connection = .x, results = data.frame()))
+            }
+          }
+          )
+
           test_output
         })
       })
