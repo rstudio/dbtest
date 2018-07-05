@@ -85,7 +85,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
             con <- do.call(DBI::dbConnect, args = curr)
             test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
             DBI::dbDisconnect(con)
-            return(test_output)
+            invisible(test_output)
           }, error = function(e){message(e); invokeRestart("fail_tests"
                                                            , msg = e
                                                            , label = .x
@@ -93,16 +93,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
                                                            )}
           )
           }
-          , fail_tests = function(msg, label, tests){
-            return(
-              test_single_database_impl(
-                datasource = NULL
-                , tests = tests
-                , label = label
-                , fail = msg
-              )
-            )
-          })
+          , fail_tests = force_failed_tests)
 
           test_output
         })
