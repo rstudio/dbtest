@@ -123,9 +123,20 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
       non_config_output <- non_config_dsns %>%
         map(
           ~ {
-            con <- DBI::dbConnect(odbc::odbc(), .x)
-            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
-            DBI::dbDisconnect(con)
+            test_output <- withRestarts({
+              tryCatch({
+                con <- DBI::dbConnect(odbc::odbc(), .x)
+                test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
+                DBI::dbDisconnect(con)
+                invisible(test_output)
+              }, error = function(e){
+                message(e);
+                invokeRestart("fail_tests"
+                              , msg = e
+                              , label = .x
+                              , tests = tests)
+              })
+            }, fail_tests = force_failed_tests)
             test_output
           }
       )
