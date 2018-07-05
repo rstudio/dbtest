@@ -254,3 +254,15 @@ test_that("recovers from a bad connection state", {
 
   DBI::dbDisconnect(con)
 })
+
+test_that("fails reasonably on a bad yaml connection", {
+  skip("TODO: write test")
+})
+
+test_that("fails reasonably on a bad DBI connection", {
+  skip("TODO: write test")
+})
+
+test_that("fails reasonably on a bad tbl_sql", {
+  skip("TODO: write test")
+})
