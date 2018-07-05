@@ -80,17 +80,29 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
         suppressWarnings(cfg <- config::get(file = .x))
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
+          test_output <- withRestarts({
           tryCatch({
             con <- do.call(DBI::dbConnect, args = curr)
             test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
             DBI::dbDisconnect(con)
-          }, error = function(e){print(e)}
-          , finally = {
-            if (!"test_output" %in% ls()) {
-              test_output <- null_dbtest_results(.x)
-            }
-          }
+            return(test_output)
+          }, error = function(e){message(e); invokeRestart("fail_tests"
+                                                           , msg = e
+                                                           , label = .x
+                                                           , tests = tests
+                                                           )}
           )
+          }
+          , fail_tests = function(msg, label, tests){
+            return(
+              test_single_database_impl(
+                datasource = NULL
+                , tests = tests
+                , label = label
+                , fail = msg
+              )
+            )
+          })
 
           test_output
         })
