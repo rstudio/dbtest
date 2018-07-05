@@ -299,7 +299,8 @@ testthat_database <- function(datasource, tests = pkg_test(), fail = NULL) {
     test_that(paste0(verb, ": ", vector_expression), {
 
       if (!is.null(fail_msg)){
-        testthat::fail(fail_msg)
+        #testthat::fail(fail_msg)
+        stop(fail_msg)
       }
       invisible({
         expect_equal(
