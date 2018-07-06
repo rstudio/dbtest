@@ -259,10 +259,6 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
   pretty_output <- mapply(
    function(x, name){
      x %>%
-       # need a way to build a tibble
-       # by row..
-       # like this?
-       # tmp2 <- tibble::tibble(blah = as.list(names(tmp)), other = tmp)
        tibble::tibble(
          test = names(.)
          , alt = .
