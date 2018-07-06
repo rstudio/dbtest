@@ -228,11 +228,12 @@ print_interactive.default <- function(.obj, .interactive = interactive()){
 }
 
 
-#' Get Test Detail
+#' Get dbtest Detail
 #'
 #' Retrieve test details from a list of dbtest_results objects
 #'
-get_test_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb = NULL) {
+#' @export
+get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb = NULL) {
 
   get_dbs <- lapply(.obj, function(x, db){
     if (x[["connection"]] == db || is.null(db)) {
@@ -241,6 +242,17 @@ get_test_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb =
       return(NULL)
     }}, db = db)
 
+  lapply(
+    get_dbs
+    , function(x, file, context, verb){
+      get_testthat_detail(x[["results"]]
+                          , file = file
+                          , context = context
+                          , verb = verb
+                          )
+    }
+    , file = file, context = context, verb = verb
+  )
 }
 
 
@@ -260,7 +272,7 @@ get_testthat_detail <- function(.obj, file = NULL, context = NULL, verb = NULL) 
   res_detail <- lapply(res, function(x){x[["results"]]})
 
   return(
-    set_names(res_detail, res_names)
+    set_names(res_detail, res_test)
     )
 }
 
