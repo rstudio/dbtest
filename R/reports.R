@@ -259,14 +259,17 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
   pretty_output <- mapply(
    function(x, name){
      x %>%
-       dplyr::as_tibble() %>%
-       t() %>%
-       as.data.frame() %>%
-       tibble::rownames_to_column(var = "test") %>%
-       tibble::as_tibble() %>%
-       dplyr::mutate(V1 = V1[[1]][[1]]) %>%
+       # need a way to build a tibble
+       # by row..
+       # like this?
+       # tmp2 <- tibble::tibble(blah = as.list(names(tmp)), other = tmp)
+       tibble::tibble(
+         test = names(.)
+         , alt = .
+       ) %>%
+       dplyr::mutate(alt = as.character(lapply(alt, function(x){x[[1]][[1]]}))) %>%
        dplyr::rename(
-         !!!set_names("V1",name)
+         !!!set_names("alt",name)
        )
      }
    , x = present_detail
@@ -275,7 +278,7 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
    ) %>%
    purrr::reduce(dplyr::left_join, by = "test")
 
-  return(pretty_output)
+  return(present_detail)
 }
 
 
