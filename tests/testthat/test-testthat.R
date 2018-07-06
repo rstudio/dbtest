@@ -255,8 +255,16 @@ test_that("recovers from a bad connection state", {
   DBI::dbDisconnect(con)
 })
 
-test_that("fails reasonably on a bad yaml connection", {
-  skip("TODO: write test")
+test_that("fails tests reasonably on a bad yaml connection", {
+  skip("succeeds interactively... fails programmatically...")
+  test_output <- test_database(rprojroot::find_testthat_root_file("bad-conn.yml"), pkg_test("simple-tests.yml"))
+
+  expect_s3_class(test_output[[1]], "dbtest_results")
+  expect_length(test_output[[1]]$results, 10)
+
+  fail_msgs <- as.character(lapply(test_output[[1]]$results, function(x){x[["results"]][[1]] %>% as.character()}))
+  expect_length(unique(fail_msgs), 1)
+  expect_match(unique(fail_msgs), "nanodbc")
 })
 
 test_that("fails reasonably on a bad DBI connection", {
