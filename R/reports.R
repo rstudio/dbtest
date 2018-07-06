@@ -267,9 +267,11 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
          test = names(.)
          , alt = .
        ) %>%
-       dplyr::mutate(alt = as.character(lapply(alt, function(x){x[[1]][[1]]}))) %>%
-       dplyr::rename(
-         !!!set_names("alt",name)
+       dplyr::mutate(alt2 = as.character(lapply(alt, function(x){x[[1]][[1]]}))) %>%
+       dplyr::select(
+         test
+         , !!!set_names("alt2", name)
+         , !!!set_names("alt",paste0(name,"_raw"))
        )
      }
    , x = present_detail
@@ -278,7 +280,7 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
    ) %>%
    purrr::reduce(dplyr::left_join, by = "test")
 
-  return(present_detail)
+  return(pretty_output)
 }
 
 
