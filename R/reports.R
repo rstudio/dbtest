@@ -255,7 +255,27 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
     , file = file, context = context, verb = verb
   )
 
-  return(set_names(detail, db_names))
+  present_detail <- set_names(detail, db_names)
+  pretty_output <- mapply(
+   function(x, name){
+     x %>%
+       dplyr::as_tibble() %>%
+       t() %>%
+       as.data.frame() %>%
+       tibble::rownames_to_column(var = "test") %>%
+       tibble::as_tibble() %>%
+       dplyr::mutate(V1 = V1[[1]][[1]]) %>%
+       dplyr::rename(
+         !!!set_names("V1",name)
+       )
+     }
+   , x = present_detail
+   , name = as.list(names(present_detail))
+   , SIMPLIFY = FALSE
+   ) %>%
+   purrr::reduce(dplyr::left_join, by = "test")
+
+  return(pretty_output)
 }
 
 
