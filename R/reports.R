@@ -242,7 +242,8 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
       return(NULL)
     }}, db = db)
 
-  lapply(
+  db_names <- as.character(lapply(get_dbs, function(x){x[["connection"]]}))
+  detail <- lapply(
     get_dbs
     , function(x, file, context, verb){
       get_testthat_detail(x[["results"]]
@@ -253,6 +254,8 @@ get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb
     }
     , file = file, context = context, verb = verb
   )
+
+  return(set_names(detail, db_names))
 }
 
 
@@ -265,7 +268,7 @@ get_testthat_detail <- function(.obj, file = NULL, context = NULL, verb = NULL) 
          )
   res <- res[!as.logical(lapply(res, is.null))]
 
-  res_test <- res[["test"]]
+  res_test <- as.character(lapply(res, function(x){x[["test"]]}))
   res_verb <- sub("\\:\\ .*$", "", x = res_test)
   res_vector <- sub("^.*\\:\\ ", "", x = res_test)
 
