@@ -227,3 +227,52 @@ print_interactive.default <- function(.obj, .interactive = interactive()){
   invisible(.obj)
 }
 
+
+#' Get Test Detail
+#'
+#' Retrieve test details from a list of dbtest_results objects
+#'
+get_test_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb = NULL) {
+
+  get_dbs <- lapply(.obj, function(x, db){
+    if (x[["connection"]] == db || is.null(db)) {
+      return(x)
+    } else {
+      return(NULL)
+    }}, db = db)
+
+}
+
+
+get_testthat_detail <- function(.obj, file = NULL, context = NULL, verb = NULL) {
+
+  res <- lapply(.obj, filter_testthat_results
+         , file = file
+         , context = context
+         , verb = verb
+         )
+  res <- res[!as.logical(lapply(res, is.null))]
+
+  res_test <- res[["test"]]
+  res_verb <- sub("\\:\\ .*$", "", x = res_test)
+  res_vector <- sub("^.*\\:\\ ", "", x = res_test)
+
+  res_detail <- lapply(res, function(x){x[["results"]]})
+
+  return(
+    set_names(res_detail, res_names)
+    )
+}
+
+
+filter_testthat_results <- function(.obj, file = NULL, context = NULL, verb = NULL) {
+  if (
+    (.obj[["file"]] == file || is.null(file)) &&
+    (.obj[["context"]] == context || is.null(context)) &&
+    (sub("\\:\\ .*$", "", x = .obj[["test"]]) == verb || is.null(verb))
+  ) {
+    return(.obj)
+  } else {
+    return(NULL)
+  }
+}
