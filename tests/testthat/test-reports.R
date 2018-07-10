@@ -52,3 +52,12 @@ test_that("works in a non-interactive session", {
   skip("TODO: write test")
 })
 
+context("get_dbtest_detail")
+
+test_that("works with test_database", {
+  skip("TODO: write test")
+})
+
+test_that("returns expected output", {
+  skip("TODO: write test")
+})

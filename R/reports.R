@@ -227,3 +227,99 @@ print_interactive.default <- function(.obj, .interactive = interactive()){
   invisible(.obj)
 }
 
+
+#' Get dbtest Detail
+#'
+#' Retrieve test details from a list of dbtest_results objects.
+#' Returns a much more natural object to work with than nested lists
+#' and enables more easily surfacing the _reasons_ that tests
+#' failed.
+#'
+#' @param .obj The dbtest_results object (or a list of such objects) to get detail for
+#' @param db optional The database label to filter by
+#' @param file optional The test file to filter by
+#' @param context optional The test context to filter by
+#' @param verb optional The verb to filter by
+#'
+#' @return A tibble with test details (and stack traces)
+#'
+#' @export
+get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb = NULL) {
+
+  get_dbs <- lapply(.obj, function(x, db){
+    if (x[["connection"]] == db || is.null(db)) {
+      return(x)
+    } else {
+      return(NULL)
+    }}, db = db)
+
+  db_names <- as.character(lapply(get_dbs, function(x){x[["connection"]]}))
+  detail <- lapply(
+    get_dbs
+    , function(x, file, context, verb){
+      get_testthat_detail(x[["results"]]
+                          , file = file
+                          , context = context
+                          , verb = verb
+                          )
+    }
+    , file = file, context = context, verb = verb
+  )
+
+  present_detail <- set_names(detail, db_names)
+  pretty_output <- mapply(
+   function(x, name){
+     x %>%
+       tibble::tibble(
+         test = names(.)
+         , alt = .
+       ) %>%
+       dplyr::mutate(alt2 = as.character(lapply(alt, function(x){x[[1]][[1]]}))) %>%
+       dplyr::select(
+         test
+         , !!!set_names("alt2", name)
+         , !!!set_names("alt",paste0(name,"_raw"))
+       )
+     }
+   , x = present_detail
+   , name = as.list(names(present_detail))
+   , SIMPLIFY = FALSE
+   ) %>%
+   purrr::reduce(dplyr::left_join, by = "test")
+
+  return(pretty_output)
+}
+
+
+get_testthat_detail <- function(.obj, file = NULL, context = NULL, verb = NULL) {
+
+  res <- lapply(.obj, filter_testthat_results
+         , file = file
+         , context = context
+         , verb = verb
+         )
+  res <- res[!as.logical(lapply(res, is.null))]
+
+  res_test <- as.character(lapply(res, function(x){x[["test"]]}))
+  res_verb <- sub("\\:\\ .*$", "", x = res_test)
+  res_vector <- sub("^.*\\:\\ ", "", x = res_test)
+
+  res_detail <- lapply(res, function(x){x[["results"]]})
+
+  return(
+    set_names(res_detail, res_test)
+    )
+}
+
+
+filter_testthat_results <- function(.obj, file = NULL, context = NULL, verb = NULL) {
+  if (
+    (.obj[["file"]] == file || is.null(file)) &&
+    (.obj[["context"]] == context || is.null(context)) &&
+    (sub("\\:\\ .*$", "", x = .obj[["test"]]) == verb || is.null(verb))
+  ) {
+    return(.obj)
+  } else {
+    return(NULL)
+  }
+}
