@@ -13,6 +13,7 @@
 #' @importFrom purrr map_df
 #' @importFrom purrr map2
 #' @importFrom purrr reduce
+#' @importFrom purrr set_names
 #' @importFrom rlang parse_expr
 #' @importFrom rprojroot find_rstudio_root_file
 #' @importFrom stats runif
@@ -23,6 +24,8 @@
 #' @importFrom testthat MinimalReporter
 #' @importFrom testthat test_that
 #' @importFrom testthat with_reporter
+#' @importFrom tibble tibble
+#' @importFrom tibble as_tibble
 #' @importFrom yaml read_yaml
 #' @importFrom yaml write_yaml
 #' @import htmltools
@@ -38,6 +41,7 @@ utils::globalVariables(
   c(
     "."
     , ".x"
+    , "alt"
     , "Failed"
     , "Passed"
     , "connection"
@@ -47,6 +51,7 @@ utils::globalVariables(
     , "filler"
     , "justtest"
     , "justverb"
+    , "pct"
     , "res"
     , "result"
     , "results.context"
@@ -58,5 +63,7 @@ utils::globalVariables(
     , "spread"
     , "test"
     , "testdata"
+    , "testfile"
+    , "total"
   )
 )
