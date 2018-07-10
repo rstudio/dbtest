@@ -230,7 +230,18 @@ print_interactive.default <- function(.obj, .interactive = interactive()){
 
 #' Get dbtest Detail
 #'
-#' Retrieve test details from a list of dbtest_results objects
+#' Retrieve test details from a list of dbtest_results objects.
+#' Returns a much more natural object to work with than nested lists
+#' and enables more easily surfacing the _reasons_ that tests
+#' failed.
+#'
+#' @param .obj The dbtest_results object (or a list of such objects) to get detail for
+#' @param db optional The database label to filter by
+#' @param file optional The test file to filter by
+#' @param context optional The test context to filter by
+#' @param verb optional The verb to filter by
+#'
+#' @return A tibble with test details (and stack traces)
 #'
 #' @export
 get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb = NULL) {
