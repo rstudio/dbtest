@@ -1,7 +1,7 @@
 dbtest
 ================
 
-[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
+[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest) [![Coverage status](https://codecov.io/gh/rstudio/dbtest/branch/master/graph/badge.svg)](https://codecov.io/github/rstudio/dbtest?branch=master)
 
 Overview
 ========
@@ -156,7 +156,7 @@ An example might be most illustrative. Let's say that we want to test the base R
 
 First, we would define a test YAML file like:
 
-*/tmp/RtmpSO1noP/test-file.yml*
+*/tmp/Rtmpe4Vqwj/test-file.yml*
 <pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
