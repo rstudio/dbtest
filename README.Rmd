@@ -132,8 +132,21 @@ if (!fs::file_exists("conn.yml")) {
 ```
 
 ```{r run-test, echo=TRUE, message=FALSE, warning=FALSE}
-test_output <- dbtest::test_database("conn.yml", dbtest::pkg_test("character-basic.yml"))
-dbtest::plot_tests(test_output)[[1]]
+test_output <- dbtest::test_database(
+  "conn.yml", 
+  dbtest::pkg_test(
+    c("character-basic.yml", "math-basic.yml")
+    )
+  )
+dbtest::plot_summary(test_output)
+
+dbtest::plot_tests(test_output)
+```
+
+If you want to see more specific details about a failure, in particular, you can use `get_dbtest_detail`:
+
+```{r get-detail, echo=TRUE, message=FALSE, warning=FALSE}
+dbtest::get_dbtest_detail(test_output)
 ```
 
 # Writing Test Files
