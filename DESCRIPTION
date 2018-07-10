@@ -36,3 +36,5 @@ Imports:
   yaml,
   bit64
 RoxygenNote: 6.0.1
+Suggests: 
+    covr

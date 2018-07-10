@@ -1,7 +1,7 @@
 dbtest
 ================
 
-[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest)
+[![Build Status](https://travis-ci.org/rstudio/dbtest.svg?branch=master)](https://travis-ci.org/rstudio/dbtest) [![Coverage status](https://codecov.io/gh/rstudio/dbtest/branch/master/graph/badge.svg)](https://codecov.io/github/rstudio/dbtest?branch=master)
 
 Overview
 ========
