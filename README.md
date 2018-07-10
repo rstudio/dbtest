@@ -116,18 +116,57 @@ If you want to use specific test files included in `dbtest`, you can reference t
 Finally, `dbtest` provides reporting functions that make it easier to analyze and explore the results of your tests. This is where the rubber meets the road on improving the development process with a test suite that increases quality and ensures reliability.
 
 ``` r
-test_output <- dbtest::test_database("conn.yml", dbtest::pkg_test("character-basic.yml"))
+test_output <- dbtest::test_database(
+  "conn.yml", 
+  dbtest::pkg_test(
+    c("character-basic.yml", "math-basic.yml")
+    )
+  )
 ```
 
-    ## ...............EEEEE.E...
-    ## ...............EEEEE.E...
-    ## ..E....E....E..EEEEE.EE..
+    ## ...............EEEEE.E.....................................................
+    ## ...............EEEEE.E.....................................................
+    ## ..E....E....E..EEEEE.EE....E....E....E....E....E....E....E....E..EEEEE..E..
 
 ``` r
-dbtest::plot_tests(test_output)[[1]]
+dbtest::plot_summary(test_output)
 ```
 
 ![](README_files/figure-markdown_github/run-test-1.png)
+
+``` r
+dbtest::plot_tests(test_output)
+```
+
+    ## $`character-basic`
+
+![](README_files/figure-markdown_github/run-test-2.png)
+
+    ## 
+    ## $`math-basic`
+
+![](README_files/figure-markdown_github/run-test-3.png)
+
+If you want to see more specific details about a failure, in particular, you can use `get_dbtest_detail`:
+
+``` r
+dbtest::get_dbtest_detail(test_output)
+```
+
+    ## # A tibble: 75 x 7
+    ##    test          pg     pg_raw mssql mssql_raw oracle           oracle_raw
+    ##    <chr>         <chr>  <list> <chr> <list>    <chr>            <list>    
+    ##  1 mutate: tolo… succe… <list… succ… <list [1… success          <list [1]>
+    ##  2 "filter: tol… succe… <list… succ… <list [1… success          <list [1]>
+    ##  3 summarize: n… succe… <list… succ… <list [1… "nanodbc/nanodb… <list [1]>
+    ##  4 group_by: to… succe… <list… succ… <list [1… success          <list [1]>
+    ##  5 arrange: tol… succe… <list… succ… <list [1… success          <list [1]>
+    ##  6 mutate: toup… succe… <list… succ… <list [1… success          <list [1]>
+    ##  7 "filter: tou… succe… <list… succ… <list [1… success          <list [1]>
+    ##  8 summarize: n… succe… <list… succ… <list [1… "nanodbc/nanodb… <list [1]>
+    ##  9 group_by: to… succe… <list… succ… <list [1… success          <list [1]>
+    ## 10 arrange: tou… succe… <list… succ… <list [1… success          <list [1]>
+    ## # ... with 65 more rows
 
 Writing Test Files
 ==================
@@ -156,7 +195,7 @@ An example might be most illustrative. Let's say that we want to test the base R
 
 First, we would define a test YAML file like:
 
-*/tmp/RtmpSO1noP/test-file.yml*
+*/tmp/RtmpQ7gwyi/test-file.yml*
 <pre>- test-tolower:<br>    mutate: tolower(fld_character)<br>    group_by: tolower(fld_character)<br>- test-toupper:<br>    mutate: toupper(fld_character)<br>    group_by: toupper(fld_character)</pre>
 When executed against databases, it might look like:
 
