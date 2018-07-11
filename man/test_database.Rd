@@ -5,7 +5,8 @@
 \alias{test_databases}
 \title{Test Database}
 \usage{
-test_database(datasource = NULL, tests = pkg_test(), return_list = TRUE)
+test_database(datasource = NULL, tests = pkg_test(), return_list = TRUE,
+  skip = NULL)
 
 test_databases(datasource = NULL, tests = pkg_test())
 }
