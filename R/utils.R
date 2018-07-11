@@ -263,3 +263,16 @@ safe_read_yaml <- function(file) {
     return(NULL)
   }
 }
+
+read_skip_data <- function(file) {
+  if (is.null(file)){
+    return(NULL)
+  } else {
+    return(
+      unlist(
+        lapply(file, safe_read_yaml)
+        , recursive = FALSE
+      )
+    )
+  }
+}
