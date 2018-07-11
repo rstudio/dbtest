@@ -255,3 +255,11 @@ build_remote_tbl <- function(
   )
   return(output)
 }
+
+safe_read_yaml <- function(file) {
+  if (fs::file_exists(file)) {
+    return(yaml::read_yaml(file))
+  } else {
+    return(NULL)
+  }
+}
