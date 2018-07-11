@@ -337,10 +337,17 @@ testthat_database <- function(datasource
             lapply(
               skip_data
               , function(x){
-                (label %in% x[["db"]] || is.null(x[["db"]])) &&
+                  (label %in% x[["db"]] || is.null(x[["db"]])) &&
                   (filename %in% x[["file"]] || is.null(x[["file"]])) &&
                   (context %in% x[["context"]] || is.null(x[["context"]])) &&
-                 ( verb %in% x[["test"]] || is.null(x[["test"]]))
+                  ( verb %in% x[["test"]] || is.null(x[["test"]])) &&
+                  # do not skip if all four are null
+                  !(
+                    is.null(x[["db"]])
+                    && is.null(x[["file"]])
+                    && is.null(x[["context"]])
+                    && is.null(x[["test"]])
+                    )
                 }
               )
             )
