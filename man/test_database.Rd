@@ -26,12 +26,12 @@ object directly.}
 Returns a list of lists containing the respective datasource labels and testthat output
 }
 \description{
-A wrapper around `test_sigle_database` that iterates over multiple datasources
+A test executor that iterates over multiple datasources
 and executes the testing suite on each.  Output is organized in such a way as to
 give nice, consolidated results.
 }
 \examples{
-# test all dsns with dbtest suite -----------------------
+# test all dsns with default test suite -----------------------
 \dontrun{
 test_database(datasource = "dsn")
 }
@@ -39,12 +39,9 @@ test_database(datasource = "dsn")
 \dontrun{
 test_database(tests = "./path/to/my.yml")
 }
-# test connection yaml file with dbtest suite -----------
+# test connection yaml file with default test suite -----------
 \dontrun{
 test_database(datasource = "./path/to/conn.yml")
 }
 
-}
-\seealso{
-test_single_database
 }
