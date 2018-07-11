@@ -183,13 +183,7 @@ cleanup_connection <- function(con, verbose = FALSE){
   invisible(con)
 }
 
-safe_read_yaml <- function(file) {
-  if (fs::file_exists(file)) {
-    return(yaml::read_yaml(file))
-  } else {
-    return(NULL)
-  }
-}
+
 
 test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip_data = safe_read_yaml("dbtest-skip.yml")) {
   if (is.character(datasource)) {
