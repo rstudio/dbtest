@@ -13,7 +13,7 @@ all_tests(dir = system.file("extdata", "tests", package = "dbtest"))
 
 pkg_config(file = "config.yml")
 
-pkg_skip(file = "skip-ex.yml")
+pkg_skip(file = "skip-example.yml")
 }
 \arguments{
 \item{file}{optional The file to reference at the default location}
