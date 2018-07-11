@@ -27,6 +27,12 @@ pkg_config <- function(file = "config.yml") {
   system.file("extdata", "connections", file, package = "dbtest")
 }
 
+#' @rdname utils
+#' @export
+pkg_skip <- function(file = "skip-ex.yml") {
+  system.file("extdata", "skip", path_file(file), package = "dbtest")
+}
+
 #' @title Write Tests
 #'
 #' @description A utility to make writing tests a bit easier
