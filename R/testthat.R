@@ -1,6 +1,6 @@
 #' @title Test Database
 #'
-#' @description A wrapper around `test_sigle_database` that iterates over multiple datasources
+#' @description A test executor that iterates over multiple datasources
 #' and executes the testing suite on each.  Output is organized in such a way as to
 #' give nice, consolidated results.
 #'
@@ -16,10 +16,8 @@
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
-#' @seealso test_single_database
-#'
 #' @examples
-#' # test all dsns with dbtest suite -----------------------
+#' # test all dsns with default test suite -----------------------
 #' \dontrun{
 #' test_database(datasource = "dsn")
 #' }
@@ -27,7 +25,7 @@
 #' \dontrun{
 #' test_database(tests = "./path/to/my.yml")
 #' }
-#' # test connection yaml file with dbtest suite -----------
+#' # test connection yaml file with default test suite -----------
 #' \dontrun{
 #' test_database(datasource = "./path/to/conn.yml")
 #' }
