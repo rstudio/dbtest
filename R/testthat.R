@@ -31,7 +31,7 @@
 #' }
 #'
 #' @export
-test_database <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
   UseMethod("test_database", datasource)
 }
 
@@ -43,13 +43,15 @@ test_databases <- function(datasource = NULL, tests = pkg_test()) {
 }
 
 #' @export
-test_database.list <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.list <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
   message("LIST")
-  lapply(datasource, test_database, tests = tests, return_list = FALSE)
+  if (!return_list)
+    warning("return_list = FALSE has no effect for list objects")
+  lapply(datasource, test_database, tests = tests, return_list = FALSE, skip = skip)
 }
 
 #' @export
-test_database.character <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.character <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
   message("CHARACTER")
 
   config_check <- tolower(path_ext(datasource)) %in% c("yml","yaml")
@@ -79,7 +81,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
           con <- do.call(DBI::dbConnect, args = curr)
-          test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
+          test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
           DBI::dbDisconnect(con)
           test_output
         })
@@ -110,7 +112,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
         map(
           ~ {
             con <- DBI::dbConnect(odbc::odbc(), .x)
-            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
+            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
             DBI::dbDisconnect(con)
             test_output
           }
@@ -122,9 +124,9 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
 }
 
 #' @export
-test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
   message("DBI")
-  output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]])
+  output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]], skip = skip)
 
   if (return_list) {
     return(list(output))
@@ -134,9 +136,9 @@ test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), r
 }
 
 #' @export
-test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
   message("TBL_SQL")
-  output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]])
+  output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]], skip = skip)
 
   if (return_list) {
     return(list(output))
@@ -185,7 +187,7 @@ cleanup_connection <- function(con, verbose = FALSE){
 
 
 
-test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip_data = safe_read_yaml("dbtest-skip.yml")) {
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip = NULL) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
@@ -222,6 +224,8 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
           if (length(lr) > 0) {
             lr[[1]]$start_file(filename)
           }
+
+          skip_data <- read_skip_data(skip)
 
           testthat_database(
             datasource = datasource,
