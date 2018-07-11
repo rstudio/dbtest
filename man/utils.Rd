@@ -4,6 +4,7 @@
 \alias{pkg_test}
 \alias{all_tests}
 \alias{pkg_config}
+\alias{pkg_skip}
 \title{Utility Functions}
 \usage{
 pkg_test(file = "simple-tests.yml")
@@ -11,6 +12,8 @@ pkg_test(file = "simple-tests.yml")
 all_tests(dir = system.file("extdata", "tests", package = "dbtest"))
 
 pkg_config(file = "config.yml")
+
+pkg_skip(file = "skip-ex.yml")
 }
 \arguments{
 \item{file}{optional The file to reference at the default location}
