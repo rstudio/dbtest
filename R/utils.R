@@ -29,7 +29,7 @@ pkg_config <- function(file = "config.yml") {
 
 #' @rdname utils
 #' @export
-pkg_skip <- function(file = "skip-ex.yml") {
+pkg_skip <- function(file = "skip-example.yml") {
   system.file("extdata", "skip", path_file(file), package = "dbtest")
 }
 
