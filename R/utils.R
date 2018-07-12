@@ -337,3 +337,11 @@ read_skip_data <- function(file) {
     )
   }
 }
+
+integer64_fix <- function(x){
+  if(is.integer64(x)){
+    return(as.integer(x))
+  } else {
+    return(x)
+  }
+}
