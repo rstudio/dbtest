@@ -13,6 +13,8 @@
 #' @param return_list optional Whether to return a list of `dbtest_results` objects. Defaults
 #' to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
 #' object directly.
+#' @param skip optional The path to one or more YAML files that will
+#' be used to skip tests
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
