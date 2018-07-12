@@ -22,6 +22,9 @@ References `dbtest` test suite by default}
 \item{return_list}{optional Whether to return a list of `dbtest_results` objects. Defaults
 to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
 object directly.}
+
+\item{skip}{optional The path to one or more YAML files that will
+be used to skip tests}
 }
 \value{
 Returns a list of lists containing the respective datasource labels and testthat output
