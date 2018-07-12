@@ -79,9 +79,57 @@ write_test <- function(
     c(existing, new)
     , file
   )
+
+  invisible(file)
 }
 
+#' @title Write Skip
+#'
+#' @description A utility to make writing skips a bit easier
+#' and more reproducible
+#'
+#' @param file The file that skips should be written to
+#' @param text The text used to note the skip
+#' @param db optional The db that should be skipped
+#' @param skip_file optional The file that should be skipped
+#' @param context optional The context that should be skipped
+#' @param test optional The test or verb that should be skipped
+#' @param overwrite optional Whether to overwrite the file in question (defaults to false)
+#'
+#' @return The input filename
+#'
+#' @export
+write_skip <- function(
+  file
+  , text
+  , db = NULL
+  , skip_file = NULL
+  , context = NULL
+  , test = NULL
+  , overwrite = FALSE ) {
 
+  existing <- if(file_exists(file) && !overwrite) read_yaml(file) else list()
+
+  new <- list(
+    list(
+      text = text
+      , db = db
+      , file = skip_file
+      , context = context
+      , test = test
+    )
+  )
+
+  # ugly... replace the nulls
+  new[[1]][as.logical(lapply(new[[1]], is.null))] <- NULL
+
+  write_yaml(
+    c(existing, new)
+    , file
+  )
+
+  invisible(file)
+}
 
 
 new_test_data <- function(numrow = 10, seed=NULL) {
