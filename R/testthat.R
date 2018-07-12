@@ -361,6 +361,7 @@ testthat_database <- function(datasource
                        , filename = filename
                        , context = names(curr_test)
                        , skip_data = skip_data
+                       , fail_msg = fail
                        )
         )
     })
@@ -435,16 +436,3 @@ testthat_database <- function(datasource
     })
   }
 
-  # dplyr test orchestrator
-  tests %>%
-    map(~ {
-      curr_test <- .x
-      context(names(curr_test))
-      curr_test %>%
-        flatten() %>%
-        map2(
-          names(.)
-          , ~ run_test(.y, .x, fail_msg = fail)
-        )
-    })
-}
