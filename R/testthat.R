@@ -10,11 +10,12 @@
 #' `dbConnect` as-is
 #' @param tests optional  A character vector of yaml tests to execute.
 #' References `dbtest` test suite by default
+#' @param skip optional The path to one or more YAML files that will
+#' be used to skip tests
+#' @param ... Additional parameters passed on to methods
 #' @param return_list optional Whether to return a list of `dbtest_results` objects. Defaults
 #' to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
 #' object directly.
-#' @param skip optional The path to one or more YAML files that will
-#' be used to skip tests
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
@@ -33,7 +34,7 @@
 #' }
 #'
 #' @export
-test_database <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
+test_database <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   UseMethod("test_database", datasource)
 }
 
@@ -45,15 +46,15 @@ test_databases <- function(datasource = NULL, tests = pkg_test()) {
 }
 
 #' @export
-test_database.list <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
+test_database.list <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("LIST")
   if (!return_list)
     warning("return_list = FALSE has no effect for list objects")
-  lapply(datasource, test_database, tests = tests, return_list = FALSE, skip = skip)
+  lapply(datasource, test_database, tests = tests, skip = skip, return_list = FALSE)
 }
 
 #' @export
-test_database.character <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
+test_database.character <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("CHARACTER")
 
   config_check <- tolower(path_ext(datasource)) %in% c("yml","yaml")
@@ -126,7 +127,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
 }
 
 #' @export
-test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
+test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("DBI")
   output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]], skip = skip)
 
@@ -138,7 +139,7 @@ test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), r
 }
 
 #' @export
-test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE, skip = NULL) {
+test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("TBL_SQL")
   output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]], skip = skip)
 
