@@ -22,6 +22,7 @@
 #' @importFrom testthat ListReporter
 #' @importFrom testthat MultiReporter
 #' @importFrom testthat MinimalReporter
+#' @importFrom testthat skip
 #' @importFrom testthat test_that
 #' @importFrom testthat with_reporter
 #' @importFrom tibble tibble
@@ -47,10 +48,13 @@ utils::globalVariables(
     , "connection"
     , "database"
     , "error"
+    , "fail"
     , "failed"
     , "filler"
     , "justtest"
     , "justverb"
+    , "label"
+    , "pass"
     , "pct"
     , "res"
     , "result"
@@ -59,6 +63,7 @@ utils::globalVariables(
     , "results.failed"
     , "results.file"
     , "results.test"
+    , "score"
     , "setNames"
     , "spread"
     , "test"

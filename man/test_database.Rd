@@ -5,7 +5,8 @@
 \alias{test_databases}
 \title{Test Database}
 \usage{
-test_database(datasource = NULL, tests = pkg_test(), return_list = TRUE)
+test_database(datasource = NULL, tests = pkg_test(), skip = NULL, ...,
+  return_list = TRUE)
 
 test_databases(datasource = NULL, tests = pkg_test())
 }
@@ -18,6 +19,11 @@ use connection parameters in a YAML file.  Connection parameters will be passed 
 \item{tests}{optional  A character vector of yaml tests to execute.
 References `dbtest` test suite by default}
 
+\item{skip}{optional The path to one or more YAML files that will
+be used to skip tests}
+
+\item{...}{Additional parameters passed on to methods}
+
 \item{return_list}{optional Whether to return a list of `dbtest_results` objects. Defaults
 to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
 object directly.}
@@ -26,12 +32,12 @@ object directly.}
 Returns a list of lists containing the respective datasource labels and testthat output
 }
 \description{
-A wrapper around `test_sigle_database` that iterates over multiple datasources
+A test executor that iterates over multiple datasources
 and executes the testing suite on each.  Output is organized in such a way as to
 give nice, consolidated results.
 }
 \examples{
-# test all dsns with dbtest suite -----------------------
+# test all dsns with default test suite -----------------------
 \dontrun{
 test_database(datasource = "dsn")
 }
@@ -39,12 +45,9 @@ test_database(datasource = "dsn")
 \dontrun{
 test_database(tests = "./path/to/my.yml")
 }
-# test connection yaml file with dbtest suite -----------
+# test connection yaml file with default test suite -----------
 \dontrun{
 test_database(datasource = "./path/to/conn.yml")
 }
 
-}
-\seealso{
-test_single_database
 }

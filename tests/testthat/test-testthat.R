@@ -254,3 +254,4 @@ test_that("recovers from a bad connection state", {
 
   DBI::dbDisconnect(con)
 })
+
