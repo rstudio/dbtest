@@ -277,6 +277,10 @@ test_that("wildcard match test", {
   skip("TODO: write test")
 })
 
-test_that("wildcard match all fails", {
+test_that("wildcard match all does nothing", {
+  skip("TODO: write test")
+})
+
+test_that("handles multiple skip files", {
   skip("TODO: write test")
 })
