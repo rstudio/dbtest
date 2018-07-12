@@ -19,6 +19,9 @@ append.  Defaults to FALSE}
 \item{comparison}{optional The type of comparison to use for filter
 when creating the test.  Currently ignored}
 }
+\value{
+The input filename
+}
 \description{
 A utility to make writing tests a bit easier
 and more reproducible

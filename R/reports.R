@@ -127,7 +127,8 @@ plot_tests <- function(results) {
           ggtitle(label = .x$testfile[[1]]) +
           geom_tile(aes(x = filler, y = justverb, fill = result), color = "black") +
           scale_fill_manual(values = c(Passed = "#4dac26"
-                                       , Failed = "#d01c8b")) +
+                                       , Failed = "#d01c8b"
+                                       , Skipped = "#f7f7f7")) +
           facet_grid(context ~ connection, scales = "free") +
           labs(x = "", y = "")
           )
@@ -141,24 +142,29 @@ plot_summary <- function(results) {
   agg_dataset <- dataset %>%
     group_by(connection, testfile, result) %>%
     summarize(count = n()) %>%
-    mutate(total = sum(count)
-           , pct = count / total
-           ) %>%
     ungroup() %>%
-    # show only Passed
     group_by(connection, testfile) %>%
-    summarize(pct = max(case_when(result == "Passed" ~ pct, TRUE ~ 0))) %>%
-    mutate(filler = "")
+    summarize(
+      pass = sum(ifelse(result == "Passed", count, 0))
+      ,fail = sum(ifelse(result == "Failed", count, 0))
+      ,skip = sum(ifelse(result == "Skipped", count, 0))
+      ) %>%
+    mutate(
+      score = ifelse(pass + fail == 0, 0, (pass - fail) / (pass + fail))
+      , label = paste(pass, fail, skip, sep = " / ")
+      , filler = ""
+      )
 
   plot <- agg_dataset %>%
     ggplot() +
-    ggtitle(label = "Test Summary") +
-    geom_tile(aes(x = filler, y = testfile, fill = pct), color = "black") +
+    ggtitle(label = "Test Summary", subtitle = "PASS / FAIL / SKIP") +
+    geom_tile(aes(x = filler, y = testfile, fill = score), color = "black") +
+    geom_text(aes(x = filler, y = testfile, label = label)) +
     scale_fill_gradient2(
       low = "#d01c8b"
       , mid = "#f7f7f7"
       , high = "#4dac26"
-      , midpoint = 0.5
+      , midpoint = 0
       ) +
     facet_grid( ~ connection, scales = "free") +
     labs(x = "", y = "")
@@ -177,7 +183,11 @@ plot_prep_helper <- function(results){
   }
   dataset <- prep_results %>%
     mutate(
-      result = ifelse(results.failed == 1 | results.error, "Failed", "Passed"),
+      result = case_when(
+        results.skipped ~ "Skipped"
+        , results.failed == 1 | results.error ~ "Failed"
+        , TRUE ~ "Passed"
+      ),
       test = paste0(results.test, "\n", results.context),
       filler = "",
       justverb = sub("\\:\\ .*$", "", x = results.test)
@@ -227,3 +237,99 @@ print_interactive.default <- function(.obj, .interactive = interactive()){
   invisible(.obj)
 }
 
+
+#' Get dbtest Detail
+#'
+#' Retrieve test details from a list of dbtest_results objects.
+#' Returns a much more natural object to work with than nested lists
+#' and enables more easily surfacing the _reasons_ that tests
+#' failed.
+#'
+#' @param .obj The dbtest_results object (or a list of such objects) to get detail for
+#' @param db optional The database label to filter by
+#' @param file optional The test file to filter by
+#' @param context optional The test context to filter by
+#' @param verb optional The verb to filter by
+#'
+#' @return A tibble with test details (and stack traces)
+#'
+#' @export
+get_dbtest_detail <- function(.obj, db = NULL, file = NULL, context = NULL, verb = NULL) {
+
+  get_dbs <- lapply(.obj, function(x, db){
+    if (x[["connection"]] == db || is.null(db)) {
+      return(x)
+    } else {
+      return(NULL)
+    }}, db = db)
+
+  db_names <- as.character(lapply(get_dbs, function(x){x[["connection"]]}))
+  detail <- lapply(
+    get_dbs
+    , function(x, file, context, verb){
+      get_testthat_detail(x[["results"]]
+                          , file = file
+                          , context = context
+                          , verb = verb
+                          )
+    }
+    , file = file, context = context, verb = verb
+  )
+
+  present_detail <- set_names(detail, db_names)
+  pretty_output <- mapply(
+   function(x, name){
+     x %>%
+       tibble::tibble(
+         test = names(.)
+         , alt = .
+       ) %>%
+       dplyr::mutate(alt2 = as.character(lapply(alt, function(x){x[[1]][[1]]}))) %>%
+       dplyr::select(
+         test
+         , !!!set_names("alt2", name)
+         , !!!set_names("alt",paste0(name,"_raw"))
+       )
+     }
+   , x = present_detail
+   , name = as.list(names(present_detail))
+   , SIMPLIFY = FALSE
+   ) %>%
+   purrr::reduce(dplyr::left_join, by = "test")
+
+  return(pretty_output)
+}
+
+
+get_testthat_detail <- function(.obj, file = NULL, context = NULL, verb = NULL) {
+
+  res <- lapply(.obj, filter_testthat_results
+         , file = file
+         , context = context
+         , verb = verb
+         )
+  res <- res[!as.logical(lapply(res, is.null))]
+
+  res_test <- as.character(lapply(res, function(x){x[["test"]]}))
+  res_verb <- sub("\\:\\ .*$", "", x = res_test)
+  res_vector <- sub("^.*\\:\\ ", "", x = res_test)
+
+  res_detail <- lapply(res, function(x){x[["results"]]})
+
+  return(
+    set_names(res_detail, res_test)
+    )
+}
+
+
+filter_testthat_results <- function(.obj, file = NULL, context = NULL, verb = NULL) {
+  if (
+    (.obj[["file"]] == file || is.null(file)) &&
+    (.obj[["context"]] == context || is.null(context)) &&
+    (sub("\\:\\ .*$", "", x = .obj[["test"]]) == verb || is.null(verb))
+  ) {
+    return(.obj)
+  } else {
+    return(NULL)
+  }
+}

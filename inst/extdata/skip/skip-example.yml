@@ -1,0 +1,40 @@
+- text: not currently implemented
+  db: pg
+  file: logical-control
+  context: pmin
+  test:
+    - summarize
+    - mutate
+
+- text: not currently implemented
+  db: pg
+  file: logical-control
+  context: pmax
+  test:
+    - summarize
+    - mutate
+
+- text: not currently implemented
+  db: pg
+  file: logical-control
+  context: ifelse
+
+- text: not currently implemented
+  db: oracle
+  context: desc
+
+- text: skip a whole row
+  file: logical-control
+  context: c
+  test:
+    - summarize
+
+- text: skip many rows together
+  file: logical-control
+  context: pmax_local
+
+- text: skip entire db
+  file: logical-control
+  db: mssql
+
+- text: empty test does nothing

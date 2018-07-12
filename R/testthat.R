@@ -1,6 +1,6 @@
 #' @title Test Database
 #'
-#' @description A wrapper around `test_sigle_database` that iterates over multiple datasources
+#' @description A test executor that iterates over multiple datasources
 #' and executes the testing suite on each.  Output is organized in such a way as to
 #' give nice, consolidated results.
 #'
@@ -10,16 +10,17 @@
 #' `dbConnect` as-is
 #' @param tests optional  A character vector of yaml tests to execute.
 #' References `dbtest` test suite by default
+#' @param skip optional The path to one or more YAML files that will
+#' be used to skip tests
+#' @param ... Additional parameters passed on to methods
 #' @param return_list optional Whether to return a list of `dbtest_results` objects. Defaults
 #' to TRUE.  Provide FALSE if you desire a single database test to return a `dbtest_results`
 #' object directly.
 #'
 #' @return Returns a list of lists containing the respective datasource labels and testthat output
 #'
-#' @seealso test_single_database
-#'
 #' @examples
-#' # test all dsns with dbtest suite -----------------------
+#' # test all dsns with default test suite -----------------------
 #' \dontrun{
 #' test_database(datasource = "dsn")
 #' }
@@ -27,13 +28,13 @@
 #' \dontrun{
 #' test_database(tests = "./path/to/my.yml")
 #' }
-#' # test connection yaml file with dbtest suite -----------
+#' # test connection yaml file with default test suite -----------
 #' \dontrun{
 #' test_database(datasource = "./path/to/conn.yml")
 #' }
 #'
 #' @export
-test_database <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   UseMethod("test_database", datasource)
 }
 
@@ -45,13 +46,15 @@ test_databases <- function(datasource = NULL, tests = pkg_test()) {
 }
 
 #' @export
-test_database.list <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.list <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("LIST")
-  lapply(datasource, test_database, tests = tests, return_list = FALSE)
+  if (!return_list)
+    warning("return_list = FALSE has no effect for list objects")
+  lapply(datasource, test_database, tests = tests, skip = skip, return_list = FALSE)
 }
 
 #' @export
-test_database.character <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.character <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("CHARACTER")
 
   config_check <- tolower(path_ext(datasource)) %in% c("yml","yaml")
@@ -83,7 +86,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
           test_output <- withRestarts({
           tryCatch({
             con <- do.call(DBI::dbConnect, args = curr)
-            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
+            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
             DBI::dbDisconnect(con)
             invisible(test_output)
           }, error = function(e){message(e); invokeRestart("fail_tests"
@@ -126,7 +129,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
             test_output <- withRestarts({
               tryCatch({
                 con <- DBI::dbConnect(odbc::odbc(), .x)
-                test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests)
+                test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
                 DBI::dbDisconnect(con)
                 invisible(test_output)
               }, error = function(e){
@@ -147,7 +150,7 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), retur
 }
 
 #' @export
-test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("DBI")
   test_output <- withRestarts({
     tryCatch({
@@ -155,6 +158,7 @@ test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), r
         datasource = datasource
         , tests = tests
         , label = class(datasource)[[1]]
+        , skip = skip
         )
       invisible(output)
     }, error = function(e){
@@ -176,7 +180,7 @@ test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), r
 }
 
 #' @export
-test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_list = TRUE) {
+test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("TBL_SQL")
   test_output <- withRestarts({
     tryCatch({
@@ -184,6 +188,7 @@ test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), return_
         datasource = datasource
         , tests = tests
         , label = datasource[["ops"]][["x"]]
+        , skip = skip
         )
       invisible(output)
     }, error = function(e){
@@ -242,7 +247,7 @@ cleanup_connection <- function(con, verbose = FALSE){
   invisible(con)
 }
 
-test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, fail = NULL) {
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip = NULL, fail = NULL) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
@@ -252,6 +257,13 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
       , ListReporter$new()
     )
   )
+
+  if (is.null(label) & isS4(datasource)) {
+    label <- class(datasource)[1]
+  }
+  if (is.null(label) & "tbl_sql" %in% class(datasource)) {
+    label <- class(remote_con(datasource))[1]
+  }
 
   r <- with_reporter(
     reporter, {
@@ -266,14 +278,21 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
                 })
             )
           ]
+
+          filename <- path_ext_remove(path_file(.x))
           # set test filename
           if (length(lr) > 0) {
-            lr[[1]]$start_file(path_ext_remove(path_file(.x)))
+            lr[[1]]$start_file(filename)
           }
+
+          skip_data <- read_skip_data(skip)
 
           testthat_database(
             datasource = datasource,
             tests = .x,
+            label = label,
+            filename = filename,
+            skip_data = skip_data,
             fail = fail
           )
         }
@@ -281,12 +300,6 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
     }
   )
 
-  if (is.null(label) & isS4(datasource)) {
-    label <- class(datasource)[1]
-  }
-  if (is.null(label) & "tbl_sql" %in% class(datasource)) {
-    label <- class(remote_con(datasource))[1]
-  }
 
 
   df <- structure(
@@ -301,7 +314,13 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
     as_dbtest_results()
 }
 
-testthat_database <- function(datasource, tests = pkg_test(), fail = NULL) {
+testthat_database <- function(datasource
+                              , tests = pkg_test()
+                              , label = NULL
+                              , filename = NULL
+                              , skip_data = NULL
+                              , fail = NULL
+                              ) {
 
   # Load test scripts from YAML format
   if (class(tests) == "character") tests <- read_yaml(tests)
@@ -325,8 +344,38 @@ testthat_database <- function(datasource, tests = pkg_test(), fail = NULL) {
     )
   }
 
-  # Create a testing function that lives inside the new testthat env
-  run_test <- function(verb, vector_expression, fail_msg = NULL) {
+  # dplyr test orchestrator
+  tests %>%
+    map(~ {
+      curr_test <- .x
+      context(names(curr_test))
+      curr_test %>%
+        flatten() %>%
+        map2(
+          names(.)
+          , ~ run_test(.y
+                       , .x
+                       , local_df = local_df
+                       , remote_df = remote_df
+                       , label = label
+                       , filename = filename
+                       , context = names(curr_test)
+                       , skip_data = skip_data
+                       )
+        )
+    })
+}
+
+  run_test <- function(verb
+                       , vector_expression
+                       , local_df
+                       , remote_df
+                       , label = NULL
+                       , filename = NULL
+                       , context = NULL
+                       , skip_data = NULL
+                       , fail_msg = NULL
+                       ) {
     f <- parse_expr(vector_expression)
 
     if (verb %in% c("summarise", "summarize")) manip <- . %>% summarise(!!f) %>% pull()
@@ -341,7 +390,7 @@ testthat_database <- function(datasource, tests = pkg_test(), fail = NULL) {
     if (verb == "filter") manip <- . %>% filter(!!f) %>% pull()
     if (verb == "group_by") manip <- . %>% group_by(!!f) %>% summarise() %>% pull() %>% sort()
 
-    integer64_fix <- function(x){if(is.integer64(x)){return(as.integer(x))} else {return(x)}}
+
     test_that(paste0(verb, ": ", vector_expression), {
 
       if (!is.null(fail_msg)){
@@ -349,6 +398,34 @@ testthat_database <- function(datasource, tests = pkg_test(), fail = NULL) {
         stop(fail_msg)
       }
       invisible({
+
+        # check for skipping this test
+        match_skip <- which(
+          as.logical(
+            lapply(
+              skip_data
+              , function(x){
+                  (label %in% x[["db"]] || is.null(x[["db"]])) &&
+                  (filename %in% x[["file"]] || is.null(x[["file"]])) &&
+                  (context %in% x[["context"]] || is.null(x[["context"]])) &&
+                  ( verb %in% x[["test"]] || is.null(x[["test"]])) &&
+                  # do not skip if all four are null
+                  !(
+                    is.null(x[["db"]])
+                    && is.null(x[["file"]])
+                    && is.null(x[["context"]])
+                    && is.null(x[["test"]])
+                    )
+                }
+              )
+            )
+          )
+        if (any(match_skip)){
+          # take the first skip that matches
+          skip(skip_data[[match_skip[[1]]]][["text"]])
+        }
+
+
         expect_equal(
           manip(local_df),
           manip(remote_df) %>%
