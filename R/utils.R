@@ -46,6 +46,8 @@ pkg_skip <- function(file = "skip-example.yml") {
 #' @param comparison optional The type of comparison to use for filter
 #' when creating the test.  Currently ignored
 #'
+#' @return The input filename
+#'
 #' @export
 write_test <- function(
                        file
