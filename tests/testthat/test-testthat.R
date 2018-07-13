@@ -164,7 +164,12 @@ test_that("works with a list of DSNs", {
 })
 
 test_that("throws out non-existent DSNs", {
-  skip("TODO: need to write test")
+  expect_warning(
+    test_database("some-random-dsn-that-does-not-exist"
+                  , tests = pkg_test()
+                  )
+    , "The following DSNs were not found and will be removed"
+  )
 })
 
 test_that("works with a hybrid list of objects", {
