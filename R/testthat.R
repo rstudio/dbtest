@@ -39,13 +39,6 @@ test_database <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..
 }
 
 #' @export
-#' @rdname test_database
-test_databases <- function(datasource = NULL, tests = pkg_test()) {
-  .Deprecated("test_database", "dbtest")
-  test_database(datasource = datasource, tests = tests, return_list = FALSE)
-}
-
-#' @export
 test_database.list <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("LIST")
   if (!return_list)
@@ -209,33 +202,6 @@ test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), skip = 
   }
 }
 
-
-#' @title Test Single Database
-#'
-#' @description Run a single datasource through the testing suite.  Typically, this
-#' object would be a connection or a `tbl_sql`
-#'
-#' @param datasource The datasource to test against.  Either a DBI connection or a tbl_sql
-#' @param tests optional A character vector of yaml tests to execute.
-#' References `dbtest` test suite by default
-#' @param label optional The label to give the test.  If not provided, one will be generated
-#'
-#' @return A list object with the label and testthat results
-#'
-#' @examples
-#'
-#' \dontrun{
-#' con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-#' res <- test_single_database(con, pkg_test("simple-tests.yml"))
-#' DBI::dbDisconnect(con)
-#' }
-#'
-#' @seealso test_database
-#' @export
-test_single_database <- function(datasource, tests = pkg_test(), label = NULL) {
-  .Deprecated("test_database", package = "dbtest")
-  test_single_database_impl(datasource = datasource, tests = tests, label = label)
-}
 
 cleanup_connection <- function(con, verbose = FALSE){
   tryCatch({
