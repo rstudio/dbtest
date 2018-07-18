@@ -83,9 +83,21 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), skip 
         suppressWarnings(cfg <- config::get(file = .x))
         names(cfg) %>% map(~{
           curr <- flatten(cfg[.x])
-          con <- do.call(DBI::dbConnect, args = curr)
-          test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
-          DBI::dbDisconnect(con)
+          test_output <- withRestarts({
+          tryCatch({
+            con <- do.call(DBI::dbConnect, args = curr)
+            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
+            DBI::dbDisconnect(con)
+            invisible(test_output)
+          }, error = function(e){message(e); invokeRestart("fail_tests"
+                                                           , msg = e
+                                                           , label = .x
+                                                           , tests = tests
+                                                           )}
+          )
+          }
+          , fail_tests = force_failed_tests)
+
           test_output
         })
       })
@@ -114,9 +126,20 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), skip 
       non_config_output <- non_config_dsns %>%
         map(
           ~ {
-            con <- DBI::dbConnect(odbc::odbc(), .x)
-            test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
-            DBI::dbDisconnect(con)
+            test_output <- withRestarts({
+              tryCatch({
+                con <- DBI::dbConnect(odbc::odbc(), .x)
+                test_output <- test_single_database_impl(datasource = con, label = .x, tests = tests, skip = skip)
+                DBI::dbDisconnect(con)
+                invisible(test_output)
+              }, error = function(e){
+                message(e);
+                invokeRestart("fail_tests"
+                              , msg = e
+                              , label = .x
+                              , tests = tests)
+              })
+            }, fail_tests = force_failed_tests)
             test_output
           }
       )
@@ -129,19 +152,55 @@ test_database.character <- function(datasource = NULL, tests = pkg_test(), skip 
 #' @export
 test_database.DBIConnection <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("DBI")
-  output <- test_single_database_impl(datasource = datasource, tests = tests, label = class(datasource)[[1]], skip = skip)
+  test_output <- withRestarts({
+    tryCatch({
+      output <- test_single_database_impl(
+        datasource = datasource
+        , tests = tests
+        , label = class(datasource)[[1]]
+        , skip = skip
+        )
+      invisible(output)
+    }, error = function(e){
+      message(e);
+      invokeRestart(
+        "fail_tests"
+        , msg = e
+        , tests = tests
+        , label = label
+      )
+      })
+  }, fail_tests = force_failed_tests)
 
   if (return_list) {
-    return(list(output))
+    return(list(test_output))
   } else {
-    return(output)
+    return(test_output)
   }
 }
 
 #' @export
 test_database.tbl_sql <- function(datasource = NULL, tests = pkg_test(), skip = NULL, ..., return_list = TRUE) {
   message("TBL_SQL")
-  output <- test_single_database_impl(datasource = datasource, tests = tests, label = datasource[["ops"]][["x"]], skip = skip)
+  test_output <- withRestarts({
+    tryCatch({
+      output <- test_single_database_impl(
+        datasource = datasource
+        , tests = tests
+        , label = datasource[["ops"]][["x"]]
+        , skip = skip
+        )
+      invisible(output)
+    }, error = function(e){
+      message(e);
+      invokeRestart(
+        "fail_tests"
+        , msg = e
+        , tests = tests
+        , label = label
+      )
+    })
+  }, "fail_tests" = force_failed_tests)
 
   if (return_list) {
     return(list(output))
@@ -188,9 +247,7 @@ cleanup_connection <- function(con, verbose = FALSE){
   invisible(con)
 }
 
-
-
-test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip = NULL) {
+test_single_database_impl <- function(datasource, tests = pkg_test(), label = NULL, skip = NULL, fail = NULL) {
   if (is.character(datasource)) {
     stop("Character values for `datasource` are not accepted for `test_single_database_impl`")
   }
@@ -235,7 +292,8 @@ test_single_database_impl <- function(datasource, tests = pkg_test(), label = NU
             tests = .x,
             label = label,
             filename = filename,
-            skip_data = skip_data
+            skip_data = skip_data,
+            fail = fail
           )
         }
       )
@@ -261,6 +319,7 @@ testthat_database <- function(datasource
                               , label = NULL
                               , filename = NULL
                               , skip_data = NULL
+                              , fail = NULL
                               ) {
 
   # Load test scripts from YAML format
@@ -279,9 +338,11 @@ testthat_database <- function(datasource
     remote_df <- head(datasource, 1000)
     local_df <- collect(remote_df)
   }
-  stopifnot(
-    inherits(remote_df, "tbl_sql")
-  )
+  if (is.null(fail)){
+    stopifnot(
+      inherits(remote_df, "tbl_sql")
+    )
+  }
 
   # dplyr test orchestrator
   tests %>%
@@ -300,6 +361,7 @@ testthat_database <- function(datasource
                        , filename = filename
                        , context = names(curr_test)
                        , skip_data = skip_data
+                       , fail_msg = fail
                        )
         )
     })
@@ -313,6 +375,7 @@ testthat_database <- function(datasource
                        , filename = NULL
                        , context = NULL
                        , skip_data = NULL
+                       , fail_msg = NULL
                        ) {
     f <- parse_expr(vector_expression)
 
@@ -330,6 +393,11 @@ testthat_database <- function(datasource
 
 
     test_that(paste0(verb, ": ", vector_expression), {
+
+      if (!is.null(fail_msg)){
+        #testthat::fail(fail_msg)
+        stop(fail_msg)
+      }
       invisible({
 
         # check for skipping this test
@@ -368,10 +436,3 @@ testthat_database <- function(datasource
     })
   }
 
-integer64_fix <- function(x){
-  if(is.integer64(x)){
-    return(as.integer(x))
-  } else {
-      return(x)
-  }
-  }

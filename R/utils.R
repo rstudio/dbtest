@@ -306,6 +306,17 @@ build_remote_tbl <- function(
   return(output)
 }
 
+force_failed_tests <- function(msg, label, tests) {
+  return(
+    test_single_database_impl(
+      datasource = NULL
+      , tests = tests
+      , label = label
+      , fail = msg
+    )
+  )
+}
+
 safe_read_yaml <- function(file) {
   if (fs::file_exists(file)) {
     return(yaml::read_yaml(file))
@@ -324,5 +335,13 @@ read_skip_data <- function(file) {
         , recursive = FALSE
       )
     )
+  }
+}
+
+integer64_fix <- function(x){
+  if(is.integer64(x)){
+    return(as.integer(x))
+  } else {
+    return(x)
   }
 }
