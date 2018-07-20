@@ -4,17 +4,23 @@
 \name{testdata}
 \alias{testdata}
 \title{Test Data}
-\format{A data frame with 10 rows and 9 columns:
+\format{A data frame with 20 rows and 15 columns:
 \describe{
+  \item{fld_binary}{A field with 1s or 0s}
   \item{fld_factor}{A field with values in "a","b","c"}
   \item{fld_datetime}{A field with datetime values}
+  \item{fld_datetime_utc}{A field with UTC datetime values}
   \item{fld_date}{A field with date values}
   \item{fld_time}{A field with time values}
-  \item{fld_binary}{A field with 1s or 0s}
   \item{fld_integer}{A field with integer values}
+  \item{fld_integer_alt}{A field with other integer values}
   \item{fld_double}{A field with double precision values}
+  \item{fld_double_alt}{A field with other double precision values}
   \item{fld_character}{A field with character values}
+  \item{fld_character_lead_trail_whitespace}{A field with character values, as well as leading and trailing whitespace}
+  \item{fld_character_symbol}{A field with character values that are symbols}
   \item{fld_logical}{A field with logical values}
+  \item{fld_logical_alt}{A field with other logical values}
 }}
 \usage{
 testdata
