@@ -2,13 +2,10 @@
 % Please edit documentation in R/testthat.R
 \name{test_database}
 \alias{test_database}
-\alias{test_databases}
 \title{Test Database}
 \usage{
 test_database(datasource = NULL, tests = pkg_test(), skip = NULL, ...,
   return_list = TRUE)
-
-test_databases(datasource = NULL, tests = pkg_test())
 }
 \arguments{
 \item{datasource}{optional Defaults to using a SQLite database.  Pass "dsn" to use

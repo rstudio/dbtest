@@ -1,7 +1,7 @@
 Package: dbtest
 Type: Package
 Title: Test automation for dbplyr SQL translation
-Version: 0.1.0.9000
+Version: 0.0.0.9000
 Authors@R: c(
     person("Edgar", "Ruiz", ,"edgar@rstudio.com", role = c("aut", "cre")),
     person("Cole", "Arendt", ,"cole@rstudio.com", role = "aut"),

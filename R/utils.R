@@ -231,8 +231,13 @@ new_character_col <- function(numrow = 10
                               , charset = c(LETTERS, tolower(LETTERS))
                               , maxlength = 20
                               , minlength = 1) {
-  as.character(lapply(1:numrow
-    , new_character
+  as.character(lapply(as.list(1:numrow)
+    , function(i, charset, maxlength, minlength){
+      new_character(charset = charset
+                    , maxlength = maxlength
+                    , minlength = minlength
+                    )
+    }
     , charset = charset
     , maxlength = maxlength
     , minlength = minlength
